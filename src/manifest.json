@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "SassyNic",
+  "version": "1.0",
+  "desscription": "This extension will make your enrolling process using clic easier",
+  "action": {
+    "default_popup": "./popup/popup.html",
+    "default_icon": {
+      "16": "./images/icon16.png",
+      "48": "./images/icon48.png",
+      "128": "./images/icon128.png"
+    }
+  },
+  "permissions": ["activeTab", "scripting"],
+  "background": {
+    "service_worker": "./background/background.js"
+  }
+}
