@@ -1,92 +1,104 @@
+/**
+ * 1. fix step 5 logic (find correct semester, maybe create an input in popup window for user to input before starting?)
+ * 2. iteration based on step 2 (from 'ps_grid-cell COURSES' to get iteration value and just do increment on each iteration at step 3)
+ */
+
 document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('executeAllButton').addEventListener('click', async () => {
     const tabs = await chrome.tabs.query({active: true, currentWindow: true});
     const tabId = tabs[0].id;
 
     try {
-      // Step 1: Trigger Additional OnClick
-      await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: triggerAdditionalOnClick,
-        }
-      );
+      for (let i = 0; i < 6; i++) {
+        // Step 1: Trigger Additional OnClick
+        await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: triggerAdditionalOnClick,
+          }
+        );
 
-      // Wait for 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Step 2: Trigger Row OnClick
-      await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: triggerRowOnClick,
-        }
-      );
+        // Step 2: Trigger Row OnClick
+        await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: triggerRowOnClick,
+          }
+        );
 
-      // Wait for 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Step 3: Trigger OnClick and Show Status
-      await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: triggerOnClick,
-        }
-      );
+        // Step 3: Trigger OnClick and Show Status
+        await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: triggerOnClick,
+            args: [i],
+          }
+        );
 
-      // Wait for 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        // Wait for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Step 4: Get the updated status
-      const statusResults = await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          func: getStatus,
-        }
-      );
-      const status = statusResults[0].result;
-      document.getElementById('tableContainer').innerText = status;
+        // Step 4: Get the updated status
+        const statusResults = await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            func: getStatus,
+          }
+        );
 
-      // Wait for 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        const status = statusResults[0].result;
+        document.getElementById('tableContainer').innerText = status;
 
-      // Step 5: Trigger Span OnClick
-      await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: triggerSpanOnClick,
-        }
-      );
+        // Wait for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Wait for 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        // Step 5: Trigger Span OnClick
+        await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: triggerSpanOnClick,
+          }
+        );
 
-      // Step 6: Trigger New Span OnClick
-      await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: triggerNewSpanOnClick,
-        }
-      );
+        // Wait for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      // Wait for 2 seconds
-      await new Promise(resolve => setTimeout(resolve, 2000));
+        // Step 6: Trigger New Span OnClick
+        await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: triggerNewSpanOnClick,
+          }
+        );
 
-      // Step 7: Extract Class Options Table
-      const tableResults = await chrome.scripting.executeScript(
-        {
-          target: {tabId: tabId},
-          func: extractClassOptionsTable,
-        }
-      );
+        // Wait for 2 seconds
+        await new Promise(resolve => setTimeout(resolve, 2000));
 
-      const data = tableResults[0].result;
-      renderTable(data);
+        // Step 7: Extract Class Options Table
+        const tableResults = await chrome.scripting.executeScript(
+          {
+            target: {tabId: tabId},
+            func: extractClassOptionsTable,
+          }
+        );
+
+        const data = tableResults[0].result;
+        renderTable(data);
+
+        // Wait for 2 seconds before next iteration
+        await new Promise(resolve => setTimeout(resolve, 2000));
+      }
 
     } catch (error) {
       console.error(error);
@@ -128,29 +140,10 @@ function renderTable(data) {
   tableContainer.appendChild(table);
 }
 
-function triggerAdditionalOnClick() {
-  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
-  for (let liElement of liElements) {
-    const spanText = liElement.querySelector("span.ps-text");
-    if (spanText && spanText.textContent.trim() === "Planner") {
-      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
-      liElement.dispatchEvent(event);
-      break;
-    }
-  }
-}
-
-function triggerRowOnClick() {
-  const row = document.querySelector("tr[id^='PLANNER_NFF']");
+function triggerOnClick(index) {
+  const row = document.querySelector(`tr[id='PLANNER_ITEMS_NFF$0_row_${index}']`);
   if (row && typeof OnRowAction === 'function') {
-    OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
-  }
-}
-
-function triggerOnClick() {
-  const row = document.querySelector("tr[id='PLANNER_ITEMS_NFF$0_row_0']");
-  if (row && typeof OnRowAction === 'function') {
-    OnRowAction(row, 'SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$0');
+    OnRowAction(row, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${index}`);
   }
 }
 
@@ -198,4 +191,23 @@ function extractClassOptionsTable() {
     data.push(row);
   });
   return { headers: headers, rows: data };
+}
+
+function triggerAdditionalOnClick() {
+  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
+  for (let liElement of liElements) {
+    const spanText = liElement.querySelector("span.ps-text");
+    if (spanText && spanText.textContent.trim() === "Planner") {
+      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+      liElement.dispatchEvent(event);
+      break;
+    }
+  }
+}
+
+function triggerRowOnClick() {
+  const row = document.querySelector("tr[id^='PLANNER_NFF']");
+  if (row && typeof OnRowAction === 'function') {
+    OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
+  }
 }
