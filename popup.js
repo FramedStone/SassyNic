@@ -3,67 +3,149 @@ document.addEventListener('DOMContentLoaded', function() {
     const tabs = await chrome.tabs.query({active: true, currentWindow: true});
     const tabId = tabs[0].id;
 
-    // Step 1: Trigger OnClick and Show Status
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: triggerOnClick,
-      }
-    );
+    try {
+      // Step 1: Trigger Additional OnClick
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerAdditionalOnClick,
+        }
+      );
 
-    // Wait for 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
+      // Wait for 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const statusResults = await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        func: getStatus,
-      }
-    );
+      // Step 2: Trigger Row OnClick
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerRowOnClick,
+        }
+      );
 
-    const status = statusResults[0].result;
-    document.getElementById('tableContainer').innerText = status;
+      // Wait for 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Wait for 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
+      // Step 3: Trigger OnClick and Show Status
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerOnClick,
+        }
+      );
 
-    // Step 2: Trigger Span OnClick
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: triggerSpanOnClick,
-      }
-    );
+      // Wait for 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Wait for 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
+      // Step 4: Get the updated status
+      const statusResults = await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          func: getStatus,
+        }
+      );
+      const status = statusResults[0].result;
+      document.getElementById('tableContainer').innerText = status;
 
-    // Step 3: Trigger New Span OnClick
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: triggerNewSpanOnClick,
-      }
-    );
+      // Wait for 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    // Wait for 2 seconds
-    await new Promise(resolve => setTimeout(resolve, 2000));
+      // Step 5: Trigger Span OnClick
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerSpanOnClick,
+        }
+      );
 
-    // Step 4: Extract Class Options Table
-    const tableResults = await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        func: extractClassOptionsTable,
-      }
-    );
+      // Wait for 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
 
-    const data = tableResults[0].result;
-    renderTable(data);
+      // Step 6: Trigger New Span OnClick
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerNewSpanOnClick,
+        }
+      );
+
+      // Wait for 2 seconds
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Step 7: Extract Class Options Table
+      const tableResults = await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          func: extractClassOptionsTable,
+        }
+      );
+
+      const data = tableResults[0].result;
+      renderTable(data);
+
+    } catch (error) {
+      console.error(error);
+      document.getElementById('tableContainer').innerText = 'An error occurred: ' + error.message;
+    }
   });
 });
+
+function renderTable(data) {
+  if (!data) {
+    document.getElementById('tableContainer').innerText = 'Table not found.';
+    return;
+  }
+  const tableContainer = document.getElementById('tableContainer');
+  tableContainer.innerHTML = '';
+  const table = document.createElement('table');
+  table.style.width = '100%';
+  table.border = '1';
+  const thead = document.createElement('thead');
+  const headerRow = document.createElement('tr');
+  data.headers.forEach((header) => {
+    const th = document.createElement('th');
+    th.textContent = header;
+    headerRow.appendChild(th);
+  });
+  thead.appendChild(headerRow);
+  table.appendChild(thead);
+  const tbody = document.createElement('tbody');
+  data.rows.forEach((rowData) => {
+    const row = document.createElement('tr');
+    rowData.forEach((cellData) => {
+      const td = document.createElement('td');
+      td.textContent = cellData;
+      row.appendChild(td);
+    });
+    tbody.appendChild(row);
+  });
+  table.appendChild(tbody);
+  tableContainer.appendChild(table);
+}
+
+function triggerAdditionalOnClick() {
+  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
+  for (let liElement of liElements) {
+    const spanText = liElement.querySelector("span.ps-text");
+    if (spanText && spanText.textContent.trim() === "Planner") {
+      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+      liElement.dispatchEvent(event);
+      break;
+    }
+  }
+}
+
+function triggerRowOnClick() {
+  const row = document.querySelector("tr[id^='PLANNER_NFF']");
+  if (row && typeof OnRowAction === 'function') {
+    OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
+  }
+}
 
 function triggerOnClick() {
   const row = document.querySelector("tr[id='PLANNER_ITEMS_NFF$0_row_0']");
@@ -116,37 +198,4 @@ function extractClassOptionsTable() {
     data.push(row);
   });
   return { headers: headers, rows: data };
-}
-
-function renderTable(data) {
-  if (!data) {
-    document.getElementById('tableContainer').innerText = 'Table not found.';
-    return;
-  }
-  const tableContainer = document.getElementById('tableContainer');
-  tableContainer.innerHTML = '';
-  const table = document.createElement('table');
-  table.style.width = '100%';
-  table.border = '1';
-  const thead = document.createElement('thead');
-  const headerRow = document.createElement('tr');
-  data.headers.forEach((header) => {
-    const th = document.createElement('th');
-    th.textContent = header;
-    headerRow.appendChild(th);
-  });
-  thead.appendChild(headerRow);
-  table.appendChild(thead);
-  const tbody = document.createElement('tbody');
-  data.rows.forEach((rowData) => {
-    const row = document.createElement('tr');
-    rowData.forEach((cellData) => {
-      const td = document.createElement('td');
-      td.textContent = cellData;
-      row.appendChild(td);
-    });
-    tbody.appendChild(row);
-  });
-  table.appendChild(tbody);
-  tableContainer.appendChild(table);
 }
