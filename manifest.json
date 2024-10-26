@@ -1,0 +1,13 @@
+{
+  "manifest_version": 3,
+  "name": "SassyNic",
+  "version": "1.0",
+  "description": "Provide combinations of timetable formats to choose.",
+  "permissions": ["activeTab", "scripting"],
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "background.js"
+  }
+}
