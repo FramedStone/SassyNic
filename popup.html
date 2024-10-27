@@ -1,10 +1,23 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Table Data Extractor</title>
 </head>
+
 <body>
-  <button id="executeAllButton">Execute All Actions</button>
+  <button id="btnExtract">Start Extraction</button>
+  <br><br>
+
+  <button id="killSwitchButton">Kill Switch</button>
+  <br><br>
+
+  <label for="trimesterSelect">Select Trimester:</label>
+  <select id="trimesterSelect">
+    <option value="Trimester October/November2024">Trimester October/November2024</option>
+    <option value="Trimester July/August 2024">Trimester July/August 2024</option>
+  </select>
+
   <div id="tableContainer"></div>
   <script src="popup.js"></script>
 </body>

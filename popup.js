@@ -1,111 +1,160 @@
 /**
- * 1. fix step 5 logic (find correct semester, maybe create an input in popup window for user to input before starting?)
- * 2. iteration based on step 2 (from 'ps_grid-cell COURSES' to get iteration value and just do increment on each iteration at step 3)
+ * + if found js and element then straight away call the function (await waitForElement("tr[id^='PLANNER_NFF']", tabId);)
+ * + trimester selection for users in the popup window before running
+ * + kill switch
+ * 
+ * - iteration based on step 2 (from 'ps_grid-cell COURSES' to get iteration value and just do increment on each iteration at step 3)
+ * 
+ * - database to store extracted value
+ * 
+ * - degbugging logs
  */
 
+let isTerminated = false; // flag for kill switch
+
 document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('executeAllButton').addEventListener('click', async () => {
+  document.getElementById('btnExtract').addEventListener('click', async () => {
+    
+    /**
+     * Kill Switch
+     */
+    document.getElementById('killSwitchButton').addEventListener('click', () => {
+      isTerminated = true; // Set the flag to prevent further actions
+      alert("All processes have been terminated."); // Notify the user
+    });
+
+    /**
+     * Web Scrap
+     */
     const tabs = await chrome.tabs.query({active: true, currentWindow: true});
     const tabId = tabs[0].id;
 
-    try {
-      for (let i = 0; i < 6; i++) {
-        // Step 1: Trigger Additional OnClick
-        await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            world: 'MAIN',
-            func: triggerAdditionalOnClick,
-          }
-        );
+    // Get the selected trimester from the dropdown
+    const selectedTrimester = document.getElementById('trimesterSelect').value;
 
-        // Wait for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Step 2: Trigger Row OnClick
-        await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            world: 'MAIN',
-            func: triggerRowOnClick,
-          }
-        );
-
-        // Wait for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Step 3: Trigger OnClick and Show Status
-        await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            world: 'MAIN',
-            func: triggerOnClick,
-            args: [i],
-          }
-        );
-
-        // Wait for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Step 4: Get the updated status
-        const statusResults = await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            func: getStatus,
-          }
-        );
-
-        const status = statusResults[0].result;
-        document.getElementById('tableContainer').innerText = status;
-
-        // Wait for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Step 5: Trigger Span OnClick
-        await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            world: 'MAIN',
-            func: triggerSpanOnClick,
-          }
-        );
-
-        // Wait for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Step 6: Trigger New Span OnClick
-        await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            world: 'MAIN',
-            func: triggerNewSpanOnClick,
-          }
-        );
-
-        // Wait for 2 seconds
-        await new Promise(resolve => setTimeout(resolve, 2000));
-
-        // Step 7: Extract Class Options Table
-        const tableResults = await chrome.scripting.executeScript(
-          {
-            target: {tabId: tabId},
-            func: extractClassOptionsTable,
-          }
-        );
-
-        const data = tableResults[0].result;
-        renderTable(data);
-
-        // Wait for 2 seconds before next iteration
-        await new Promise(resolve => setTimeout(resolve, 2000));
+    // Step 1: Trigger 'Planner' using 'MouseEvent'
+    await chrome.scripting.executeScript(
+      {
+        target: {tabId: tabId},
+        world: 'MAIN',
+        func: clickPlanner,
       }
+    );
 
-    } catch (error) {
-      console.error(error);
-      document.getElementById('tableContainer').innerText = 'An error occurred: ' + error.message;
+    // wait for 'Terms' elements to show up
+    await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+    if (isTerminated) {
+      alert("All processes have been terminated. Please reset to run again.");
+      return;
     }
+
+    // Step 2: Trigger 'Trimester' under 'Terms' by calling its 'onClick' JavaScript
+    await chrome.scripting.executeScript(
+      {
+        target: {tabId: tabId},
+        world: 'MAIN',
+        func: triggerTrimester,
+      }
+    );
+
+    /**
+     * wait for 'Trimester Course Details' elements to show up
+     * @param index_courseTotal - total number of 'Courses'
+     */
+    await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${4}']`, tabId);
+    if (isTerminated) {
+      alert("All processes have been terminated. Please reset to run again.");
+      return;
+    }
+
+    // Step 3: Trigger 'Course' details row under 'Terms' by calling its 'onClick' JavaScript
+    await chrome.scripting.executeScript(
+      {
+        target: {tabId: tabId},
+        world: 'MAIN',
+        func: triggerCourseDetails,
+        args: [4],
+      }
+    );
+
+    // wait for 'View Classes' button element to show up 
+    // !! use '\' to correctly specify id !!
+    await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+    if (isTerminated) {
+      alert("All processes have been terminated. Please reset to run again.");
+      return;
+    }
+
+    // Step 4: Trigger 'View Classes' using 'MouseEvent'
+    await chrome.scripting.executeScript(
+      {
+        target: {tabId: tabId},
+        world: 'MAIN',
+        func: clickViewClasses,
+      }
+    );
+
+    // wait for 'Terms' selection elements to show up with selected 'Trimester'
+    await waitForElementWithText(selectedTrimester, tabId);
+    if (isTerminated) {
+      alert("All processes have been terminated. Please reset to run again.");
+      return;
+    }
+
+    // Step 5: Click associated row based on 'selectedTrimester'
+    await chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        world: 'MAIN',
+        func: clickTrimester,
+        args: [selectedTrimester],
+      }
+    );
+
+    // wait for selected 'Class Section' to show up
+    await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+    if (isTerminated) {
+      alert("All processes have been terminated. Please reset to run again.");
+      return;
+    }
+
+    // Step 6: Extract Class Options Table
+    const tableResults = await chrome.scripting.executeScript(
+      {
+        target: {tabId: tabId},
+        func: extractClassSectionDetails,
+      }
+    );
+
+    const data = tableResults[0].result;
+    renderTable(data);
   });
 });
+
+/**
+ * funciton to use 'MouseEvent' to click 'Planner'
+ */
+function clickPlanner() {
+  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
+  for (let liElement of liElements) {
+    const spanText = liElement.querySelector("span.ps-text");
+    if (spanText && spanText.textContent.trim() === "Planner") {
+      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+      liElement.dispatchEvent(event);
+      break;
+    }
+  }
+}
+
+/**
+ * function to trigger 'Trimester' section under 'Terms'
+ */
+function triggerTrimester() {
+  const row = document.querySelector("tr[id^='PLANNER_NFF']");
+  if (row && typeof OnRowAction === 'function') {
+    OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
+  }
+}
 
 function renderTable(data) {
   if (!data) {
@@ -140,37 +189,49 @@ function renderTable(data) {
   tableContainer.appendChild(table);
 }
 
-function triggerOnClick(index) {
+/**
+ * function to trigger selected 'Course Details' by index
+ * @param {*} index - total number of 'Course Details'
+ */
+function triggerCourseDetails(index) {
   const row = document.querySelector(`tr[id='PLANNER_ITEMS_NFF$0_row_${index}']`);
   if (row && typeof OnRowAction === 'function') {
     OnRowAction(row, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${index}`);
   }
 }
 
-function getStatus() {
-  const statusDiv = document.querySelector("#win4divSTATUS$0 .ps_box-htmlarea .ps-htmlarea");
-  if (!statusDiv) {
-    return 'Status not found.';
-  } else {
-    return statusDiv.innerText.trim();
-  }
-}
-
-function triggerSpanOnClick() {
+/**
+ * function to use 'MouseEvent' to click 'View Classes' button
+ */
+function clickViewClasses() {
   const anchor = document.getElementById('DERIVED_SAA_CRS_SSR_PB_GO$6$');
   if (anchor) {
-    anchor.click();
+    const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+    anchor.dispatchEvent(event);
   }
 }
 
-function triggerNewSpanOnClick() {
-  const anchor = document.getElementById('SSR_CRS_TERM_WK_SSS_TERM_LINK$17$$0');
-  if (anchor) {
-    anchor.click();
+/**
+ * Function to click associated trimester's row based on 'selectedTrimester'
+ * @param {string} expectedText - The expected text content of the element
+ */
+function clickTrimester(expectedText) {
+  const table = document.querySelector("table.ps_grid-flex[title='Current Terms']");
+  if (!table) return;
+  const links = table.querySelectorAll('span.ps-link-wrapper a.ps-link');
+  for (let link of links) {
+    if (link.textContent.trim() === expectedText) {
+      link.click();
+      break;
+    }
   }
 }
 
-function extractClassOptionsTable() {
+/**
+ * function to extract selected 'Class Section' details
+ * @returns - table format back into popup window
+ */
+function extractClassSectionDetails() {
   const table = document.querySelector("table.ps_grid-flex[title='Class Options']");
   if (!table) return null;
   const headers = [];
@@ -193,21 +254,123 @@ function extractClassOptionsTable() {
   return { headers: headers, rows: data };
 }
 
-function triggerAdditionalOnClick() {
-  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
-  for (let liElement of liElements) {
-    const spanText = liElement.querySelector("span.ps-text");
-    if (spanText && spanText.textContent.trim() === "Planner") {
-      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
-      liElement.dispatchEvent(event);
-      break;
-    }
-  }
+/**
+ * function to wait for 'new element' to spawn before proceeding
+ * @param {*} selector - CSS selector
+ * @param {*} tabId - current tabId
+ * @returns - return whether selected element has 'spawned'
+ */
+function waitForElement(selector, tabId) {
+  return new Promise((resolve, reject) => {
+    const checkExist = setInterval(() => {
+      chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          func: (selector) => {
+            return document.querySelector(selector) !== null;
+          },
+          args: [selector],
+        },
+        (results) => {
+          if (results && results[0] && results[0].result) {
+            clearInterval(checkExist);
+            resolve();
+          }
+        }
+      );
+    }, 500);
+
+    // wait for 10 seconds, return error if element not found
+    setTimeout(() => {
+      clearInterval(checkExist);
+      reject(new Error(`Element ${selector} not found within timeout`));
+    }, 10000);
+  });
 }
 
-function triggerRowOnClick() {
-  const row = document.querySelector("tr[id^='PLANNER_NFF']");
-  if (row && typeof OnRowAction === 'function') {
-    OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
-  }
+/**
+ * Function to wait for an element with specific text content to spawn before proceeding
+ * @param {string} expectedText - The text content to verify within the target element
+ * @param {number} tabId - Current tabId
+ * @returns {Promise<void>} - Resolves when the element with the expected text is found
+ */
+function waitForElementWithText(expectedText, tabId) {
+  return new Promise((resolve, reject) => {
+    const checkInterval = 500; // Interval time in milliseconds
+    const timeout = 10000; // Timeout duration in milliseconds
+    const startTime = Date.now();
+
+    const intervalId = setInterval(() => {
+      chrome.scripting.executeScript(
+        {
+          target: { tabId: tabId },
+          func: (expectedText) => {
+            const elements = document.querySelectorAll('*');
+            for (let el of elements) {
+              if (el.textContent.trim() === expectedText) {
+                return true;
+              }
+            }
+            return false;
+          },
+          args: [expectedText],
+        },
+        (results) => {
+          if (chrome.runtime.lastError) {
+            console.error('Script injection failed:', chrome.runtime.lastError);
+            clearInterval(intervalId);
+            reject(new Error('Script injection failed.'));
+            return;
+          }
+
+          const found = results && results[0] && results[0].result;
+          if (found) {
+            clearInterval(intervalId);
+            resolve();
+          } else if (Date.now() - startTime >= timeout) {
+            clearInterval(intervalId);
+            reject(new Error(`Element with text "${expectedText}" not found within timeout`));
+          }
+        }
+      );
+    }, checkInterval);
+
+    // Perform an initial check immediately
+    chrome.scripting.executeScript(
+      {
+        target: { tabId: tabId },
+        func: (expectedText) => {
+          const elements = document.querySelectorAll('*');
+          for (let el of elements) {
+            if (el.textContent.trim() === expectedText) {
+              return true;
+            }
+          }
+          return false;
+        },
+        args: [expectedText],
+      },
+      (results) => {
+        if (chrome.runtime.lastError) {
+          console.error('Script injection failed:', chrome.runtime.lastError);
+          clearInterval(intervalId);
+          reject(new Error('Script injection failed.'));
+          return;
+        }
+
+        const found = results && results[0] && results[0].result;
+        if (found) {
+          clearInterval(intervalId);
+          resolve();
+        }
+      }
+    );
+
+    // Timeout handling
+    setTimeout(() => {
+      clearInterval(intervalId);
+      reject(new Error(`Element with text "${expectedText}" not found within ${timeout}ms`));
+    }, timeout);
+  });
 }
+
