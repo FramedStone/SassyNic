@@ -112,17 +112,17 @@ document.addEventListener('DOMContentLoaded', function() {
             args: [selectedTrimester],
           }
         );
-        const clickTrimesterResult = clickTrimesterResults[0].result;
-        if (clickTrimesterResult.status === 'error') {
-          throw new Error(`Error in clickTrimester: ${clickTrimesterResult.message}`);
-        }
+        // const clickTrimesterResult = clickTrimesterResults[0].result;
+        // if (clickTrimesterResult.status === 'error') {
+        //   throw new Error(`Error in clickTrimester: ${clickTrimesterResult.message}`);
+        // }
 
         // wait for selected 'Class Section' to show up
         console.log('Waiting for Class Section to load');
         await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
         if (isTerminated) return;
 
-        // Step 6: Extract Class Options Table
+        // Step 6: Extract Class Options Table + Render
         console.log('Executing extractClassSectionDetails');
         const tableResults = await chrome.scripting.executeScript(
           {
@@ -134,11 +134,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tableResult.status === 'error') {
           throw new Error(`Error in extractClassSectionDetails: ${tableResult.message}`);
         }
-        const data = { headers: tableResult.headers, rows: tableResult.rows };
-        console.log('Rendering extracted data');
-        renderTable(data);
       }
-
       alert("Extraction completed.");
     } catch (error) {
       console.error('Error during extraction:', error.message);
@@ -203,51 +199,6 @@ function triggerTrimester(selectedTrimester) {
   } catch (error) {
     console.error('Error in triggerTrimester:', error.message);
     return {status: 'error', message: error.message};
-  }
-}
-
-/**
- * Function to render extracted class details back into popup window with table format
- * @param {*} data - extracted class details
- * @returns - table format data back to popup window
- */
-function renderTable(data) {
-  try {
-    console.log('renderTable: Starting');
-    if (!data) {
-      document.getElementById('tableContainer').innerText = 'Table not found.';
-      return;
-    }
-    const tableContainer = document.getElementById('tableContainer');
-    tableContainer.innerHTML = '';
-    const table = document.createElement('table');
-    table.style.width = '100%';
-    table.border = '1';
-    const thead = document.createElement('thead');
-    const headerRow = document.createElement('tr');
-    data.headers.forEach((header) => {
-      const th = document.createElement('th');
-      th.textContent = header;
-      headerRow.appendChild(th);
-    });
-    thead.appendChild(headerRow);
-    table.appendChild(thead);
-    const tbody = document.createElement('tbody');
-    data.rows.forEach((rowData) => {
-      const row = document.createElement('tr');
-      rowData.forEach((cellData) => {
-        const td = document.createElement('td');
-        td.textContent = cellData;
-        row.appendChild(td);
-      });
-      tbody.appendChild(row);
-    });
-    table.appendChild(tbody);
-    tableContainer.appendChild(table);
-    console.log('renderTable: Table rendered successfully');
-  } catch (error) {
-    console.error('Error in renderTable:', error.message);
-    document.getElementById('tableContainer').innerText = `Error rendering table: ${error.message}`;
   }
 }
 
@@ -357,7 +308,15 @@ function extractClassSectionDetails() {
       });
       data.push(row);
     });
-    console.log('extractClassSectionDetails: Data extracted successfully');
+    console.log('extractClassSectionDetails: Data extracted successfully\n\n', 'headers:', headers, '\n\ndata:', data);
+
+    // Combine headers and data into one object
+    const combinedData = { headers: headers, data: data };
+
+    // Serialize the combined object to a JSON string
+    const serializedData = JSON.stringify(combinedData);
+    console.log('\n\nJSON format:\n',serializedData);
+
     return {status: 'success', headers: headers, rows: data };
   } catch (error) {
     console.error('Error in extractClassSectionDetails:', error.message);
@@ -374,6 +333,8 @@ function extractClassSectionDetails() {
 function waitForElement(selector, tabId) {
   console.log(`waitForElement: Waiting for element ${selector}`);
   return new Promise((resolve, reject) => {
+    const checkInterval = 2000; // Interval time in milliseconds
+    const timeout = 10000; // Timeout duration in milliseconds
     const checkExist = setInterval(() => {
       chrome.scripting.executeScript(
         {
@@ -396,13 +357,13 @@ function waitForElement(selector, tabId) {
           }
         }
       );
-    }, 500);
+    }, checkInterval);
 
     // wait for 10 seconds, return error if element not found
     setTimeout(() => {
       clearInterval(checkExist);
       reject(new Error(`Element ${selector} not found within timeout`));
-    }, 10000);
+    }, timeout);
   });
 }
 
@@ -415,7 +376,7 @@ function waitForElement(selector, tabId) {
 function waitForElementWithText(expectedText, tabId) {
   console.log(`waitForElementWithText: Waiting for text "${expectedText}"`);
   return new Promise((resolve, reject) => {
-    const checkInterval = 500; // Interval time in milliseconds
+    const checkInterval = 1000; // Interval time in milliseconds
     const timeout = 10000; // Timeout duration in milliseconds
     const startTime = Date.now();
 
