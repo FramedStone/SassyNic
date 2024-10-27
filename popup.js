@@ -7,127 +7,117 @@
  * 
  * - database to store extracted value
  * 
- * - degbugging logs
+ * - degbugging logs (create error code to refer in another markdown note)
  */
 
 let isTerminated = false; // flag for kill switch
 
-document.addEventListener('DOMContentLoaded', function() {
-  document.getElementById('btnExtract').addEventListener('click', async () => {
-    
-    /**
-     * Kill Switch
-     */
-    document.getElementById('killSwitchButton').addEventListener('click', () => {
-      isTerminated = true; // Set the flag to prevent further actions
-      alert("All processes have been terminated."); // Notify the user
-    });
+/**
+ * Manually edit every semester
+ */
+const selectedTrimester = "Trimester October/November2024";
 
-    /**
-     * Web Scrap
-     */
+document.addEventListener('DOMContentLoaded', function() {
+  // Kill switch
+  document.getElementById('killSwitchButton').addEventListener('click', () => {
+    isTerminated = true; // Set the flag to prevent further actions
+    alert("All processes have been terminated."); // Notify the user
+  });
+
+  // Web scrap
+  document.getElementById('btnExtract').addEventListener('click', async () => {
     const tabs = await chrome.tabs.query({active: true, currentWindow: true});
     const tabId = tabs[0].id;
 
-    // Get the selected trimester from the dropdown
-    const selectedTrimester = document.getElementById('trimesterSelect').value;
+    // Course total
+    let index = document.getElementById('courseTotal').value;
 
-    // Step 1: Trigger 'Planner' using 'MouseEvent'
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: clickPlanner,
-      }
-    );
+    for(let i=0; i<index; i++) {
+      // Step 1: Trigger 'Planner' using 'MouseEvent'
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickPlanner,
+        }
+      );
 
-    // wait for 'Terms' elements to show up
-    await waitForElement("tr[id^='PLANNER_NFF']", tabId);
-    if (isTerminated) {
-      alert("All processes have been terminated. Please reset to run again.");
-      return;
+      // wait for 'Terms' elements to show up
+      await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+      if (isTerminated) return;
+
+      // Step 2: Trigger 'Trimester' under 'Terms' by calling its 'onClick' JavaScript
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerTrimester,
+          args: [selectedTrimester]
+        }
+      );
+
+      /**
+       * wait for 'Trimester Course Details' elements to show up
+       * @param index_courseTotal - total number of 'Courses'
+       */
+      await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+      if (isTerminated) return;
+
+      // Step 3: Trigger 'Course' details row under 'Terms' by calling its 'onClick' JavaScript
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: triggerCourseDetails,
+          args: [i],
+        }
+      );
+
+      // wait for 'View Classes' button element to show up 
+      // !! use '\' to correctly specify id !!
+      await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+      if (isTerminated) return;
+
+      // Step 4: Trigger 'View Classes' using 'MouseEvent'
+      await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickViewClasses,
+        }
+      );
+
+      // wait for 'Terms' selection elements to show up with selected 'Trimester'
+      await waitForElementWithText(selectedTrimester, tabId);
+      if (isTerminated) return;
+
+      // Step 5: Click associated row based on 'selectedTrimester'
+      await chrome.scripting.executeScript(
+        {
+          target: { tabId: tabId },
+          world: 'MAIN',
+          func: clickTrimester,
+          args: [selectedTrimester],
+        }
+      );
+
+      // wait for selected 'Class Section' to show up
+      await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+      if (isTerminated) return;
+
+      // Step 6: Extract Class Options Table
+      const tableResults = await chrome.scripting.executeScript(
+        {
+          target: {tabId: tabId},
+          func: extractClassSectionDetails,
+        }
+      );
+
+      const data = tableResults[0].result;
+      renderTable(data);
     }
 
-    // Step 2: Trigger 'Trimester' under 'Terms' by calling its 'onClick' JavaScript
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: triggerTrimester,
-      }
-    );
-
-    /**
-     * wait for 'Trimester Course Details' elements to show up
-     * @param index_courseTotal - total number of 'Courses'
-     */
-    await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${4}']`, tabId);
-    if (isTerminated) {
-      alert("All processes have been terminated. Please reset to run again.");
-      return;
-    }
-
-    // Step 3: Trigger 'Course' details row under 'Terms' by calling its 'onClick' JavaScript
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: triggerCourseDetails,
-        args: [4],
-      }
-    );
-
-    // wait for 'View Classes' button element to show up 
-    // !! use '\' to correctly specify id !!
-    await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
-    if (isTerminated) {
-      alert("All processes have been terminated. Please reset to run again.");
-      return;
-    }
-
-    // Step 4: Trigger 'View Classes' using 'MouseEvent'
-    await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        world: 'MAIN',
-        func: clickViewClasses,
-      }
-    );
-
-    // wait for 'Terms' selection elements to show up with selected 'Trimester'
-    await waitForElementWithText(selectedTrimester, tabId);
-    if (isTerminated) {
-      alert("All processes have been terminated. Please reset to run again.");
-      return;
-    }
-
-    // Step 5: Click associated row based on 'selectedTrimester'
-    await chrome.scripting.executeScript(
-      {
-        target: { tabId: tabId },
-        world: 'MAIN',
-        func: clickTrimester,
-        args: [selectedTrimester],
-      }
-    );
-
-    // wait for selected 'Class Section' to show up
-    await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
-    if (isTerminated) {
-      alert("All processes have been terminated. Please reset to run again.");
-      return;
-    }
-
-    // Step 6: Extract Class Options Table
-    const tableResults = await chrome.scripting.executeScript(
-      {
-        target: {tabId: tabId},
-        func: extractClassSectionDetails,
-      }
-    );
-
-    const data = tableResults[0].result;
-    renderTable(data);
+    alert("Extraction completed.");
   });
 });
 
@@ -148,14 +138,26 @@ function clickPlanner() {
 
 /**
  * function to trigger 'Trimester' section under 'Terms'
+ * set index based on total of courses
  */
-function triggerTrimester() {
-  const row = document.querySelector("tr[id^='PLANNER_NFF']");
-  if (row && typeof OnRowAction === 'function') {
-    OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
+function triggerTrimester(selectedTrimester) {
+  const rows = document.querySelectorAll("tr[id^='PLANNER_NFF']");
+  for (let row of rows) {
+    const termCell = row.querySelector("td.ps_grid-cell.TERMS a.ps-link");
+    if (termCell && termCell.textContent.trim() === selectedTrimester) {
+      if (typeof OnRowAction === 'function') {
+        OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
+      }
+      break; // Exit loop after the first match is found
+    }
   }
 }
 
+/**
+ * function to render extracted class details back into popup window with table format
+ * @param {*} data - extracted class details
+ * @returns - table format data back to popup window
+ */
 function renderTable(data) {
   if (!data) {
     document.getElementById('tableContainer').innerText = 'Table not found.';
