@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Kill switch
   document.getElementById('killSwitchButton').addEventListener('click', () => {
     isTerminated = true; // Set the flag to prevent further actions
+    serializedClassDetails.length = 0; // Clear array
     alert("All processes have been terminated."); // Notify the user
   });
 
@@ -151,6 +152,15 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+  // Generate Timetable Combinations
+  document.getElementById('btnGenerate').addEventListener('click', async () => {
+    try {
+      
+    }catch(error) {
+      console.log(error);
+    }
+  });
 
 /**
  * Function to use 'MouseEvent' to click 'Planner'
