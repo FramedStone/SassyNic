@@ -112,6 +112,10 @@ document.addEventListener('DOMContentLoaded', function() {
             args: [selectedTrimester],
           }
         );
+
+        /**
+         * !! need more debugging, sometimes it return error although the function ran successfully !!
+         */
         // const clickTrimesterResult = clickTrimesterResults[0].result;
         // if (clickTrimesterResult.status === 'error') {
         //   throw new Error(`Error in clickTrimester: ${clickTrimesterResult.message}`);
