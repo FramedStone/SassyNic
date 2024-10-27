@@ -1,15 +1,3 @@
-/**
- * + if found js and element then straight away call the function (await waitForElement("tr[id^='PLANNER_NFF']", tabId);)
- * + trimester selection for users in the popup window before running
- * + kill switch
- * 
- * - iteration based on step 2 (from 'ps_grid-cell COURSES' to get iteration value and just do increment on each iteration at step 3)
- * 
- * - database to store extracted value
- * 
- * - degbugging logs (create error code to refer in another markdown note)
- */
-
 let isTerminated = false; // flag for kill switch
 
 /**
