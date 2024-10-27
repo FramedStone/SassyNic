@@ -1,4 +1,6 @@
+// Global Variables
 let isTerminated = false; // flag for kill switch
+const serializedClassDetails = []; // variable to store each class details in JSON string
 
 /**
  * Manually edit every semester
@@ -138,6 +140,9 @@ document.addEventListener('DOMContentLoaded', function() {
         if (tableResult.status === 'error') {
           throw new Error(`Error in extractClassSectionDetails: ${tableResult.message}`);
         }
+
+        // Save the serialized data into the global variable within the extension scope
+        serializedClassDetails.push(tableResult.serialisedData);
       }
       alert("Extraction completed.");
     } catch (error) {
@@ -315,13 +320,10 @@ function extractClassSectionDetails() {
     console.log('extractClassSectionDetails: Data extracted successfully\n\n', 'headers:', headers, '\n\ndata:', data);
 
     // Combine headers and data into one object
-    const combinedData = { headers: headers, data: data };
-
-    // Serialize the combined object to a JSON string
-    const serializedData = JSON.stringify(combinedData);
-    console.log('\n\nJSON format:\n',serializedData);
-
-    return {status: 'success', headers: headers, rows: data };
+    const serialisedData = { headers: headers, data: data };
+    console.log('\n\nCombined Serialised data:\n',serialisedData);
+    
+    return {status: 'success', headers: headers, rows: data, serialisedData: serialisedData };
   } catch (error) {
     console.error('Error in extractClassSectionDetails:', error.message);
     return {status: 'error', message: error.message};
