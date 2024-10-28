@@ -340,7 +340,7 @@
         const cells = tr.querySelectorAll('td');
         cells.forEach((td, index) => {
           if (index < cells.length - 1) {
-            row.push(td.textContent.trim().replace(/\s+/g, ' '));
+            row.push(td.textContent.trim().replace(/\s+/g, ' ')); // standardlise data by replacing characters
           }
         });
         data.push(row);
