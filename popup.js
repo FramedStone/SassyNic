@@ -172,8 +172,15 @@
 
     // Generate Timetable Combinations
     document.getElementById('btnGenerate').addEventListener('click', async () => {
+      const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+      const tabId = tabs[0].id;
+
       try {
-        
+        chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: startGenerate,
+        })
       }catch(error) {
         console.log(error);
       }
@@ -361,6 +368,61 @@
       return {status: 'error', message: error.message};
     }
   }
+
+  function startGenerate() {
+    /**
+     * Filter out 'status' and 'seats'
+     */
+
+    // Retrieve all keys from localStorage
+    const keys = Object.keys(localStorage);
+    console.log(keys);
+  
+    for (let i = 0; i < keys.length; i++) {
+      // Parse the stored JSON data
+      const data = JSON.parse(localStorage.getItem(keys[i]));
+  
+      // Find the index of 'Status' and 'Seats' columns
+      const statusIndex = data.headers.indexOf('Status');
+      const seatsIndex = data.headers.indexOf('Seats');
+  
+      // Filter rows where Status is 'Open'
+      const statusFilteredData = data.data.filter(row => row[statusIndex] === 'Open');
+  
+      // Further filter rows based on available Seats
+      const seatsFilteredData = statusFilteredData.filter(row => {
+        const seatsString = row[seatsIndex];
+        // Regular expression to match "Open Seats X of Y"
+        const regex = /Open Seats (\d+) of \d+/g;
+        let match;
+        let hasAvailableSeats = false;
+  
+        // Iterate through all matches
+        while ((match = regex.exec(seatsString)) !== null) {
+          const availableSeats = parseInt(match[1], 10);
+          if (availableSeats > 0) {
+            hasAvailableSeats = true;
+            break; // No need to check further if at least one is available
+          }
+        }
+  
+        return hasAvailableSeats;
+      });
+  
+      // Prepare the final result with filtered data
+      const result = {
+        headers: data.headers,
+        data: seatsFilteredData,
+      };
+  
+      // Log the filtered result
+      console.log(keys[i], 'Filtered Data: \n', result);
+
+      /**
+       * timetable genaration algorithm
+       */
+    }
+  }  
 
   /**
    * Function to wait for 'new element' to spawn before proceeding
