@@ -383,37 +383,38 @@
       const data = JSON.parse(localStorage.getItem(keys[i]));
   
       // Find the index of 'Status' and 'Seats' columns
-      const statusIndex = data.headers.indexOf('Status');
-      const seatsIndex = data.headers.indexOf('Seats');
+      const indexStatus = data.headers.indexOf('Status');
+      const indexSeats = data.headers.indexOf('Seats');
   
-      // Filter rows where Status is 'Open'
-      const statusFilteredData = data.data.filter(row => row[statusIndex] === 'Open');
+      // Filter 1: 'Status' = 'Open'
+      const dataFiltered_1 = data.data.filter(row => row[indexStatus] === 'Open');
   
-      // Further filter rows based on available Seats
-      const seatsFilteredData = statusFilteredData.filter(row => {
-        const seatsString = row[seatsIndex];
+      // Filter 2: 'Seats' 
+      // example set of 'Seats' - "Open Seats 53 of 120 Open Seats 10 of 40"
+      const dataFiltered_2 = dataFiltered_1.filter(row => {
+        const seatsString = row[indexSeats];
         // Regular expression to match "Open Seats X of Y"
         const regex = /Open Seats (\d+) of \d+/g;
         let match;
-        let hasAvailableSeats = false;
+        let isAvailable = false;
   
         // Iterate through all matches
         while ((match = regex.exec(seatsString)) !== null) {
           const availableSeats = parseInt(match[1], 10);
           if (availableSeats > 0) {
-            hasAvailableSeats = true;
+            isAvailable = true;
             break; // No need to check further if at least one is available
           }
         }
   
-        return hasAvailableSeats;
+        return isAvailable;
       });
   
-      // Prepare the final result with filtered data
-      const result = {
-        headers: data.headers,
-        data: seatsFilteredData,
-      };
+      // Remap back into Object
+      data.data = dataFiltered_2;
+
+      // Overwrite filtered data back into 'localStorage'
+      // localStorage.setItem(keys[i], JSON.stringify(data));
   
       // Log the filtered result
       console.log(keys[i], 'Filtered Data: \n', result);
