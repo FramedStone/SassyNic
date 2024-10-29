@@ -371,59 +371,128 @@
 
   function startGenerate() {
     /**
-     * Filter out 'status' and 'seats'
+     * Filter out 'status' and reorganise 'Days and Times'
      */
-
+  
     // Retrieve all keys from localStorage
     const keys = Object.keys(localStorage);
-    console.log(keys);
+    console.log(`keys: ${keys}`);
   
     for (let i = 0; i < keys.length; i++) {
       // Parse the stored JSON data
       const data = JSON.parse(localStorage.getItem(keys[i]));
   
       // Find the index of 'Status' and 'Seats' columns
-      const indexStatus = data.headers.indexOf('Status');
-      const indexSeats = data.headers.indexOf('Seats');
+      const indexStatus = data.headers.indexOf("Status");
   
-      // Filter 1: 'Status' = 'Open'
-      const dataFiltered_1 = data.data.filter(row => row[indexStatus] === 'Open');
+      // Filter 'Status' = 'Open'
+      const dataFiltered = data.data.filter(row => row[indexStatus] === "Open");
   
-      // Filter 2: 'Seats' 
-      // example set of 'Seats' - "Open Seats 53 of 120 Open Seats 10 of 40"
-      const dataFiltered_2 = dataFiltered_1.filter(row => {
-        const seatsString = row[indexSeats];
-        // Regular expression to match "Open Seats X of Y"
-        const regex = /Open Seats (\d+) of \d+/g;
+      // Remap back into Object
+      data.data = dataFiltered;
+  
+      /**
+       * Converts a time string from 12hours format > 24hours format > minutes
+       * @param {string} timeStr - Time string in format "h:mmAM/PM"
+       * @returns {number} - time in minutes
+       */
+      function convertTimeToMinutes(timeStr) {
+        const timeRegex = /(\d{1,2}):(\d{2})(AM|PM)/i;
+        const match = timeStr.match(timeRegex);
+        if (!match) return null;
+  
+        let [_, hour, minute, period] = match;
+        hour = parseInt(hour, 10);
+        minute = parseInt(minute, 10);
+  
+        // Convert from '12hours' format into '24hours' format
+        if (period.toUpperCase() === "PM" && hour !== 12) { hour += 12; }
+        if (period.toUpperCase() === "AM" && hour === 12) { hour = 0; }
+  
+        return hour * 60 + minute; // Convert into minutes
+      }
+  
+      /**
+       * Splits the "Days and Times" string into an array of { day, start, end } objects.
+       * @param {string} daysTimesStr - "Days and Times" string
+       * @returns {Array} - Array of objects: { day: "Wednesday", startTime: 960, endTime: 1020 }
+       */
+      function parseDaysAndTimes(daysTimesStr) {
+        const dayTimesPairs = [];
+        // Create a regex pattern to match day names followed by their time ranges
+        const dayPattern = daysOfWeek.join("|");
+        const regex = new RegExp(`(${dayPattern})\\s*(\\d{1,2}:\\d{2}(?:AM|PM))\\s*to\\s*(\\d{1,2}:\\d{2}(?:AM|PM))`, "gi");
         let match;
-        let isAvailable = false;
   
-        // Iterate through all matches
-        while ((match = regex.exec(seatsString)) !== null) {
-          const availableSeats = parseInt(match[1], 10);
-          if (availableSeats > 0) {
-            isAvailable = true;
-            break; // No need to check further if at least one is available
+        while ((match = regex.exec(daysTimesStr)) !== null) {
+          const day = match[1].trim();
+          const startTimeStr = match[2].trim();
+          const endTimeStr = match[3].trim();
+  
+          const startTime = convertTimeToMinutes(startTimeStr);
+          const endTime = convertTimeToMinutes(endTimeStr);
+  
+          if (startTime !== null && endTime !== null) {
+            dayTimesPairs.push({
+              day,
+              startTime,
+              endTime
+            });
+          } else {
+            console.warn(`Unable to parse times for day: ${day} in "${daysTimesStr}"`);
           }
         }
   
-        return isAvailable;
+        return dayTimesPairs;
+      }
+  
+      const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+  
+      const daysTimesIndex = data.headers.indexOf("Days and Times");
+  
+      // Update headers by replacing "Days and Times" with "Days" and "ClassTimes"
+      const newHeaders = data.headers.map(header => {
+        if (header === "Days and Times") {
+          return ["Days", "ClassTimes"]; // Renamed "Times" to "ClassTimes"
+        }
+        return header;
+      }).flat();
+  
+      // Process each data row
+      const processedData = data.data.map(row => {
+        // Clone the row to avoid mutating the original data array
+        const newRow = [...row];
+  
+        const daysTimesStr = row[daysTimesIndex];
+        const parsedDaysTimes = parseDaysAndTimes(daysTimesStr);
+  
+        // Extract Days and ClassTimes
+        const days = parsedDaysTimes.map(dt => dt.day);
+        const classTimes = parsedDaysTimes.map(dt => ({
+          start: dt.startTime,
+          end: dt.endTime
+        }));
+  
+        // Replace the "Days and Times" field with "Days" and "ClassTimes"
+        newRow.splice(daysTimesIndex, 1, days, classTimes);
+  
+        return newRow;
       });
   
-      // Remap back into Object
-      data.data = dataFiltered_2;
-
-      // Overwrite filtered data back into 'localStorage'
-      // localStorage.setItem(keys[i], JSON.stringify(data));
+      // Log processedData result
+      console.log(`\n${keys[i]} Transformed Data:`);
+      processedData.forEach((row) => {
+        console.log(`\n`);
+        newHeaders.forEach((header, i) => {
+          console.log(`${header}: ${JSON.stringify(row[i])}`);
+        });
+      });
   
-      // Log the filtered result
-      console.log(keys[i], 'Filtered Data: \n', result);
-
-      /**
-       * timetable genaration algorithm
-       */
+      // localStorage.clear();
     }
-  }  
+  }
+  
+    
 
   /**
    * Function to wait for 'new element' to spawn before proceeding
