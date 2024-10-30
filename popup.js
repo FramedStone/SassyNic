@@ -369,7 +369,7 @@
     }
   }
 
-  function startGenerate() {
+  function startGenerate(courseTotal) {
     /**
      * Filter out 'status' and reorganise 'Days and Times'
      */
@@ -480,15 +480,54 @@
       });
   
       // Log processedData result
-      console.log(`\n${keys[i]} Transformed Data:`);
-      processedData.forEach((row) => {
-        console.log(`\n`);
-        newHeaders.forEach((header, i) => {
-          console.log(`${header}: ${JSON.stringify(row[i])}`);
-        });
-      });
+      // console.log(`\n${keys[i]} Transformed Data:`);
+      // processedData.forEach((row) => {
+      //   console.log(`\n`);
+      //   newHeaders.forEach((header, i) => {
+      //     console.log(`${header}: ${JSON.stringify(row[i])}`);
+      //   });
+      // });
   
       // localStorage.clear();
+
+      /**
+       * Generate Timetable Combinations
+       */
+
+      // initialise
+      let indexSet = 0, indexRow = 0, timetableGenerated = 0;
+      const DataSets = processedData;
+      let rowUsed = []; // to be used as 'two dimensional array'
+      table_combinations = [];
+
+      console.log(processedData);
+
+      function hasConflict(currentRow, currentTimetable) {
+        const dayIndex = newHeaders.indexOf("Days");
+        const timeIndex = newHeaders.indexOf("ClassTimes");
+
+        const daysSet = new Set(processedData.flatMap(days => days[dayIndex][currentRow]));
+        const day = Array.from(daysSet);
+        console.log(day);
+
+        // Extract 'start' and 'end' times
+        const startTimesSet = new Set(processedData.flatMap(entry => entry[timeIndex].map(timeBlock => timeBlock.start))); // Use flatMap to combine mapping and flattening
+        const startTime = Array.from(startTimesSet);
+
+        const endTimesSet = new Set(processedData.flatMap(entry => entry[timeIndex].map(timeBlock => timeBlock.end))); // Use flatMap to combine mapping and flattening
+        const endTime = Array.from(endTimesSet);
+
+        // Check if there is any conflicting time for the same day
+        // if(currentTimetable[day]) {
+        //   for(const )
+        // }
+      }
+
+      // pick one row from each datasets
+
+      // find conflicts (day and time)
+
+      // Append into timetable_combinations with same structure
     }
   }
   

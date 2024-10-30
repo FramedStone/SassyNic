@@ -1,0 +1,622 @@
+[
+    [
+        "1",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC1L - Class Component LAB - Class Sect TL1L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Wednesday",
+            "Thursday",
+            "Wednesday"
+        ],
+        [
+            {
+                "start": 960,
+                "end": 1020
+            },
+            {
+                "start": 840,
+                "end": 960
+            },
+            {
+                "start": 480,
+                "end": 600
+            }
+        ],
+        "CNMX1003-CLC Lecture Theatre 3CQMX0001-FCI Lecture Theater CQAR2004-FCI Msoft .NET Lab",
+        "Nurasma' Binti ShamsuddinNurasma' Binti Shamsuddin Nurasma' Binti Shamsuddin",
+        "Open Seats 50 of 120 Open Seats 7 of 40"
+    ],
+    [
+        "2",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC1L - Class Component LAB - Class Sect TL3L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Wednesday",
+            "Thursday",
+            "Friday"
+        ],
+        [
+            {
+                "start": 960,
+                "end": 1020
+            },
+            {
+                "start": 840,
+                "end": 960
+            },
+            {
+                "start": 480,
+                "end": 600
+            }
+        ],
+        "CNMX1003-CLC Lecture Theatre 3CQMX0001-FCI Lecture Theater CQAR2004-FCI Msoft .NET Lab",
+        "Nurasma' Binti ShamsuddinNurasma' Binti Shamsuddin Nurasma' Binti Shamsuddin",
+        "Open Seats 50 of 120 Open Seats 29 of 40"
+    ],
+    [
+        "3",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC1L - Class Component LAB - Class Sect TL2L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Wednesday",
+            "Thursday",
+            "Thursday"
+        ],
+        [
+            {
+                "start": 960,
+                "end": 1020
+            },
+            {
+                "start": 840,
+                "end": 960
+            },
+            {
+                "start": 480,
+                "end": 600
+            }
+        ],
+        "CNMX1003-CLC Lecture Theatre 3CQMX0001-FCI Lecture Theater CQAR2004-FCI Msoft .NET Lab",
+        "Nurasma' Binti ShamsuddinNurasma' Binti Shamsuddin Nurasma' Binti Shamsuddin",
+        "Open Seats 50 of 120 Open Seats 14 of 40"
+    ],
+    [
+        "1",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC1L - Class Component LAB - Class Sect TL2L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Tuesday",
+            "Thursday",
+            "Tuesday"
+        ],
+        [
+            {
+                "start": 720,
+                "end": 780
+            },
+            {
+                "start": 720,
+                "end": 840
+            },
+            {
+                "start": 480,
+                "end": 600
+            }
+        ],
+        "CNMX1003-CLC Lecture Theatre 3CNMX1003-CLC Lecture Theatre 3 CQAR3006-FCI Microsoft SE Lab",
+        "Noor Farah Shahida Binti Mohd HarisNoor Farah Shahida Binti Mohd Haris Erma Haryani Binti Esahar",
+        "Open Seats 6 of 120 Open Seats 1 of 40"
+    ],
+    [
+        "2",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC1L - Class Component LAB - Class Sect TL1L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Tuesday",
+            "Thursday",
+            "Wednesday"
+        ],
+        [
+            {
+                "start": 720,
+                "end": 780
+            },
+            {
+                "start": 720,
+                "end": 840
+            },
+            {
+                "start": 960,
+                "end": 1080
+            }
+        ],
+        "CNMX1003-CLC Lecture Theatre 3CNMX1003-CLC Lecture Theatre 3 CQAR3006-FCI Microsoft SE Lab",
+        "Noor Farah Shahida Binti Mohd HarisNoor Farah Shahida Binti Mohd Haris Noor Farah Shahida Binti Mohd Haris",
+        "Open Seats 6 of 120 Open Seats 2 of 40"
+    ],
+    [
+        "3",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL6L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Monday",
+            "Tuesday",
+            "Thursday"
+        ],
+        [
+            {
+                "start": 780,
+                "end": 840
+            },
+            {
+                "start": 480,
+                "end": 600
+            },
+            {
+                "start": 600,
+                "end": 720
+            }
+        ],
+        "CNMX1001-CLC Lecture Theatre 1CNMX1005-CLC Lecture Theatre 5 CQAR3006-FCI Microsoft SE Lab",
+        "Noor Farah Shahida Binti Mohd HarisNoor Farah Shahida Binti Mohd Haris Erma Haryani Binti Esahar",
+        "Open Seats 37 of 120 Open Seats 17 of 40"
+    ],
+    [
+        "4",
+        "Open",
+        "Regular Academic Session",
+        "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL4L - Class",
+        "04/11/2024 - 23/03/2025",
+        [
+            "Monday",
+            "Tuesday",
+            "Friday"
+        ],
+        [
+            {
+                "start": 780,
+                "end": 840
+            },
+            {
+                "start": 480,
+                "end": 600
+            },
+            {
+                "start": 480,
+                "end": 600
+            }
+        ],
+        "CNMX1001-CLC Lecture Theatre 1CNMX1005-CLC Lecture Theatre 5 CQAR3006-FCI Microsoft SE Lab",
+        "Noor Farah Shahida Binti Mohd HarisNoor Farah Shahida Binti Mohd Haris Erma Haryani Binti Esahar",
+        "Open Seats 37 of 120 Open Seats 20 of 40"
+    ],
+    [
+        [
+            "1",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL5L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Monday"
+            ],
+            [
+                {
+                    "start": 600,
+                    "end": 720
+                },
+                {
+                    "start": 870,
+                    "end": 990
+                }
+            ],
+            "CNMX1003-CLC Lecture Theatre 3 CQAR3002-FCI Computing Lab",
+            "Aziah Binti Ali Aziah Binti Ali",
+            "Open Seats 42 of 120 Open Seats 22 of 40"
+        ],
+        [
+            "2",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL6L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 600,
+                    "end": 720
+                },
+                {
+                    "start": 840,
+                    "end": 960
+                }
+            ],
+            "CNMX1003-CLC Lecture Theatre 3 CQAR3002-FCI Computing Lab",
+            "Aziah Binti Ali Aziah Binti Ali",
+            "Open Seats 42 of 120 Open Seats 19 of 40"
+        ],
+        [
+            "3",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL4L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Monday"
+            ],
+            [
+                {
+                    "start": 600,
+                    "end": 720
+                },
+                {
+                    "start": 600,
+                    "end": 720
+                }
+            ],
+            "CNMX1003-CLC Lecture Theatre 3 CQAR3002-FCI Computing Lab",
+            "Aziah Binti Ali Aziah Binti Ali",
+            "Open Seats 42 of 120 Open Seats 1 of 40"
+        ],
+        [
+            "4",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC3L - Class Component LAB - Class Sect TL8L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 600,
+                    "end": 720
+                },
+                {
+                    "start": 660,
+                    "end": 780
+                }
+            ],
+            "CQCR3004-FCI Classroom CQAR3002-FCI Computing Lab",
+            "Ruzanna Binti Abdullah Ruzanna Binti Abdullah",
+            "Open Seats 8 of 80 Open Seats 8 of 40"
+        ],
+        [
+            "5",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC4L - Class Component LAB - Class Sect TL9L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Tuesday",
+                "Friday"
+            ],
+            [
+                {
+                    "start": 660,
+                    "end": 780
+                },
+                {
+                    "start": 480,
+                    "end": 600
+                }
+            ],
+            "CQMX0001-FCI Lecture Theater CQAR3002-FCI Computing Lab",
+            "Suraya Nurain Binti Kalid Ruzanna Binti Abdullah",
+            "Open Seats 50 of 120 Open Seats 10 of 40"
+        ]
+    ],
+    [
+        [
+            "1",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FC01 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Friday"
+            ],
+            [
+                {
+                    "start": 900,
+                    "end": 1080
+                }
+            ],
+            "CQCR3002-FCI Classroom",
+            "Afizal@Mohd Afizal Bin Mohd Aris",
+            "Open Seats 36 of 60"
+        ],
+        [
+            "2",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FC03 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Tuesday"
+            ],
+            [
+                {
+                    "start": 960,
+                    "end": 1140
+                }
+            ],
+            "CQCR3002-FCI Classroom",
+            "Nadia Athirah Binti Jamaludin",
+            "Open Seats 4 of 60"
+        ],
+        [
+            "3",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FC04 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 960,
+                    "end": 1140
+                }
+            ],
+            "CLCR1025-FOE Lecture Room 3",
+            "Nadia Athirah Binti Jamaludin",
+            "Open Seats 29 of 60"
+        ],
+        [
+            "4",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FOB1 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Friday"
+            ],
+            [
+                {
+                    "start": 480,
+                    "end": 660
+                }
+            ],
+            "MBMR3022-CDP Lecture Hall 5",
+            "Khalijah Nur Binti Mohamed",
+            "Open Seats 40 of 40"
+        ],
+        [
+            "5",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FOB2 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Monday"
+            ],
+            [
+                {
+                    "start": 600,
+                    "end": 780
+                }
+            ],
+            "MBMR3022-CDP Lecture Hall 5",
+            "Khalijah Nur Binti Mohamed",
+            "Open Seats 40 of 40"
+        ],
+        [
+            "6",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FOB3 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 600,
+                    "end": 780
+                }
+            ],
+            "MBMR3022-CDP Lecture Hall 5",
+            "Khalijah Nur Binti Mohamed",
+            "Open Seats 40 of 40"
+        ],
+        [
+            "7",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FOB4 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday"
+            ],
+            [
+                {
+                    "start": 480,
+                    "end": 660
+                }
+            ],
+            "MBMR3022-CDP Lecture Hall 5",
+            "Khalijah Nur Binti Mohamed",
+            "Open Seats 40 of 40"
+        ],
+        [
+            "8",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FAC1 - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Monday"
+            ],
+            [
+                {
+                    "start": 960,
+                    "end": 1140
+                }
+            ],
+            "CLCR3047-FOE Lecture Room 17",
+            "Afizal@Mohd Afizal Bin Mohd Aris",
+            "Open Seats 8 of 15"
+        ],
+        [
+            "9",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect FOM - Class N",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Monday"
+            ],
+            [
+                {
+                    "start": 960,
+                    "end": 1140
+                }
+            ],
+            "CLCR3047-FOE Lecture Room 17",
+            "Afizal@Mohd Afizal Bin Mohd Aris",
+            "Open Seats 5 of 20"
+        ]
+    ],
+    [
+        [
+            "1",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC1L - Class Component TUT - Class Sect TT1L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 780,
+                    "end": 960
+                },
+                {
+                    "start": 900,
+                    "end": 1020
+                }
+            ],
+            "CQMX0001-FCI Lecture Theater CQAR4006-FCI PG Research Lab 2",
+            "Chua Sook Ling @ Landa Chua Chua Sook Ling @ Landa Chua",
+            "Open Seats 23 of 120 Open Seats 3 of 40"
+        ],
+        [
+            "2",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC1L - Class Component TUT - Class Sect TT2L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Tuesday"
+            ],
+            [
+                {
+                    "start": 780,
+                    "end": 960
+                },
+                {
+                    "start": 540,
+                    "end": 660
+                }
+            ],
+            "CQMX0001-FCI Lecture Theater CQAR0002-FCI Intl ICT Centre",
+            "Chua Sook Ling @ Landa Chua Foo Lee Kien",
+            "Open Seats 23 of 120 Open Seats 10 of 40"
+        ],
+        [
+            "3",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC1L - Class Component TUT - Class Sect TT3L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Wednesday",
+                "Tuesday"
+            ],
+            [
+                {
+                    "start": 780,
+                    "end": 960
+                },
+                {
+                    "start": 660,
+                    "end": 780
+                }
+            ],
+            "CQMX0001-FCI Lecture Theater CQAR4006-FCI PG Research Lab 2",
+            "Chua Sook Ling @ Landa Chua Foo Lee Kien",
+            "Open Seats 23 of 120 Open Seats 10 of 40"
+        ],
+        [
+            "4",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC2L - Class Component TUT - Class Sect TT4L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Tuesday",
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 780,
+                    "end": 960
+                },
+                {
+                    "start": 840,
+                    "end": 960
+                }
+            ],
+            "CQMX0001-FCI Lecture Theater CQCR3004-FCI Classroom",
+            "Chua Sook Ling @ Landa Chua Foo Lee Kien",
+            "Open Seats 32 of 120 Open Seats 4 of 40"
+        ],
+        [
+            "5",
+            "Open",
+            "Regular Academic Session",
+            "Component LEC - Class Sect TC2L - Class Component TUT - Class Sect TT5L - Class",
+            "04/11/2024 - 23/03/2025",
+            [
+                "Tuesday",
+                "Thursday"
+            ],
+            [
+                {
+                    "start": 780,
+                    "end": 960
+                },
+                {
+                    "start": 660,
+                    "end": 780
+                }
+            ],
+            "CQMX0001-FCI Lecture Theater CQAR0002-FCI Intl ICT Centre",
+            "Chua Sook Ling @ Landa Chua Foo Lee Kien",
+            "Open Seats 32 of 120 Open Seats 24 of 40"
+        ]
+    ]
+]
