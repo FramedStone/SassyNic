@@ -1,0 +1,90 @@
+[
+    {
+        "Option": "1",
+        "Status": "Open",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL5L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Wednesday10:00AM to 12:00PM Monday2:30PM to 4:30PM",
+        "Room": "CNMX1003-CLC Lecture Theatre 3 CQAR3002-FCI Computing Lab",
+        "Instructor": "Aziah Binti Ali Aziah Binti Ali",
+        "Seats": "Open Seats 39 of 120 Open Seats 22 of 40"
+    },
+    {
+        "Option": "2",
+        "Status": "Open",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL6L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Wednesday10:00AM to 12:00PM Thursday2:00PM to 4:00PM",
+        "Room": "CNMX1003-CLC Lecture Theatre 3 CQAR3002-FCI Computing Lab",
+        "Instructor": "Aziah Binti Ali Aziah Binti Ali",
+        "Seats": "Open Seats 39 of 120 Open Seats 17 of 40"
+    },
+    {
+        "Option": "3",
+        "Status": "Open",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC3L - Class Component LAB - Class Sect TL8L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Wednesday10:00AM to 12:00PM Thursday11:00AM to 1:00PM",
+        "Room": "CQCR3004-FCI Classroom CQAR3002-FCI Computing Lab",
+        "Instructor": "Ruzanna Binti Abdullah Ruzanna Binti Abdullah",
+        "Seats": "Open Seats 7 of 80 Open Seats 6 of 40"
+    },
+    {
+        "Option": "4",
+        "Status": "Open",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC3L - Class Component LAB - Class Sect TL7L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Wednesday10:00AM to 12:00PM Tuesday12:00PM to 2:00PM",
+        "Room": "CQCR3004-FCI Classroom CQAR3002-FCI Computing Lab",
+        "Instructor": "Ruzanna Binti Abdullah Ruzanna Binti Abdullah",
+        "Seats": "Open Seats 7 of 80 Open Seats 1 of 40"
+    },
+    {
+        "Option": "5",
+        "Status": "Open",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC4L - Class Component LAB - Class Sect TL9L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Tuesday11:00AM to 1:00PM Friday8:00AM to 10:00AM",
+        "Room": "CQMX0001-FCI Lecture Theater CQAR3002-FCI Computing Lab",
+        "Instructor": "Suraya Nurain Binti Kalid Ruzanna Binti Abdullah",
+        "Seats": "Open Seats 13 of 80 Open Seats 10 of 40"
+    },
+    {
+        "Option": "6",
+        "Status": "Open",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC4L - Class Component LAB - Class Sect TL10 - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Tuesday11:00AM to 1:00PM Wednesday1:00PM to 3:00PM",
+        "Room": "CQMX0001-FCI Lecture Theater CQAR3002-FCI Computing Lab",
+        "Instructor": "Suraya Nurain Binti Kalid Ruzanna Binti Abdullah",
+        "Seats": "Open Seats 13 of 80 Open Seats 3 of 40"
+    },
+    {
+        "Option": "7",
+        "Status": "Closed",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC1L - Class Component LAB - Class Sect TL3L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Thursday8:00AM to 10:00AM Tuesday2:00PM to 4:00PM",
+        "Room": "CQMX0001-FCI Lecture Theater CQAR3002-FCI Computing Lab",
+        "Instructor": "Ruzanna Binti Abdullah Ruzanna Binti Abdullah",
+        "Seats": "Open Seats 4 of 120 Closed"
+    },
+    {
+        "Option": "8",
+        "Status": "Closed",
+        "Session": "Regular Academic Session",
+        "Class": "Component LEC - Class Sect TC2L - Class Component LAB - Class Sect TL4L - Class",
+        "Meeting Dates": "04/11/2024 - 23/03/2025",
+        "Days and Times": "Wednesday10:00AM to 12:00PM Monday10:00AM to 12:00PM",
+        "Room": "CNMX1003-CLC Lecture Theatre 3 CQAR3002-FCI Computing Lab",
+        "Instructor": "Aziah Binti Ali Aziah Binti Ali",
+        "Seats": "Open Seats 39 of 120 Closed"
+    }
+]
