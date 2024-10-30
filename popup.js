@@ -202,17 +202,21 @@ function selectTrimester(selectedTrimester) {
   }
 }
 
+/**
+ * function that extract all classes details and store in 'localStorage' with 'Course Names' as keys
+ * @returns {object} combinedData
+ */
 function extractClassesDetails() {
   // <table class="ps_grid-flex" title="Class Options">
-  const table = document.querySelector("table.ps_grid-flex[title='Class Options'");
+  const table = document.querySelector("table.ps_grid-flex[title='Class Options']");
   if(!table) {
     console.log("Class Options table not found.");
   }
 
-  // Extract headers from the table, excluding the last header if necessary
+  // Extract headers from the table
   const headers = Array.from(table.querySelectorAll('thead th'))
-  .slice(0, -1)
-  .map(th => th.textContent.trim());
+    .slice(0, -1)
+    .map(th => th.textContent.trim());
 
   // Extract data rows and map them to header keys
   const combinedData = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
@@ -226,13 +230,87 @@ function extractClassesDetails() {
     return rowObject;
   });
 
+  // Filter out classes where "Status" is not "Open"
+  const openClasses = combinedData.filter(item => item.Status === "Open");
+  console.log(`Filtered to ${openClasses.length} open classes out of ${combinedData.length} total classes.`);
+
+  // convert 12 hour format > 24 hour format > minutes
+  function timeToMinutes(timeStr) {
+    const timePattern = /^(\d{1,2}):(\d{2})(AM|PM)$/i;
+    const match = timeStr.match(timePattern);
+    if (!match) {
+      throw new Error(`Invalid time format: "${timeStr}"`);
+    }
+  
+    let [_, hours, minutes, period] = match;
+    hours = parseInt(hours, 10);
+    minutes = parseInt(minutes, 10);
+  
+    if (period.toUpperCase() === 'PM' && hours !== 12) {
+      hours += 12;
+    }
+    if (period.toUpperCase() === 'AM' && hours === 12) {
+      hours = 0;
+    }
+  
+    return hours * 60 + minutes;
+  }
+
+  // split 'Days and Times' 
+  function splitDaysAndTimes(data) {
+    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+    // Create a regex pattern to match day and time ranges
+    const dayPattern = daysOfWeek.join('|'); // "Monday|Tuesday|...|Sunday"
+    const regex = new RegExp(`(${dayPattern})\\s*(\\d{1,2}:\\d{2}(?:AM|PM))\\s*to\\s*(\\d{1,2}:\\d{2}(?:AM|PM))`, 'gi');
+
+    // Find all matches in the string
+    const matches = [...data.matchAll(regex)];
+    
+    // Transform matches into structured objects
+    const schedule = matches.map(match => {
+      const day = match[1];
+      const startTimeStr = match[2];
+      const endTimeStr = match[3];
+      const startTimeMinutes = timeToMinutes(startTimeStr);
+      const endTimeMinutes = timeToMinutes(endTimeStr);
+      return {
+        day: day,
+        start: startTimeMinutes,
+        end: endTimeMinutes
+      };
+    });
+
+    return schedule;
+  }
+
+  // create new Object array
+  function processClassSchedules(data) {
+    return data.map(item => {
+      const daysAndTimesStr = item["Days and Times"];
+      let schedule = [];
+  
+      try {
+        schedule = splitDaysAndTimes(daysAndTimesStr);
+      } catch (error) {
+        console.error(`Error processing "${daysAndTimesStr}":`, error.message);
+      }
+  
+      return schedule
+    });
+  }
+
+  const result = processClassSchedules(openClasses);
+  console.log(result);
+
   const courseName = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').innerText; // using 'course name' as key
   
   // stringify data before storing as 'localStorage' only accepts 'string'
-  localStorage.setItem(courseName, JSON.stringify(combinedData)); 
+  localStorage.setItem(courseName, JSON.stringify(result)); 
 
-  return {data: combinedData};
+  return {data: result};
 }
+
 
 /**
  * Function to wait for 'new element' to spawn before proceeding
