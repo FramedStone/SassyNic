@@ -373,10 +373,12 @@
     /**
      * Filter out 'status' and reorganise 'Days and Times'
      */
-  
+
     // Retrieve all keys from localStorage
     const keys = Object.keys(localStorage);
-    console.log(`keys: ${keys}`);
+    console.log(`keys:\n${keys.map((key, index) => `${index}. ${key}`).join('\n')}`);
+
+    let DataSets = [keys];
   
     for (let i = 0; i < keys.length; i++) {
       // Parse the stored JSON data
@@ -487,48 +489,43 @@
       //     console.log(`${header}: ${JSON.stringify(row[i])}`);
       //   });
       // });
-  
-      // localStorage.clear();
 
       /**
-       * Generate Timetable Combinations
+       * Push necessary data into new array for generating combinations
        */
+      const dayIndex = newHeaders.indexOf("Days");
+      const timeIndex = newHeaders.indexOf("ClassTimes");
 
-      // initialise
-      let indexSet = 0, indexRow = 0, timetableGenerated = 0;
-      const DataSets = processedData;
-      let rowUsed = []; // to be used as 'two dimensional array'
-      table_combinations = [];
+      // 'days'
+      const days = processedData.flatMap(days => days[dayIndex]);
 
-      console.log(processedData);
+      // 'start' and 'end' times
+      const startTimes = processedData.flatMap(entry => entry[timeIndex].map(timeBlock => timeBlock.start)); // Use flatMap to combine mapping and flattening
+      const endTimes = processedData.flatMap(entry => entry[timeIndex].map(timeBlock => timeBlock.end)); 
 
-      function hasConflict(currentRow, currentTimetable) {
-        const dayIndex = newHeaders.indexOf("Days");
-        const timeIndex = newHeaders.indexOf("ClassTimes");
-
-        const daysSet = new Set(processedData.flatMap(days => days[dayIndex][currentRow]));
-        const day = Array.from(daysSet);
-        console.log(day);
-
-        // Extract 'start' and 'end' times
-        const startTimesSet = new Set(processedData.flatMap(entry => entry[timeIndex].map(timeBlock => timeBlock.start))); // Use flatMap to combine mapping and flattening
-        const startTime = Array.from(startTimesSet);
-
-        const endTimesSet = new Set(processedData.flatMap(entry => entry[timeIndex].map(timeBlock => timeBlock.end))); // Use flatMap to combine mapping and flattening
-        const endTime = Array.from(endTimesSet);
-
-        // Check if there is any conflicting time for the same day
-        // if(currentTimetable[day]) {
-        //   for(const )
-        // }
-      }
-
-      // pick one row from each datasets
-
-      // find conflicts (day and time)
-
-      // Append into timetable_combinations with same structure
+      DataSets[i] = {days, startTimes, endTimes}; 
     }
+    /**
+     * Generate Timetable Combinations
+     */
+
+    // initialise
+    let indexSet = 0, indexRow = 0;
+    let timetableGenerated = 0;
+    let rowUsed = []; // to be used as 'two dimensional array' (rowUsed.push([]))
+    let table_combinations = {};
+
+    while(indexSet <= DataSets.length) {
+      // {timtableGenerated: number, day: string, startTime: number, endTime: number}
+      table_combinations["allCombinations"] = table_combinations["allCombinations"] || [];
+      table_combinations["allCombinations"].push({headers: timetableGenerated, name: "timetableGenerated", value: timetableGenerated})
+
+      timetableGenerated++;
+      indexSet++;
+    }
+
+    console.log(DataSets[0].days[0]);
+    console.log(table_combinations);
   }
   
     
