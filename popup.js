@@ -23,57 +23,57 @@ document.addEventListener('DOMContentLoaded', function() {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
       const tabId = tabs[0].id;
 
-      // let courseTotal = document.getElementById('courseTotal').value;
-      // if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
+      let courseTotal = document.getElementById('courseTotal').value;
+      if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
  
-      // for(let i=0; i<courseTotal; i++) {
-      //   // Planner
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: clickPlanner
-      //   });
+      for(let i=0; i<courseTotal; i++) {
+        // Planner
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickPlanner
+        });
 
-      //   await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+        await waitForElement("tr[id^='PLANNER_NFF']", tabId);
 
-      //   // Trimester/Terms inside Planner
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: selectPlannerTrimester,
-      //     args: [selectedTrimester]
-      //   });
+        // Trimester/Terms inside Planner
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectPlannerTrimester,
+          args: [selectedTrimester]
+        });
 
-      //   await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+        await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
 
-      //   // Course selection interface
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: selectCourse,
-      //     args: [i],
-      //   });
+        // Course selection interface
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectCourse,
+          args: [i],
+        });
 
-      //   await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+        await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
 
-      //   // View Classes
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: clickViewClasses,
-      //   });
+        // View Classes
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickViewClasses,
+        });
 
-      //   await waitForElementWithText(selectedTrimester, tabId);
+        await waitForElementWithText(selectedTrimester, tabId);
 
-      //   // Trimester
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: selectTrimester,
-      //     args: [selectedTrimester],
-      //   });
+        // Trimester
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectTrimester,
+          args: [selectedTrimester],
+        });
 
-      //   await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+        await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
 
         // Extract Classes Details
         await chrome.scripting.executeScript({
@@ -81,7 +81,9 @@ document.addEventListener('DOMContentLoaded', function() {
           world: 'MAIN',
           func: extractClassesDetails,
         });
-      // }
+      }
+      alert("Extraction Completed.");
+      
     });
 
     // Show Extracted Data
