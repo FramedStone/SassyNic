@@ -91,13 +91,30 @@ document.addEventListener('DOMContentLoaded', function() {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
       const tabId = tabs[0].id;
 
-      await chrome.scripting.executeScript(
-        {
+      await chrome.scripting.executeScript({
           target: {tabId: tabId},
           world: 'MAIN',
-          func: () => alert(Object.keys(localStorage) == 0 ? "empty" : Object.keys(localStorage).join('\n')),
-        }
-      )
+          func: () => {
+            const keys = Object.keys(localStorage);
+            alert(Object.keys(localStorage) == 0 ? "empty" : Object.keys(localStorage).join('\n'));
+
+            for(let i=0; i<keys.length; i++) {
+              console.log(keys[i], "\n", JSON.parse(localStorage.getItem(keys[i])));
+            }
+          }
+        })
+    });
+
+    // Start Generating Timetable Combinations
+    document.getElementById('btnGenerate').addEventListener('click', async () => {
+      const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+      const tabId = tabs[0].id;
+
+      await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: startGenerate
+        })
     });
 });
 
@@ -205,7 +222,7 @@ function selectTrimester(selectedTrimester) {
 }
 
 /**
- * function that extract all classes details and store in 'localStorage' with 'Course Names' as keys
+ * function that extract all necessary classes details and store in 'localStorage' with 'Course Names' as keys
  * @returns {object} combinedData
  */
 function extractClassesDetails() {
@@ -215,30 +232,108 @@ function extractClassesDetails() {
     console.log("Class Options table not found.");
   }
 
-  const dataHeader = [];
-  const header = table.querySelectorAll('thead th');
-  header.forEach(row => {
-    if(row.textContent !== "") dataHeader.push(row.textContent); // filter empty element
-  })
-
-  const body = table.querySelectorAll('tbody tr')
-  const dataBody = new Array(body.length); // course total
-
-  for(let i=0; i<dataBody.length; i++) {
-    dataBody[i] = new Array(table.querySelectorAll('tbody td span.ps_box-value')) // course details length
-  }
+  var dataBody = [];
+  const body = table.querySelectorAll('tbody tr');
   
-  body.forEach((row, index) => {
-    const subBody = row.querySelectorAll('td span.ps_box-value')
-    subBody.forEach((row_, index_) => {
-      if(row_.textContent.trim() !== "") dataBody[index][index_] = row_.textContent.trim(); // filter empty element
-    })
-  })
+  /*
+    0: ps_grid-cell OPTION_NSFF
+    1: ps_grid-cell (STATUS)
+    2: ps_grid-cell SESSION
+    3: ps_grid-cell CMPNT_CLASS_NBR
+    4: ps_grid-cell DATES
+    5: ps_grid-cell DAYS_TIMES
+    6: ps_grid-cell ROOM
+    7: ps_grid-cell INSTRUCTOR
+    8: ps_grid-cell SEATS
+    ps_grid-cell CHEVRON (pop this element)
+  */
 
-  console.log(dataHeader)
-  console.log(dataBody)
+  body.forEach(row => {
+    const statusBody = row.querySelector('td.ps_grid-cell span.ps_box-value'); // first encounter (STATUS has unique class like others)
+    const classBody = row.querySelectorAll('td.ps_grid-cell.CMPNT_CLASS_NBR a.ps-link');
+
+    // filter status 
+    if(statusBody.textContent === "Open") {
+      const data = {
+        status: statusBody.textContent,
+        class: [], // for holding multiple classes
+      }
+
+      // insert day and time into class
+      classBody.forEach((rowClass, indexClass) => {
+        const classData = {
+          name: rowClass.textContent,
+          daytime: []
+        }
+
+        const dayTimeBody = row.querySelectorAll('td.ps_grid-cell.DAYS_TIMES div.ps_box-longedit')[indexClass];
+        const dayTimeBody_ = dayTimeBody.querySelectorAll('span.ps_box-value')
+        dayTimeBody_.forEach(element => {
+          const text = element.textContent;
+
+          // split "Day and Times" into "day startMinutes endMinutes"
+          const dayMatch = text.match(/^[A-Za-z]+/);
+          const day = dayMatch ? dayMatch[0] : "";
+
+          const times = text.slice(day.length).trim();
+          const [start, end] = times.split(" to ");
+          
+          // convert time from 12hour format > 24hour format > minutes
+          const convertToMinutes = (time) => {
+            const match = time.match(/(\d+):(\d+)(AM|PM)/);
+            if (!match) return 0;
+            let hour = parseInt(match[1], 10);
+            const minute = parseInt(match[2], 10);
+            const period = match[3];
+            
+            if (period === "PM" && hour !== 12) hour += 12;
+            if (period === "AM" && hour === 12) hour = 0;
+            
+            return hour * 60 + minute;
+          };
+          
+          // Convert start and end times to minutes
+          const startMinutes = convertToMinutes(start);
+          const endMinutes = convertToMinutes(end);
+
+          classData.daytime.push(`${day} ${startMinutes} ${endMinutes}`);
+        })
+
+        data.class.push(classData);
+      })
+  
+      dataBody.push(data);
+    }    
+  })
+  const courseTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent;
+  localStorage.setItem(courseTitle, JSON.stringify(dataBody));
+
+  console.log(courseTitle, ":\n", dataBody);
 }
 
+function startGenerate() {
+  const keys = Object.keys(localStorage);
+  console.log("Courses Included: ", keys.length);
+
+  const data = [], combinations = [];
+  const setUsed = new Set(), rowUsed = new Set();
+
+  for(let i=0; i<keys.length; i++) {
+    data.push(JSON.parse(localStorage.getItem(keys[i])));
+
+    if(!setUsed.has(data[i])) {
+      setUsed.add(data[i]);
+
+      data[i].forEach(element => {
+        if(!rowUsed.has(element)) {
+          rowUsed.add(element);
+
+        }
+      })
+    }
+  }
+  console.log(setUsed)
+}
 
 /**
  * Function to wait for 'new element' to spawn before proceeding
