@@ -26,54 +26,54 @@ document.addEventListener('DOMContentLoaded', function() {
       let courseTotal = document.getElementById('courseTotal').value;
       if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
  
-      for(let i=0; i<courseTotal; i++) {
-        // Planner
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: clickPlanner
-        });
+      // for(let i=0; i<courseTotal; i++) {
+      //   // Planner
+      //   await chrome.scripting.executeScript({
+      //     target: {tabId: tabId},
+      //     world: 'MAIN',
+      //     func: clickPlanner
+      //   });
 
-        await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+      //   await waitForElement("tr[id^='PLANNER_NFF']", tabId);
 
-        // Trimester/Terms inside Planner
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: selectPlannerTrimester,
-          args: [selectedTrimester]
-        });
+      //   // Trimester/Terms inside Planner
+      //   await chrome.scripting.executeScript({
+      //     target: {tabId: tabId},
+      //     world: 'MAIN',
+      //     func: selectPlannerTrimester,
+      //     args: [selectedTrimester]
+      //   });
 
-        await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+      //   await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
 
-        // Course selection interface
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: selectCourse,
-          args: [i],
-        });
+      //   // Course selection interface
+      //   await chrome.scripting.executeScript({
+      //     target: {tabId: tabId},
+      //     world: 'MAIN',
+      //     func: selectCourse,
+      //     args: [i],
+      //   });
 
-        await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+      //   await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
 
-        // View Classes
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: clickViewClasses,
-        });
+      //   // View Classes
+      //   await chrome.scripting.executeScript({
+      //     target: {tabId: tabId},
+      //     world: 'MAIN',
+      //     func: clickViewClasses,
+      //   });
 
-        await waitForElementWithText(selectedTrimester, tabId);
+      //   await waitForElementWithText(selectedTrimester, tabId);
 
-        // Trimester
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: selectTrimester,
-          args: [selectedTrimester],
-        });
+      //   // Trimester
+      //   await chrome.scripting.executeScript({
+      //     target: {tabId: tabId},
+      //     world: 'MAIN',
+      //     func: selectTrimester,
+      //     args: [selectedTrimester],
+      //   });
 
-        await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+      //   await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
 
         // Extract Classes Details
         await chrome.scripting.executeScript({
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
           world: 'MAIN',
           func: extractClassesDetails,
         });
-      }
-      alert("Extraction Completed.");
+      // }
+      // alert("Extraction Completed.");
       
     });
 
@@ -215,102 +215,28 @@ function extractClassesDetails() {
     console.log("Class Options table not found.");
   }
 
-  // Extract headers from the table
-  const headers = Array.from(table.querySelectorAll('thead th'))
-    .slice(0, -1)
-    .map(th => th.textContent.trim());
+  const dataHeader = [];
+  const header = table.querySelectorAll('thead th');
+  header.forEach(row => {
+    if(row.textContent !== "") dataHeader.push(row.textContent); // filter empty element
+  })
 
-  // Extract data rows and map them to header keys
-  const combinedData = Array.from(table.querySelectorAll('tbody tr')).map(tr => {
-    const cells = Array.from(tr.querySelectorAll('td'))
-      .slice(0, headers.length); // Ensure alignment with headers
+  const body = table.querySelectorAll('tbody tr')
+  const dataBody = new Array(body.length); // course total
 
-    const rowObject = {};
-    cells.forEach((td, index) => {
-      rowObject[headers[index]] = td.textContent.trim().replace(/\s+/g, ' '); // Standardize data
-    });
-    return rowObject;
-  });
-
-  // Filter out classes where "Status" is not "Open"
-  const openClasses = combinedData.filter(item => item.Status === "Open");
-  console.log(`Filtered to ${openClasses.length} open classes out of ${combinedData.length} total classes.`);
-
-  // convert 12 hour format > 24 hour format > minutes
-  function timeToMinutes(timeStr) {
-    const timePattern = /^(\d{1,2}):(\d{2})(AM|PM)$/i;
-    const match = timeStr.match(timePattern);
-    if (!match) {
-      throw new Error(`Invalid time format: "${timeStr}"`);
-    }
-  
-    let [_, hours, minutes, period] = match;
-    hours = parseInt(hours, 10);
-    minutes = parseInt(minutes, 10);
-  
-    if (period.toUpperCase() === 'PM' && hours !== 12) {
-      hours += 12;
-    }
-    if (period.toUpperCase() === 'AM' && hours === 12) {
-      hours = 0;
-    }
-  
-    return hours * 60 + minutes;
+  for(let i=0; i<dataBody.length; i++) {
+    dataBody[i] = new Array(table.querySelectorAll('tbody td span.ps_box-value')) // course details length
   }
-
-  // split 'Days and Times' 
-  function splitDaysAndTimes(data) {
-    const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
-
-    // Create a regex pattern to match day and time ranges
-    const dayPattern = daysOfWeek.join('|'); // "Monday|Tuesday|...|Sunday"
-    const regex = new RegExp(`(${dayPattern})\\s*(\\d{1,2}:\\d{2}(?:AM|PM))\\s*to\\s*(\\d{1,2}:\\d{2}(?:AM|PM))`, 'gi');
-
-    // Find all matches in the string
-    const matches = [...data.matchAll(regex)];
-    
-    // Transform matches into structured objects
-    const schedule = matches.map(match => {
-      const day = match[1];
-      const startTimeStr = match[2];
-      const endTimeStr = match[3];
-      const startTimeMinutes = timeToMinutes(startTimeStr);
-      const endTimeMinutes = timeToMinutes(endTimeStr);
-      return {
-        day: day,
-        start: startTimeMinutes,
-        end: endTimeMinutes
-      };
-    });
-
-    return schedule;
-  }
-
-  // create new Object array
-  function processClassSchedules(data) {
-    return data.map(item => {
-      const daysAndTimesStr = item["Days and Times"];
-      let schedule = [];
   
-      try {
-        schedule = splitDaysAndTimes(daysAndTimesStr);
-      } catch (error) {
-        console.error(`Error processing "${daysAndTimesStr}":`, error.message);
-      }
-  
-      return schedule
-    });
-  }
+  body.forEach((row, index) => {
+    const subBody = row.querySelectorAll('td span.ps_box-value')
+    subBody.forEach((row_, index_) => {
+      if(row_.textContent.trim() !== "") dataBody[index][index_] = row_.textContent.trim(); // filter empty element
+    })
+  })
 
-  const result = processClassSchedules(openClasses);
-  console.log(result);
-
-  const courseName = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').innerText; // using 'course name' as key
-  
-  // stringify data before storing as 'localStorage' only accepts 'string'
-  localStorage.setItem(courseName, JSON.stringify(result)); 
-
-  return {data: result};
+  console.log(dataHeader)
+  console.log(dataBody)
 }
 
 
