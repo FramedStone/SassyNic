@@ -95,8 +95,30 @@ document.addEventListener('DOMContentLoaded', function() {
           target: {tabId: tabId},
           world: 'MAIN',
           func: () => {
-            const keys = Object.keys(localStorage);
-            alert(Object.keys(localStorage) == 0 ? "empty" : Object.keys(localStorage).join('\n'));
+            function getKeys() {
+              const keys = Object.keys(localStorage);
+
+              const keys_ = keys.filter(key => {
+                const value = localStorage.getItem(key);
+
+                try {
+                  const parsedValue = JSON.parse(value);
+
+                  return Array.isArray(parsedValue) && parsedValue.every(item => {
+                    return item.hasOwnProperty("status") && Array.isArray(item.class) && item.class.every(class_ => {
+                      return class_.hasOwnProperty("name") && Array.isArray(class_.daytime);
+                    });
+                  });
+                } catch(error) {
+                  return false;
+                }
+              });
+
+              return keys_;
+            }
+
+            const keys = getKeys(); 
+            alert(Object.keys(localStorage).length === 0 ? "empty" : keys.join('\n'));
 
             for(let i=0; i<keys.length; i++) {
               console.log(keys[i], "\n", JSON.parse(localStorage.getItem(keys[i])));
@@ -312,7 +334,29 @@ function extractClassesDetails() {
 }
 
 function startGenerate() {
-  const keys = Object.keys(localStorage);
+  function getKeys() {
+    const keys = Object.keys(localStorage);
+
+    const keys_ = keys.filter(key => {
+      const value = localStorage.getItem(key);
+
+      try {
+        const parsedValue = JSON.parse(value);
+
+        return Array.isArray(parsedValue) && parsedValue.every(item => {
+          return item.hasOwnProperty("status") && Array.isArray(item.class) && item.class.every(class_ => {
+            return class_.hasOwnProperty("name") && Array.isArray(class_.daytime);
+          });
+        });
+      }catch(error) {
+        return false;
+      }
+    });
+
+    return keys_;
+  }
+
+  const keys = getKeys();
   console.log("Courses Included: ", keys.length);
 
   const data = [], combinations = [];
