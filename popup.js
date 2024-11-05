@@ -271,13 +271,13 @@ function extractClassesDetails() {
   */
 
   body.forEach(row => {
-    const statusBody = row.querySelector('td.ps_grid-cell span.ps_box-value'); // first encounter (STATUS has unique class like others)
+    const statusBody = row.querySelector('td.ps_grid-cell span.ps_box-value'); // first encounter (STATUS doesn't have unique class naming like others)
     const classBody = row.querySelectorAll('td.ps_grid-cell.CMPNT_CLASS_NBR a.ps-link');
 
     // filter status 
     if(statusBody.textContent === "Open") {
       const data = {
-        status: statusBody.textContent,
+        // courseTitle: courseTitle,
         class: [], // for holding multiple classes
       }
 
