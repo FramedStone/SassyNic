@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
                   const parsedValue = JSON.parse(value);
 
                   return Array.isArray(parsedValue) && parsedValue.every(item => {
-                    return item.hasOwnProperty("status") && Array.isArray(item.class) && item.class.every(class_ => {
+                    return Array.isArray(item.class) && item.class.every(class_ => {
                       return class_.hasOwnProperty("name") && Array.isArray(class_.daytime);
                     });
                   });
@@ -344,7 +344,7 @@ function startGenerate() {
         const parsedValue = JSON.parse(value);
 
         return Array.isArray(parsedValue) && parsedValue.every(item => {
-          return item.hasOwnProperty("status") && Array.isArray(item.class) && item.class.every(class_ => {
+          return Array.isArray(item.class) && item.class.every(class_ => {
             return class_.hasOwnProperty("name") && Array.isArray(class_.daytime);
           });
         });
@@ -360,7 +360,7 @@ function startGenerate() {
   console.log("Courses Included: ", keys.length);
 
   const data = [], combinations = [];
-  const setUsed = new Set(), rowUsed = new Set();
+  const setUsed = new Set(), rowUsed = new Set(); 
 
   for(let i=0; i<keys.length; i++) {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
