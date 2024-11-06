@@ -375,48 +375,23 @@ function startGenerate() {
   console.log("Courses Included: ", keys.length);
 
   const data = [], combinations = [];
-  const setUsed = new Set(), rowUsed = new Set(); 
+  const courseTotal = keys.length;
 
+  /*
+    all possible combintaitons of timetable = powerset of all courses = 2^n
+
+    example: 
+      courseTotal = 5
+      possible combinations = 2^5 = 32
+  */
+
+  // load datasets into 'data'
   for(let i=0; i<keys.length; i++) {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
-
-    if(!setUsed.has(data[i])) {
-      const set = {
-        courseTitle: keys[i],
-        class: []
-      }
-      // class
-      data[i].forEach(element => {
-        if(!rowUsed.has(element)) {
-          // daytime
-          element.class.forEach(element_ => {
-            const [day, start, end] = element_.daytime[0].split(" ");
-            let conflict = false;
-            // check for conflicts
-            combinations.forEach((set, index) => {
-              // day and time conflicts
-              if(day === set.class[index].day && set.class[index].start < end && set.class[index].end > start) {
-                console.log(day, start, end);
-                console.log(keys[i]);
-                console.log(set.class[index].day, set.class[index].start, set.class[index].end);
-                console.log(combinations[index].courseTitle);
-                conflict = true;
-              } else {
-                conflict = false;
-              }
-            })
-            if(!conflict)
-              set.class.push({day: day, start: start, end: end});
-          });
-          // push into 'set.class'
-          rowUsed.add(element);
-        }
-      });
-      setUsed.add(data[i]);
-      // push into 'combinations'
-      combinations.push(set); 
-    }
   }
+
+  // take each class from each courses
+  // add that row into Set
   console.log(combinations);
 }
 
