@@ -300,18 +300,33 @@ function extractClassesDetails() {
           const times = text.slice(day.length).trim();
           const [start, end] = times.split(" to ");
           
-          // convert time from 12hour format > 24hour format > minutes
+          // convert time to minutes (from 12 hours format / 24 hours format)
           const convertToMinutes = (time) => {
-            const match = time.match(/(\d+):(\d+)(AM|PM)/);
-            if (!match) return 0;
-            let hour = parseInt(match[1], 10);
-            const minute = parseInt(match[2], 10);
-            const period = match[3];
-            
-            if (period === "PM" && hour !== 12) hour += 12;
-            if (period === "AM" && hour === 12) hour = 0;
-            
-            return hour * 60 + minute;
+            let match;
+          
+            // Try to match 12-hour format with AM/PM
+            match = time.match(/^(\d{1,2}):(\d{2})(AM|PM)$/i);
+            if (match) {
+              let hour = parseInt(match[1], 10);
+              const minute = parseInt(match[2], 10);
+              const period = match[3].toUpperCase();
+          
+              if (period === "PM" && hour !== 12) hour += 12;
+              if (period === "AM" && hour === 12) hour = 0;
+          
+              return hour * 60 + minute;
+            }
+          
+            // Try to match 24-hour format
+            match = time.match(/^(\d{1,2}):(\d{2})$/);
+            if (match) {
+              const hour = parseInt(match[1], 10);
+              const minute = parseInt(match[2], 10);
+              return hour * 60 + minute;
+            }
+          
+            // Unable to parse time string
+            return 0;
           };
           
           // Convert start and end times to minutes
@@ -368,15 +383,18 @@ function startGenerate() {
     if(!setUsed.has(data[i])) {
       setUsed.add(data[i]);
 
+      console.log(data[i].class);
       data[i].forEach(element => {
         if(!rowUsed.has(element)) {
+          // check for day and time conflicts
+          console.log(element);
           rowUsed.add(element);
 
         }
       })
     }
+  // console.log(keys[i], setUsed)
   }
-  console.log(setUsed)
 }
 
 /**
