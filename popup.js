@@ -381,19 +381,29 @@ function startGenerate() {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
 
     if(!setUsed.has(data[i])) {
-      setUsed.add(data[i]);
-
-      console.log(data[i].class);
+      const set = {
+        courseTitle: keys[i],
+        class: []
+      }
+      // class
       data[i].forEach(element => {
         if(!rowUsed.has(element)) {
-          // check for day and time conflicts
-          console.log(element);
+          // daytime
+          element.class.forEach(element_ => {
+            const [day, start, end] = element_.daytime[0].split(" ");
+            // console.log(day, start, end);
+          });
+          // push into 'set.class'
+          set.class.push(element);
           rowUsed.add(element);
-
         }
-      })
+      });
+      setUsed.add(data[i]);
+      // push into 'combinations'
+      combinations.push(set); 
     }
   // console.log(keys[i], setUsed)
+  console.log(combinations);
   }
 }
 
