@@ -391,6 +391,7 @@ function startGenerate() {
           // daytime
           element.class.forEach(element_ => {
             const [day, start, end] = element_.daytime[0].split(" ");
+            let conflict = false;
             // check for conflicts
             combinations.forEach((set, index) => {
               // day and time conflicts
@@ -398,10 +399,14 @@ function startGenerate() {
                 console.log(day, start, end);
                 console.log(keys[i]);
                 console.log(set.class[index].day, set.class[index].start, set.class[index].end);
-                console.log(combinations[index].courseTitle)
+                console.log(combinations[index].courseTitle);
+                conflict = true;
+              } else {
+                conflict = false;
               }
             })
-            set.class.push({day: day, start: start, end: end});
+            if(!conflict)
+              set.class.push({day: day, start: start, end: end});
           });
           // push into 'set.class'
           rowUsed.add(element);
@@ -411,9 +416,8 @@ function startGenerate() {
       // push into 'combinations'
       combinations.push(set); 
     }
-  // console.log(keys[i], setUsed)
-  // console.log(combinations);
   }
+  console.log(combinations);
 }
 
 /**
