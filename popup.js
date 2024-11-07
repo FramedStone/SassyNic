@@ -104,11 +104,9 @@ document.addEventListener('DOMContentLoaded', function() {
                 try {
                   const parsedValue = JSON.parse(value);
 
-                  return Array.isArray(parsedValue) && parsedValue.every(item => {
-                    return Array.isArray(item.class) && item.class.every(class_ => {
-                      return class_.hasOwnProperty("name") && Array.isArray(class_.daytime);
+                    return Array.isArray(parsedValue) && parsedValue.every(item => {
+                              return item.hasOwnProperty("courseTitle");
                     });
-                  });
                 } catch(error) {
                   return false;
                 }
@@ -261,7 +259,7 @@ function extractClassesDetails() {
     0: ps_grid-cell OPTION_NSFF
     1: ps_grid-cell (STATUS)
     2: ps_grid-cell SESSION
-    3: ps_grid-cell CMPNT_CLASS_NBR
+    3: ps_grid-cell CMPNT_CLASS_NBR (class section)
     4: ps_grid-cell DATES
     5: ps_grid-cell DAYS_TIMES
     6: ps_grid-cell ROOM
@@ -270,14 +268,22 @@ function extractClassesDetails() {
     ps_grid-cell CHEVRON (pop this element)
   */
 
+  const courseTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent;
+
   body.forEach(row => {
+    const optionBody = row.querySelector('td.ps_grid-cell.OPTION_NSFF');
     const statusBody = row.querySelector('td.ps_grid-cell span.ps_box-value'); // first encounter (STATUS doesn't have unique class naming like others)
     const classBody = row.querySelectorAll('td.ps_grid-cell.CMPNT_CLASS_NBR a.ps-link');
+    const roomBody = row.querySelector('td.ps_grid-cell.ROOM');
+    const instructorBody = row.querySelector('td.ps_grid-cell.INSTRUCTOR');
 
     // filter status 
     if(statusBody.textContent === "Open") {
       const data = {
-        // courseTitle: courseTitle,
+        courseTitle: courseTitle,
+        option: optionBody.textContent.trim(),
+        room: roomBody.textContent.trim(), 
+        instructor: instructorBody.textContent.trim(), 
         class: [], // for holding multiple classes
       }
 
@@ -342,7 +348,6 @@ function extractClassesDetails() {
       dataBody.push(data);
     }    
   })
-  const courseTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent;
   localStorage.setItem(courseTitle, JSON.stringify(dataBody));
 
   console.log(courseTitle, ":\n", dataBody);
@@ -359,9 +364,7 @@ function startGenerate() {
         const parsedValue = JSON.parse(value);
 
         return Array.isArray(parsedValue) && parsedValue.every(item => {
-          return Array.isArray(item.class) && item.class.every(class_ => {
-            return class_.hasOwnProperty("name") && Array.isArray(class_.daytime);
-          });
+          return item.hasOwnProperty("courseTitle");
         });
       }catch(error) {
         return false;
@@ -372,10 +375,9 @@ function startGenerate() {
   }
 
   const keys = getKeys();
-  console.log("Courses Included: ", keys.length);
+  console.log("Courses Included: ", keys);
 
   const data = [], combinations = [];
-  const courseTotal = keys.length;
 
   /*
     all possible combintaitons of timetable = powerset of all courses = 2^n
@@ -390,9 +392,7 @@ function startGenerate() {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
   }
 
-  // take each class from each courses
-  // add that row into Set
-  console.log(combinations);
+  console.log(data[0].length)
 }
 
 /**
