@@ -2,7 +2,7 @@
  * Things to manually adjust every trimester
  * @selectedTrimester
  */
-const selectedTrimester = "Trimester October/November2024";
+const selectedTrimester = "Trimester Oct/Nov 2024";
 
 document.addEventListener('DOMContentLoaded', function() {
     // Reset / Stop
