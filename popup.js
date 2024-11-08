@@ -417,7 +417,19 @@ function startGenerate() {
       return combinations;
   }
   const finalCombinations = startGenerate_(data); 
-  console.log(finalCombinations);
+  
+  // final result format
+  console.log(`Total Combinations: ${finalCombinations.length}`);
+  finalCombinations.forEach((combination, index) => {
+    console.log(`Combination ${index + 1}:`);
+    combination.forEach(course => {
+      console.log(`Course: ${course.courseTitle}, Options: ${course.option}`); 
+      // course.class.forEach(class_ => {
+      //   console.log(`Class: ${class_.name}, Daytime: ${class_.daytime}`);
+      // });
+    })
+    console.log('-----------------------------------');
+  });
 }
 
 /**
