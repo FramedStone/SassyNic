@@ -377,14 +377,17 @@ function startGenerate() {
   const keys = getKeys();
   console.log("Courses Included: ", keys);
 
-  const data = [], combinations = [];
+  const data = [];
 
   /*
-    all possible combintaitons of timetable = powerset of all courses = 2^n
+    all possible combintaitons of timetable(without any constraints) = course's options * (course - 1)'s options 
 
     example: 
       courseTotal = 5
-      possible combinations = 2^5 = 32
+      each course options = c1[1], c2[1,2], c3[1,2,3], c4[1,2,3,4], c5[1,2,3,4,5]
+      possible combinations = c1 * c2 * c3 * c4 * c5
+                            = 1 * 2 * 3 * 4 * 5
+                            = 120 total combinations 
   */
 
   // load datasets into 'data'
@@ -392,7 +395,29 @@ function startGenerate() {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
   }
 
-  console.log(data[0].length)
+  // generate all possible combinations by using 'backtrack' algorithm 
+  function startGenerate_(data) {
+    const combinations = []; 
+      function backtrack(index, currentCombination) { 
+        // when reached the end of all the data arrays (first element)
+        if(index === data.length) {
+          combinations.push([...currentCombination]);
+          return;
+        }
+
+        const course = data[index]; // current course array
+        for(const class_ of course) {
+          currentCombination.push(class_);
+          backtrack(index + 1, currentCombination);
+          currentCombination.pop(); // pop used combinations
+        }
+      }
+        
+      backtrack(0,[]); // start the backtracking process from first datasets array 
+      return combinations;
+  }
+  const finalCombinations = startGenerate_(data); 
+  console.log(finalCombinations);
 }
 
 /**
