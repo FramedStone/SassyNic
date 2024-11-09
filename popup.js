@@ -448,7 +448,7 @@ function startGenerate() {
                   const end = parseInt(strEnd);
 
                   // check if daytime is conflicting
-                  if(day_.trim() === day.trim() && (start_ < end && end_ > start)) {
+                  if(day_.trim() === day.trim() && (start_ < end && start < end_)) {
                     return true; // break the loop
                   }
                   return false; // continue the loop
