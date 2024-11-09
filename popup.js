@@ -483,255 +483,324 @@ function startGenerate() {
   const finalCombinations = startGenerate_(data); 
   
   // Create a popup window to display the timetables
-  const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
+const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
 
-  // Prepare the HTML content
-  let htmlContent = `
-  <!DOCTYPE html>
-  <html>
-  <head>
-    <title>Timetable Combinations</title>
-    <style>
-      body { font-family: Arial, sans-serif; }
-      .timetable { border-collapse: collapse; width: 100%; }
-      .timetable th, .timetable td { border: 1px solid #ccc; padding: 5px; text-align: center; }
-      .timetable th { background-color: #f2f2f2; }
-      .class-cell { background-color: #d9edf7; }
-      .navigation { margin: 20px 0; text-align: center; }
-      .navigation button { padding: 10px 20px; font-size: 16px; }
-      .course-list { margin: 20px 0; }
-      .filters { margin: 20px 0; }
-      .filters h2 { margin-bottom: 10px; }
-      .filters label { display: block; margin: 5px 0; }
-      .filters input[type="checkbox"] { margin-right: 5px; }
-    </style>
-  </head>
-  <body>
-    <h1>Timetable Combinations</h1>
-    <div class="filters">
-      <h2>Filters:</h2>
-      <div>
-        <h3>Exclude Days with Classes:</h3>
-        <label><input type="checkbox" name="excludeDays" value="Monday"> Monday</label>
-        <label><input type="checkbox" name="excludeDays" value="Tuesday"> Tuesday</label>
-        <label><input type="checkbox" name="excludeDays" value="Wednesday"> Wednesday</label>
-        <label><input type="checkbox" name="excludeDays" value="Thursday"> Thursday</label>
-        <label><input type="checkbox" name="excludeDays" value="Friday"> Friday</label>
-        <label><input type="checkbox" name="excludeDays" value="Saturday"> Saturday</label>
-        <label><input type="checkbox" name="excludeDays" value="Sunday"> Sunday</label>
+// Prepare the HTML content
+let htmlContent = `
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Timetable Combinations</title>
+  <style>
+    body { font-family: Arial, sans-serif; }
+    .timetable {
+      border-collapse: collapse;
+      width: 100%;
+      table-layout: fixed;
+    }
+    .timetable th, .timetable td {
+      border: 1px solid #ccc;
+      padding: 5px;
+      text-align: center;
+      vertical-align: middle;
+      width: 14.28%;
+      height: 100px;
+      word-wrap: break-word;
+    }
+    .timetable th {
+      background-color: #f2f2f2;
+    }
+    .class-cell {
+      background-color: #d9edf7;
+      vertical-align: middle;
+    }
+    .navigation { margin: 20px 0; text-align: center; }
+    .navigation button { padding: 10px 20px; font-size: 16px; }
+    .course-list { margin: 20px 0; }
+    .filters { margin: 20px 0; }
+    .filters h2 { margin-bottom: 10px; }
+    .filters label { display: block; margin: 5px 0; }
+    .filters input[type="checkbox"] { margin-right: 5px; }
+    #instructor-filters { margin-top: 20px; }
+  </style>
+</head>
+<body>
+  <h1>Timetable Combinations</h1>
+  <div class="filters">
+    <h2>Filters:</h2>
+    <div>
+      <h3>Exclude Days with Classes:</h3>
+      <label><input type="checkbox" name="excludeDays" value="Monday"> Monday</label>
+      <label><input type="checkbox" name="excludeDays" value="Tuesday"> Tuesday</label>
+      <label><input type="checkbox" name="excludeDays" value="Wednesday"> Wednesday</label>
+      <label><input type="checkbox" name="excludeDays" value="Thursday"> Thursday</label>
+      <label><input type="checkbox" name="excludeDays" value="Friday"> Friday</label>
+      <label><input type="checkbox" name="excludeDays" value="Saturday"> Saturday</label>
+      <label><input type="checkbox" name="excludeDays" value="Sunday"> Sunday</label>
+    </div>
+    <div id="instructor-filters">
+      <h3>Exclude Instructors:</h3>
+      <div id="instructor-checkboxes">
+        <!-- Instructor checkboxes will be populated here -->
       </div>
-      <button onclick="applyFilters()">Apply Filters</button>
     </div>
-    <div id="timetable-container"></div>
-    <div class="navigation">
-      <button onclick="prevCombination()">Previous</button>
-      <span>
-        Combination 
-        <input type="number" id="combination-input" value="1" min="1" style="width: 60px;" onchange="goToCombination()" />
-        / <span id="total-combinations"></span>
-      </span>
-      <button onclick="nextCombination()">Next</button>
-    </div>
-    <div class="course-list" id="course-list"></div>
-    <script>
-      // Retrieve final combinations
-      const allCombinations = ${JSON.stringify(finalCombinations)};
-      let filteredCombinations = allCombinations;
-      let currentIndex = 0;
+    <button onclick="applyFilters()">Apply Filters</button>
+  </div>
+  <div id="timetable-container"></div>
+  <div class="navigation">
+    <button onclick="prevCombination()">Previous</button>
+    <span>
+      Combination 
+      <input type="number" id="combination-input" value="1" min="1" style="width: 60px;" onchange="goToCombination()" />
+      / <span id="total-combinations"></span>
+    </span>
+    <button onclick="nextCombination()">Next</button>
+  </div>
+  <div class="course-list" id="course-list"></div>
+  <script>
+    const allCombinations = ${JSON.stringify(finalCombinations)};
+    let filteredCombinations = allCombinations;
+    let currentIndex = 0;
 
-      document.getElementById('total-combinations').innerText = filteredCombinations.length;
+    document.getElementById('total-combinations').innerText = filteredCombinations.length;
 
-      function applyFilters() {
-        // Get selected days to exclude
-        const excludeDaysCheckboxes = document.querySelectorAll('input[name="excludeDays"]:checked');
-        const excludeDays = Array.from(excludeDaysCheckboxes).map(cb => cb.value);
-
-        // Filter combinations
-        filteredCombinations = allCombinations.filter(combination => {
-          // Check each class in the combination
-          for (const course of combination) {
-            for (const classComponent of course.class) {
-              for (const daytime of classComponent.daytime) {
-                const [day, startStr, endStr] = daytime.split(' ');
-                // Exclude days check
-                if (excludeDays.includes(day)) {
-                  return false;
-                }
-              }
-            }
-          }
-          // If all classes pass the filters, include the combination
-          return true;
-        });
-
-        // Reset current index and total combinations
-        currentIndex = 0;
-        document.getElementById('total-combinations').innerText = filteredCombinations.length;
-        if (filteredCombinations.length > 0) {
-          renderCombination(currentIndex);
-        } else {
-          document.getElementById('timetable-container').innerHTML = '<p>No combinations available with the selected filters.</p>';
-          document.getElementById('course-list').innerHTML = '';
-        }
-      }
-
-      function renderCombination(index) {
-        const combination = filteredCombinations[index];
-        document.getElementById('combination-input').value = index + 1;
-        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-        const timeSlots = [];
-
-        // Collect all time slots
+    // Populate instructor checkboxes
+    function populateInstructorFilters() {
+      const instructorSet = new Set();
+      allCombinations.forEach(combination => {
         combination.forEach(course => {
           course.class.forEach(classComponent => {
-            classComponent.daytime.forEach(daytime => {
+            instructorSet.add(classComponent.instructor);
+          });
+        });
+      });
+      const instructorCheckboxesDiv = document.getElementById('instructor-checkboxes');
+      const instructors = Array.from(instructorSet).sort();
+      instructors.forEach(instructor => {
+        const label = document.createElement('label');
+        label.innerHTML = \`<input type="checkbox" name="instructors" value="\${instructor}"> \${instructor}\`;
+        instructorCheckboxesDiv.appendChild(label);
+      });
+    }
+
+    populateInstructorFilters();
+
+    function applyFilters() {
+      const excludeDaysCheckboxes = document.querySelectorAll('input[name="excludeDays"]:checked');
+      const excludeDays = Array.from(excludeDaysCheckboxes).map(cb => cb.value);
+
+      const instructorCheckboxes = document.querySelectorAll('input[name="instructors"]:checked');
+      const excludedInstructors = Array.from(instructorCheckboxes).map(cb => cb.value);
+
+      filteredCombinations = allCombinations.filter(combination => {
+        for (const course of combination) {
+          for (const classComponent of course.class) {
+            for (const daytime of classComponent.daytime) {
               const [day, startStr, endStr] = daytime.split(' ');
-              const start = parseInt(startStr);
-              const end = parseInt(endStr);
-              const duration = (end - start) / 60; // Number of 60-minute intervals
-              timeSlots.push({ 
-                day, 
-                start, 
-                end, 
-                duration, 
-                courseTitle: course.courseTitle, 
-                componentName: classComponent.name 
-              });
-            });
-          });
-        });
-
-        // Determine the earliest and latest times
-        const times = timeSlots.flatMap(slot => [slot.start, slot.end]);
-        const minTime = Math.min(...times);
-        const maxTime = Math.max(...times);
-
-        // Generate time labels (e.g., 8:00 AM, 9:00 AM, etc.)
-        const timeLabels = [];
-        for (let time = minTime; time <= maxTime; time += 60) {
-          const hours = Math.floor(time / 60);
-          const minutes = time % 60;
-          const ampm = hours >= 12 ? 'PM' : 'AM';
-          const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-          const timeLabel = displayHours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
-          timeLabels.push({ time, label: timeLabel });
-        }
-
-        // Create a mapping of day and time to classes, with rowspan information
-        const schedule = {};
-        daysOfWeek.forEach(day => {
-          schedule[day] = {};
-          timeLabels.forEach(timeLabel => {
-            schedule[day][timeLabel.time] = { classInfo: null, display: true };
-          });
-        });
-
-        // Populate the schedule with classes and calculate rowspan
-        timeSlots.forEach(slot => {
-          const startTimeIndex = timeLabels.findIndex(tl => tl.time === slot.start);
-          const endTimeIndex = timeLabels.findIndex(tl => tl.time === slot.end);
-          const rowspan = (slot.end - slot.start) / 60; // Number of 60-minute intervals
-
-          // Set class info for the starting time slot
-          if (schedule[slot.day]) {
-            schedule[slot.day][slot.start] = {
-              classInfo: {
-                courseTitle: slot.courseTitle,
-                componentName: slot.componentName,
-                rowspan: rowspan
-              },
-              display: true
-            };
-            // Mark subsequent time slots to skip display (they will be covered by rowspan)
-            for (let time = slot.start + 60; time < slot.end; time += 60) {
-              schedule[slot.day][time] = { classInfo: null, display: false };
-            }
-          }
-        });
-
-        // Build the HTML table
-        let tableHtml = '<table class="timetable">';
-        // Table header
-        tableHtml += '<tr><th>Time</th>';
-        daysOfWeek.forEach(day => {
-          tableHtml += '<th>' + day + '</th>';
-        });
-        tableHtml += '</tr>';
-
-        // Table rows
-        timeLabels.forEach(timeLabel => {
-          tableHtml += '<tr>';
-          tableHtml += '<td>' + timeLabel.label + '</td>';
-          daysOfWeek.forEach(day => {
-            const cellData = schedule[day][timeLabel.time];
-            if (cellData.display) {
-              if (cellData.classInfo) {
-                tableHtml += '<td class="class-cell" rowspan="' + cellData.classInfo.rowspan + '">' + 
-                  cellData.classInfo.courseTitle + '<br>' + cellData.classInfo.componentName + '</td>';
-              } else {
-                tableHtml += '<td></td>';
+              if (excludeDays.includes(day)) {
+                return false;
+              }
+              if (excludedInstructors.includes(classComponent.instructor)) {
+                return false;
               }
             }
-            // If display is false, we do not render a cell for that time slot and day.
-          });
-          tableHtml += '</tr>';
-        });
-
-        tableHtml += '</table>';
-
-        // Display the table
-        document.getElementById('timetable-container').innerHTML = tableHtml;
-
-        // Display the list of courses and options
-        let courseListHtml = '<h2>Courses in Combination ' + (index + 1) + ':</h2><ul>';
-        combination.forEach(course => {
-          courseListHtml += '<li><strong>' + course.courseTitle + '</strong>, Option: ' + course.option + '</li>';
-        });
-        courseListHtml += '</ul>';
-        document.getElementById('course-list').innerHTML = courseListHtml;
-      }
-
-      function prevCombination() {
-        if (currentIndex > 0) {
-          currentIndex--;
-          renderCombination(currentIndex);
+          }
         }
-      }
+        return true;
+      });
 
-      function nextCombination() {
-        if (currentIndex < filteredCombinations.length - 1) {
-          currentIndex++;
-          renderCombination(currentIndex);
-        }
-      }
-
-      function goToCombination() {
-        const input = document.getElementById('combination-input');
-        let index = parseInt(input.value) - 1;
-        if (index >= 0 && index < filteredCombinations.length) {
-          currentIndex = index;
-          renderCombination(currentIndex);
-        } else {
-          alert('Invalid combination number.');
-          input.value = currentIndex + 1;
-        }
-      }
-
-      // Initial render
+      currentIndex = 0;
+      document.getElementById('total-combinations').innerText = filteredCombinations.length;
       if (filteredCombinations.length > 0) {
         renderCombination(currentIndex);
       } else {
-        document.getElementById('timetable-container').innerHTML = '<p>No combinations available.</p>';
+        document.getElementById('timetable-container').innerHTML = '<p>No combinations available with the selected filters.</p>';
+        document.getElementById('course-list').innerHTML = '';
       }
-    </script>
-  </body>
-  </html>
-  `;
+    }
 
-  // Write the HTML content to the popup window
-  popupWindow.document.open();
-  popupWindow.document.write(htmlContent);
-  popupWindow.document.close(); 
+    function formatComponentName(name) {
+      let component = '';
+      let section = '';
+      const componentMatch = name.match(/Component\\s+(\\w+)/);
+      if (componentMatch) {
+        switch (componentMatch[1]) {
+          case 'LAB':
+            component = 'Laboratory';
+            break;
+          case 'TUT':
+            component = 'Tutorial';
+            break;
+          case 'LEC':
+            component = 'Lecture';
+            break;
+          default:
+            component = componentMatch[1];
+        }
+      }
+      const sectionMatch = name.match(/Sect\\s+(\\w+)/);
+      if (sectionMatch) {
+        section = sectionMatch[1];
+      }
+      return component + ' - ' + section;
+    }
+
+    function renderCombination(index) {
+      const combination = filteredCombinations[index];
+      document.getElementById('combination-input').value = index + 1;
+      const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+      const timeSlots = [];
+
+      combination.forEach(course => {
+        course.class.forEach(classComponent => {
+          classComponent.daytime.forEach(daytime => {
+            const [day, startStr, endStr] = daytime.split(' ');
+            const start = parseInt(startStr);
+            const end = parseInt(endStr);
+            const duration = (end - start) / 60;
+            timeSlots.push({ 
+              day, 
+              start, 
+              end, 
+              duration, 
+              courseTitle: course.courseTitle, 
+              componentName: formatComponentName(classComponent.name),
+              instructor: classComponent.instructor,
+              room: classComponent.room,
+              startTimeLabel: formatTime(start),
+              endTimeLabel: formatTime(end)
+            });
+          });
+        });
+      });
+
+      const times = timeSlots.flatMap(slot => [slot.start, slot.end]);
+      const minTime = Math.min(...times);
+      const maxTime = Math.max(...times);
+
+      const timeLabels = [];
+      for (let time = minTime; time <= maxTime; time += 60) {
+        timeLabels.push({ time, label: formatTime(time) });
+      }
+
+      const schedule = {};
+      daysOfWeek.forEach(day => {
+        schedule[day] = {};
+        timeLabels.forEach(timeLabel => {
+          schedule[day][timeLabel.time] = { classInfo: null, display: true };
+        });
+      });
+
+      timeSlots.forEach(slot => {
+        const rowspan = (slot.end - slot.start) / 60;
+        if (schedule[slot.day]) {
+          schedule[slot.day][slot.start] = {
+            classInfo: {
+              courseTitle: slot.courseTitle,
+              componentName: slot.componentName,
+              instructor: slot.instructor,
+              room: slot.room,
+              startTimeLabel: slot.startTimeLabel,
+              endTimeLabel: slot.endTimeLabel,
+              rowspan: rowspan
+            },
+            display: true
+          };
+          for (let time = slot.start + 60; time < slot.end; time += 60) {
+            schedule[slot.day][time] = { classInfo: null, display: false };
+          }
+        }
+      });
+
+      let tableHtml = '<table class="timetable">';
+      tableHtml += '<tr><th>Time</th>';
+      daysOfWeek.forEach(day => {
+        tableHtml += '<th>' + day + '</th>';
+      });
+      tableHtml += '</tr>';
+
+      timeLabels.forEach(timeLabel => {
+        tableHtml += '<tr>';
+        tableHtml += '<td>' + timeLabel.label + '</td>';
+        daysOfWeek.forEach(day => {
+          const cellData = schedule[day][timeLabel.time];
+          if (cellData.display) {
+            if (cellData.classInfo) {
+              tableHtml += '<td class="class-cell" rowspan="' + cellData.classInfo.rowspan + '">';
+              tableHtml += '<strong>' + cellData.classInfo.courseTitle + '</strong><br>';
+              tableHtml += cellData.classInfo.componentName + '<br>';
+              tableHtml += cellData.classInfo.instructor + '<br>';
+              tableHtml += cellData.classInfo.room + '<br>';
+              tableHtml += cellData.classInfo.startTimeLabel + ' - ' + cellData.classInfo.endTimeLabel;
+              tableHtml += '</td>';
+            } else {
+              tableHtml += '<td></td>';
+            }
+          }
+        });
+        tableHtml += '</tr>';
+      });
+
+      tableHtml += '</table>';
+
+      document.getElementById('timetable-container').innerHTML = tableHtml;
+
+      let courseListHtml = '<h2>Courses in Combination ' + (index + 1) + ':</h2><ul>';
+      combination.forEach(course => {
+        courseListHtml += '<li><strong>' + course.courseTitle + '</strong>, Option: ' + course.option + '</li>';
+      });
+      courseListHtml += '</ul>';
+      document.getElementById('course-list').innerHTML = courseListHtml;
+    }
+
+    function formatTime(minutes) {
+      const hours = Math.floor(minutes / 60);
+      const mins = minutes % 60;
+      const ampm = hours >= 12 ? 'PM' : 'AM';
+      const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+      return displayHours + ':' + (mins < 10 ? '0' : '') + mins + ' ' + ampm;
+    }
+
+    function prevCombination() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderCombination(currentIndex);
+      }
+    }
+
+    function nextCombination() {
+      if (currentIndex < filteredCombinations.length - 1) {
+        currentIndex++;
+        renderCombination(currentIndex);
+      }
+    }
+
+    function goToCombination() {
+      const input = document.getElementById('combination-input');
+      let index = parseInt(input.value) - 1;
+      if (index >= 0 && index < filteredCombinations.length) {
+        currentIndex = index;
+        renderCombination(currentIndex);
+      } else {
+        alert('Invalid combination number.');
+        input.value = currentIndex + 1;
+      }
+    }
+
+    if (filteredCombinations.length > 0) {
+      renderCombination(currentIndex);
+    } else {
+      document.getElementById('timetable-container').innerHTML = '<p>No combinations available.</p>';
+    }
+  </script>
+</body>
+</html>
+`;
+
+// Write the HTML content to the popup window
+popupWindow.document.open();
+popupWindow.document.write(htmlContent);
+popupWindow.document.close(); 
 }
 
 /**
@@ -856,7 +925,8 @@ function waitForElementWithText(expectedText, tabId) {
     // Timeout handling
     setTimeout(() => {
       clearInterval(intervalId);
-      reject(new Error(`Element with text "${expectedText}" not found within ${timeout}ms`));
+      // reject(new Error(`Element with text "${expectedText}" not found within ${timeout}ms`));
+      resolve(); // proceed with next process as some of the courses doesn't have this element  (Current: Trimester Selection)
     }, timeout);
   });
 }
