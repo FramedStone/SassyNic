@@ -1,10 +1,10 @@
-/**
- * Things to manually adjust every trimester
- * @selectedTrimester
- */
-const selectedTrimester = "Trimester Oct/Nov 2024";
-
 document.addEventListener('DOMContentLoaded', function() {
+    /**
+     * Things to manually adjust every trimester
+     * @selectedTrimester
+     */
+    const selectedTrimester = document.getElementById('trimester').value; 
+
     // Reset / Stop
     document.getElementById('btnReset').addEventListener('click', async () => {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
@@ -904,8 +904,8 @@ function startGenerate() {
 function waitForElement(selector, tabId) {
   console.log(`waitForElement: Waiting for element ${selector}`);
   return new Promise((resolve, reject) => {
-    const checkInterval = 2000; // Interval time in milliseconds
-    const timeout = 10000; // Timeout duration in milliseconds
+    const checkInterval = document.getElementById('interval').value; // Interval time in milliseconds
+    const timeout = document.getElementById('timeout').value; // Timeout duration in milliseconds
     const checkExist = setInterval(() => {
       chrome.scripting.executeScript(
         {
@@ -946,8 +946,8 @@ function waitForElement(selector, tabId) {
 function waitForElementWithText(expectedText, tabId) {
   console.log(`waitForElementWithText: Waiting for text "${expectedText}"`);
   return new Promise((resolve, reject) => {
-    const checkInterval = 1000; // Interval time in milliseconds
-    const timeout = 10000; // Timeout duration in milliseconds
+    const checkInterval = document.getElementById('interval').value; // Interval time in milliseconds
+    const timeout = document.getElementById('timeout').value; // Timeout duration in milliseconds
     const startTime = Date.now();
 
     const intervalId = setInterval(() => {

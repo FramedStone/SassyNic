@@ -20,14 +20,24 @@
   <br><br>
 
   <!-- Reset -->
-  <button id="btnReset">Reset/Stop</button>
+  <button id="btnReset">Reset</button>
   <br><br>
 
   <!-- Trimester Label (manual update) -->
   <label>Current Trimester: October/November2024</label>
+
+  <!-- Extract Customisation -->
+  <h3>Extract Customisation (modify only if needed)</h3>
+  <label>Current Trimester</label>
+  <input id="trimester" placeholder="Trimester Oct/Nov 2024" value="Trimester Oct/Nov 2024"></input>
+
+  <label>Extraction Interval (miliseconds)</label>
+  <input id="interval" placeholder="in miliseconds" value="2000"></input>
   <br><br>
 
-  <div id="tableContainer"></div>
+  <label>Extraction Timeout (miliseconds) !! always set bigger value !!</label>
+  <input id="timeout" placeholder="in miliseconds" value="10000"></input>
+
   <script src="popup.js"></script>
 </body>
 </html>
