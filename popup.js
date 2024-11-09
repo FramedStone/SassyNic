@@ -353,6 +353,12 @@ function extractClassesDetails() {
   console.log(courseTitle, ":\n", dataBody);
 }
 
+/**
+ * function that generate all possible timetable combinations
+ * constraints:
+ *  - must take one and only one class from each course
+ *  - each combinations must not have daytime conflicts
+ */
 function startGenerate() {
   function getKeys() {
     const keys = Object.keys(localStorage);
@@ -395,11 +401,15 @@ function startGenerate() {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
   }
 
-  // generate all possible combinations by using 'backtrack' algorithm 
+  /**
+   * generate all possible combinations by using 'backtrack' algorithm
+   * @param {Array} data 
+   * @returns {Array} combinations - all possible combinations 
+   */
   function startGenerate_(data) {
     const combinations = []; 
       function backtrack(index, currentCombination) { 
-        // when reached the end of all the data arrays (first element)
+        // when reached the end of all the data arrays (after popping all used combinations)  
         if(index === data.length) {
           combinations.push([...currentCombination]);
           return;
@@ -407,15 +417,52 @@ function startGenerate() {
 
         const course = data[index]; // current course array
         for(const class_ of course) {
-          currentCombination.push(class_);
-          backtrack(index + 1, currentCombination);
-          currentCombination.pop(); // pop used combinations
+          // daytime conflict check
+          if(!isDaytimeConflict(currentCombination, class_)) {
+            currentCombination.push(class_);
+            backtrack(index + 1, currentCombination);
+            currentCombination.pop(); // pop used combinations
+          }
         }
+      }
+
+      function isDaytimeConflict(currentCombination, classOption) {
+        // check if there's any daytime conflict within the existing combinations
+        return currentCombination.some(existingCourse => {            // course
+          return existingCourse.class.some(existingClass => {         // class
+            return existingClass.daytime.some(existingDayTime => {    // daytime
+              // parse existing daytime
+              const [day_, strStart_, strEnd_] = existingDayTime.split(" ");
+              // convert start and end time to numbers
+              const start_ = parseInt(strStart_);
+              const end_ = parseInt(strEnd_);
+              
+              // check with current classOption
+              return classOption.class.some(class_ => {              // class
+                return class_.daytime.some(daytime_ => {             // daytime
+                  // parse new daytime
+                  const [day, strStart, strEnd] = daytime_.split(" ");
+
+                  // convert start and end time to numbers
+                  const start = parseInt(strStart);
+                  const end = parseInt(strEnd);
+
+                  // check if daytime is conflicting
+                  if(day_.trim() === day.trim() && (start_ < end && end_ > start)) {
+                    return true; // break the loop
+                  }
+                  return false; // continue the loop
+                })
+              })
+            })
+          })
+        })
       }
         
       backtrack(0,[]); // start the backtracking process from first datasets array 
       return combinations;
   }
+
   const finalCombinations = startGenerate_(data); 
   
   // final result format
