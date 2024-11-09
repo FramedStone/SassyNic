@@ -465,18 +465,306 @@ function startGenerate() {
 
   const finalCombinations = startGenerate_(data); 
   
-  // final result format
-  console.log(`Total Combinations: ${finalCombinations.length}`);
-  finalCombinations.forEach((combination, index) => {
-    console.log(`Combination ${index + 1}:`);
-    combination.forEach(course => {
-      console.log(`Course: ${course.courseTitle}, Options: ${course.option}`); 
-      // course.class.forEach(class_ => {
-      //   console.log(`Class: ${class_.name}, Daytime: ${class_.daytime}`);
-      // });
-    })
-    console.log('-----------------------------------');
-  });
+  // Create a popup window to display the timetables
+  const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
+
+  // Prepare the HTML content
+  let htmlContent = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Timetable Combinations</title>
+    <style>
+      body { font-family: Arial, sans-serif; }
+      .timetable { border-collapse: collapse; width: 100%; }
+      .timetable th, .timetable td { border: 1px solid #ccc; padding: 5px; text-align: center; }
+      .timetable th { background-color: #f2f2f2; }
+      .class-cell { background-color: #d9edf7; }
+      .navigation { margin: 20px 0; text-align: center; }
+      .navigation button { padding: 10px 20px; font-size: 16px; }
+      .course-list { margin: 20px 0; }
+      .filters { margin: 20px 0; }
+      .filters h2 { margin-bottom: 10px; }
+      .filters label { display: block; margin: 5px 0; }
+      .filters input[type="checkbox"] { margin-right: 5px; }
+      .filters table { width: 100%; border-collapse: collapse; }
+      .filters th, .filters td { padding: 5px; text-align: left; }
+    </style>
+  </head>
+  <body>
+    <h1>Timetable Combinations</h1>
+    <div class="filters">
+      <h2>Filters:</h2>
+      <div>
+        <h3>Exclude Days with Classes:</h3>
+        <label><input type="checkbox" name="excludeDays" value="Monday"> Monday</label>
+        <label><input type="checkbox" name="excludeDays" value="Tuesday"> Tuesday</label>
+        <label><input type="checkbox" name="excludeDays" value="Wednesday"> Wednesday</label>
+        <label><input type="checkbox" name="excludeDays" value="Thursday"> Thursday</label>
+        <label><input type="checkbox" name="excludeDays" value="Friday"> Friday</label>
+        <label><input type="checkbox" name="excludeDays" value="Saturday"> Saturday</label>
+        <label><input type="checkbox" name="excludeDays" value="Sunday"> Sunday</label>
+      </div>
+      <div>
+        <h3>Time Filters:</h3>
+        <table>
+          <tr>
+            <th>Day</th>
+            <th>Earliest Start Time</th>
+            <th>Latest End Time</th>
+          </tr>
+          ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
+            <tr>
+              <td>${day}</td>
+              <td><input type="time" id="${day}-earliest" /></td>
+              <td><input type="time" id="${day}-latest" /></td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+      <button onclick="applyFilters()">Apply Filters</button>
+    </div>
+    <div id="timetable-container"></div>
+    <div class="navigation">
+      <button onclick="prevCombination()">Previous</button>
+      <span>
+        Combination 
+        <input type="number" id="combination-input" value="1" min="1" style="width: 60px;" onchange="goToCombination()" />
+        / <span id="total-combinations"></span>
+      </span>
+      <button onclick="nextCombination()">Next</button>
+    </div>
+    <div class="course-list" id="course-list"></div>
+    <script>
+      // Retrieve final combinations
+      const allCombinations = ${JSON.stringify(finalCombinations)};
+      let filteredCombinations = allCombinations;
+      let currentIndex = 0;
+
+      document.getElementById('total-combinations').innerText = filteredCombinations.length;
+
+      function applyFilters() {
+        // Get selected days to exclude
+        const excludeDaysCheckboxes = document.querySelectorAll('input[name="excludeDays"]:checked');
+        const excludeDays = Array.from(excludeDaysCheckboxes).map(cb => cb.value);
+
+        // Get time filters
+        const timeFilters = {};
+        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+          const earliest = document.getElementById(\`\${day}-earliest\`).value;
+          const latest = document.getElementById(\`\${day}-latest\`).value;
+          if (earliest || latest) {
+            timeFilters[day] = {};
+            if (earliest) {
+              const [hours, minutes] = earliest.split(':').map(Number);
+              timeFilters[day].earliest = hours * 60 + minutes;
+            }
+            if (latest) {
+              const [hours, minutes] = latest.split(':').map(Number);
+              timeFilters[day].latest = hours * 60 + minutes;
+            }
+          }
+        });
+
+        // Filter combinations
+        filteredCombinations = allCombinations.filter(combination => {
+          // Check each class in the combination
+          for (const course of combination) {
+            for (const classComponent of course.class) {
+              for (const daytime of classComponent.daytime) {
+                const [day, startStr, endStr] = daytime.split(' ');
+                const start = parseInt(startStr);
+                const end = parseInt(endStr);
+
+                // Exclude days check
+                if (excludeDays.includes(day)) {
+                  return false;
+                }
+
+                // Time filters check
+                if (timeFilters[day]) {
+                  if (timeFilters[day].earliest !== undefined && end <= timeFilters[day].earliest) {
+                    return false; // Class ends before or at earliest start time
+                  }
+                  if (timeFilters[day].latest !== undefined && start >= timeFilters[day].latest) {
+                    return false; // Class starts after or at latest end time
+                  }
+                }
+              }
+            }
+          }
+          // If all classes pass the filters, include the combination
+          return true;
+        });
+
+        // Reset current index and total combinations
+        currentIndex = 0;
+        document.getElementById('total-combinations').innerText = filteredCombinations.length;
+        if (filteredCombinations.length > 0) {
+          renderCombination(currentIndex);
+        } else {
+          document.getElementById('timetable-container').innerHTML = '<p>No combinations available with the selected filters.</p>';
+          document.getElementById('course-list').innerHTML = '';
+        }
+      }
+
+      function renderCombination(index) {
+        const combination = filteredCombinations[index];
+        document.getElementById('combination-input').value = index + 1;
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        const timeSlots = [];
+
+        // Collect all time slots
+        combination.forEach(course => {
+          course.class.forEach(classComponent => {
+            classComponent.daytime.forEach(daytime => {
+              const [day, startStr, endStr] = daytime.split(' ');
+              const start = parseInt(startStr);
+              const end = parseInt(endStr);
+              const duration = (end - start) / 60; // Number of 60-minute intervals
+              timeSlots.push({ 
+                day, 
+                start, 
+                end, 
+                duration, 
+                courseTitle: course.courseTitle, 
+                componentName: classComponent.name 
+              });
+            });
+          });
+        });
+
+        // Determine the earliest and latest times
+        const times = timeSlots.flatMap(slot => [slot.start, slot.end]);
+        const minTime = Math.min(...times);
+        const maxTime = Math.max(...times);
+
+        // Generate time labels (e.g., 8:00 AM, 9:00 AM, etc.)
+        const timeLabels = [];
+        for (let time = minTime; time <= maxTime; time += 60) {
+          const hours = Math.floor(time / 60);
+          const minutes = time % 60;
+          const ampm = hours >= 12 ? 'PM' : 'AM';
+          const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+          const timeLabel = displayHours + ':' + (minutes < 10 ? '0' : '') + minutes + ' ' + ampm;
+          timeLabels.push({ time, label: timeLabel });
+        }
+
+        // Create a mapping of day and time to classes, with rowspan information
+        const schedule = {};
+        daysOfWeek.forEach(day => {
+          schedule[day] = {};
+          timeLabels.forEach(timeLabel => {
+            schedule[day][timeLabel.time] = { classInfo: null, display: true };
+          });
+        });
+
+        // Populate the schedule with classes and calculate rowspan
+        timeSlots.forEach(slot => {
+          const startTimeIndex = timeLabels.findIndex(tl => tl.time === slot.start);
+          const endTimeIndex = timeLabels.findIndex(tl => tl.time === slot.end);
+          const rowspan = (slot.end - slot.start) / 60; // Number of 60-minute intervals
+
+          // Set class info for the starting time slot
+          if (schedule[slot.day]) {
+            schedule[slot.day][slot.start] = {
+              classInfo: {
+                courseTitle: slot.courseTitle,
+                componentName: slot.componentName,
+                rowspan: rowspan
+              },
+              display: true
+            };
+            // Mark subsequent time slots to skip display (they will be covered by rowspan)
+            for (let time = slot.start + 60; time < slot.end; time += 60) {
+              schedule[slot.day][time] = { classInfo: null, display: false };
+            }
+          }
+        });
+
+        // Build the HTML table
+        let tableHtml = '<table class="timetable">';
+        // Table header
+        tableHtml += '<tr><th>Time</th>';
+        daysOfWeek.forEach(day => {
+          tableHtml += '<th>' + day + '</th>';
+        });
+        tableHtml += '</tr>';
+
+        // Table rows
+        timeLabels.forEach(timeLabel => {
+          tableHtml += '<tr>';
+          tableHtml += '<td>' + timeLabel.label + '</td>';
+          daysOfWeek.forEach(day => {
+            const cellData = schedule[day][timeLabel.time];
+            if (cellData.display) {
+              if (cellData.classInfo) {
+                tableHtml += '<td class="class-cell" rowspan="' + cellData.classInfo.rowspan + '">' + 
+                  cellData.classInfo.courseTitle + '<br>' + cellData.classInfo.componentName + '</td>';
+              } else {
+                tableHtml += '<td></td>';
+              }
+            }
+            // If display is false, we do not render a cell for that time slot and day.
+          });
+          tableHtml += '</tr>';
+        });
+
+        tableHtml += '</table>';
+
+        // Display the table
+        document.getElementById('timetable-container').innerHTML = tableHtml;
+
+        // Display the list of courses and options
+        let courseListHtml = '<h2>Courses in Combination ' + (index + 1) + ':</h2><ul>';
+        combination.forEach(course => {
+          courseListHtml += '<li><strong>' + course.courseTitle + '</strong>, Option: ' + course.option + '</li>';
+        });
+        courseListHtml += '</ul>';
+        document.getElementById('course-list').innerHTML = courseListHtml;
+      }
+
+      function prevCombination() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          renderCombination(currentIndex);
+        }
+      }
+
+      function nextCombination() {
+        if (currentIndex < filteredCombinations.length - 1) {
+          currentIndex++;
+          renderCombination(currentIndex);
+        }
+      }
+
+      function goToCombination() {
+        const input = document.getElementById('combination-input');
+        let index = parseInt(input.value) - 1;
+        if (index >= 0 && index < filteredCombinations.length) {
+          currentIndex = index;
+          renderCombination(currentIndex);
+        } else {
+          alert('Invalid combination number.');
+          input.value = currentIndex + 1;
+        }
+      }
+
+      // Initial render
+      if (filteredCombinations.length > 0) {
+        renderCombination(currentIndex);
+      } else {
+        document.getElementById('timetable-container').innerHTML = '<p>No combinations available.</p>';
+      }
+    </script>
+  </body>
+  </html>
+  `;
+
+// Write the HTML content to the popup window
+popupWindow.document.open();
+popupWindow.document.write(htmlContent);
+popupWindow.document.close(); 
 }
 
 /**
