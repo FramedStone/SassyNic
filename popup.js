@@ -136,6 +136,27 @@ document.addEventListener('DOMContentLoaded', function() {
           func: startGenerate
         })
     });
+
+    // Dark Mode
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+
+    darkModeToggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        darkModeToggle.textContent = body.classList.contains('dark-mode') ? '🌙' : '☀️';
+    });
+
+    // Expand/Collapse Customization Section
+    const toggleCustomizationBtn = document.getElementById('toggleCustomization');
+    const customizationSection = document.getElementById('customizationSection');
+
+    toggleCustomizationBtn.addEventListener('click', () => {
+        customizationSection.classList.toggle('visible');
+        customizationSection.classList.toggle('hidden');
+        toggleCustomizationBtn.textContent = customizationSection.classList.contains('visible') 
+            ? 'Extract Customization 🔼' 
+            : 'Extract Customization 🔽';
+    });
 });
 
 /**

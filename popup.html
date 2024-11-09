@@ -1,43 +1,48 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <title>Table Data Extractor</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SassyNic</title>
+    <link rel="stylesheet" href="popup.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
-
 <body>
-  <!-- Extraction -->
-  <button id="btnExtract">Start Extraction</button>
-  <input id="courseTotal" placeholder="total of courses"></input>
-  <br><br>
+    <div class="container">
+        <h1>SassyNic</h1>
+        <button id="darkModeToggle" class="icon-button">☀️</button>
 
-  <!-- Show Extracted Data -->
-  <button id="btnShowExtracted">Show Extracted Data</button>
-  <br><br>
+        <button id="btnExtract" class="action-button">▶️ Start Extraction</button>
+        <input id="courseTotal" placeholder="Total of courses">
 
-  <!-- Generate Timetable Combinations -->
-  <button id="btnGenerate">Start Generating Timetable Combinations</button>
-  <br><br>
+        <button id="btnShowExtracted" class="action-button">👁️ Show Extracted Data</button>
 
-  <!-- Reset -->
-  <button id="btnReset">Reset</button>
-  <br><br>
+        <button id="btnGenerate" class="action-button">📅 Generate Timetables</button>
 
-  <!-- Trimester Label (manual update) -->
-  <label>Current Trimester: October/November2024</label>
+        <button id="btnReset" class="action-button">🔄 Reset</button>
 
-  <!-- Extract Customisation -->
-  <h3>Extract Customisation (modify only if needed)</h3>
-  <label>Current Trimester</label>
-  <input id="trimester" placeholder="Trimester Oct/Nov 2024" value="Trimester Oct/Nov 2024"></input>
+        <div class="small-text">Current Trimester: October/November 2024</div>
 
-  <label>Extraction Interval (miliseconds)</label>
-  <input id="interval" placeholder="in miliseconds" value="2000"></input>
-  <br><br>
+        <div class="separator"></div>
 
-  <label>Extraction Timeout (miliseconds) !! always set bigger value !!</label>
-  <input id="timeout" placeholder="in miliseconds" value="10000"></input>
+        <button id="toggleCustomization" class="toggle-button">
+            Extract Customization 🔽
+        </button>
 
-  <script src="popup.js"></script>
+        <div id="customizationSection" class="hidden">
+            <h3>Extract Customization <span class="info-icon" title="Modify only if needed"></span></h3>
+
+            <label for="trimester">Current Trimester</label>
+            <input id="trimester" placeholder="Trimester Oct/Nov 2024" value="Trimester Oct/Nov 2024">
+
+            <label for="interval">Extraction Interval (ms)</label>
+            <input id="interval" type="number" placeholder="in milliseconds" value="2000">
+
+            <label for="timeout">Extraction Timeout (ms) <span class="info-icon" title="Always set a bigger value than the interval"></span></label>
+            <input id="timeout" type="number" placeholder="in milliseconds" value="10000">
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
 </body>
 </html>
