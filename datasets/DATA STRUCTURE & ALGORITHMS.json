@@ -1,0 +1,178 @@
+[
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Ruzanna Binti Abdullah"
+            },
+            {
+                "name": "Component LAB - Class Sect TL2L - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Ruzanna Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CNMX1003-CLC Lecture Theatre 3",
+                "instructor": "Aziah Binti Ali"
+            },
+            {
+                "name": "Component LAB - Class Sect TL4L - Class ",
+                "daytime": [
+                    "Monday 600 720"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Aziah Binti Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CNMX1003-CLC Lecture Theatre 3",
+                "instructor": "Aziah Binti Ali"
+            },
+            {
+                "name": "Component LAB - Class Sect TL6L - Class ",
+                "daytime": [
+                    "Thursday 840 960"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Aziah Binti Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "4",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CNMX1003-CLC Lecture Theatre 3",
+                "instructor": "Aziah Binti Ali"
+            },
+            {
+                "name": "Component LAB - Class Sect TL5L - Class ",
+                "daytime": [
+                    "Monday 870 990"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Aziah Binti Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "5",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CQCR3004-FCI Classroom",
+                "instructor": "Ruzanna Binti Abdullah"
+            },
+            {
+                "name": "Component LAB - Class Sect TL8L - Class ",
+                "daytime": [
+                    "Thursday 660 780"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Ruzanna Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "6",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CQCR3004-FCI Classroom",
+                "instructor": "Ruzanna Binti Abdullah"
+            },
+            {
+                "name": "Component LAB - Class Sect TL7L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Ruzanna Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "7",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Tuesday 660 780"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Suraya Nurain Binti Kalid"
+            },
+            {
+                "name": "Component LAB - Class Sect TL9L - Class ",
+                "daytime": [
+                    "Friday 480 600"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Ruzanna Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA STRUCTURE & ALGORITHMS",
+        "option": "8",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Tuesday 660 780"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Suraya Nurain Binti Kalid"
+            },
+            {
+                "name": "Component LAB - Class Sect TL10 - Class ",
+                "daytime": [
+                    "Wednesday 780 900"
+                ],
+                "room": "CQAR3002-FCI Computing Lab",
+                "instructor": "Ruzanna Binti Abdullah"
+            }
+        ]
+    }
+]

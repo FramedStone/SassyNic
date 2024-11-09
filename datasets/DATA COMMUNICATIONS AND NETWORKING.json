@@ -1,0 +1,94 @@
+[
+    {
+        "courseTitle": "DATA COMMUNICATIONS AND NETWORKING",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Tuesday 720 780",
+                    "Thursday 720 840"
+                ],
+                "room": "CNMX1003-CLC Lecture Theatre 3",
+                "instructor": "Noor Farah Shahida Binti Mohd Haris"
+            },
+            {
+                "name": "Component LAB - Class Sect TL1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "CQAR3006-FCI Microsoft SE Lab",
+                "instructor": "Noor Farah Shahida Binti Mohd Haris"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA COMMUNICATIONS AND NETWORKING",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Tuesday 720 780",
+                    "Thursday 720 840"
+                ],
+                "room": "CNMX1003-CLC Lecture Theatre 3",
+                "instructor": "Noor Farah Shahida Binti Mohd Haris"
+            },
+            {
+                "name": "Component LAB - Class Sect TL3L - Class ",
+                "daytime": [
+                    "Monday 600 720"
+                ],
+                "room": "CQAR3006-FCI Microsoft SE Lab",
+                "instructor": "Noor Farah Shahida Binti Mohd Haris"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA COMMUNICATIONS AND NETWORKING",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Monday 780 840",
+                    "Tuesday 480 600"
+                ],
+                "room": "CNMX1005-CLC Lecture Theatre 5",
+                "instructor": "Noor Farah Shahida Binti Mohd Haris"
+            },
+            {
+                "name": "Component LAB - Class Sect TL4L - Class ",
+                "daytime": [
+                    "Friday 480 600"
+                ],
+                "room": "CQAR3006-FCI Microsoft SE Lab",
+                "instructor": "Erma Haryani Binti Esahar"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DATA COMMUNICATIONS AND NETWORKING",
+        "option": "4",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Monday 780 840",
+                    "Tuesday 480 600"
+                ],
+                "room": "CNMX1005-CLC Lecture Theatre 5",
+                "instructor": "Noor Farah Shahida Binti Mohd Haris"
+            },
+            {
+                "name": "Component LAB - Class Sect TL6L - Class ",
+                "daytime": [
+                    "Thursday 600 720"
+                ],
+                "room": "CQAR3006-FCI Microsoft SE Lab",
+                "instructor": "Erma Haryani Binti Esahar"
+            }
+        ]
+    }
+]

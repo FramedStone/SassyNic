@@ -1,0 +1,71 @@
+[
+    {
+        "courseTitle": "INTERNET AND WEB PUBLISHING",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1020",
+                    "Thursday 840 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Nurasma' Binti Shamsuddin"
+            },
+            {
+                "name": "Component LAB - Class Sect TL1L - Class ",
+                "daytime": [
+                    "Wednesday 480 600"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Nurasma' Binti Shamsuddin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "INTERNET AND WEB PUBLISHING",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1020",
+                    "Thursday 840 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Nurasma' Binti Shamsuddin"
+            },
+            {
+                "name": "Component LAB - Class Sect TL3L - Class ",
+                "daytime": [
+                    "Friday 480 600"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Nurasma' Binti Shamsuddin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "INTERNET AND WEB PUBLISHING",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1020",
+                    "Thursday 840 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Nurasma' Binti Shamsuddin"
+            },
+            {
+                "name": "Component LAB - Class Sect TL2L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Nurasma' Binti Shamsuddin"
+            }
+        ]
+    }
+]

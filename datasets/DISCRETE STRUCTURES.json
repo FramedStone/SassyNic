@@ -1,0 +1,90 @@
+[
+    {
+        "courseTitle": "DISCRETE STRUCTURES",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 780 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Chua Sook Ling @ Landa Chua"
+            },
+            {
+                "name": "Component TUT - Class Sect TT1L - Class ",
+                "daytime": [
+                    "Thursday 900 1020"
+                ],
+                "room": "CQAR4006-FCI PG Research Lab 2",
+                "instructor": "Chua Sook Ling @ Landa Chua"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DISCRETE STRUCTURES",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 780 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Chua Sook Ling @ Landa Chua"
+            },
+            {
+                "name": "Component TUT - Class Sect TT2L - Class ",
+                "daytime": [
+                    "Tuesday 540 660"
+                ],
+                "room": "CQAR0002-FCI Intl ICT Centre",
+                "instructor": "Foo Lee Kien"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DISCRETE STRUCTURES",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 780 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Chua Sook Ling @ Landa Chua"
+            },
+            {
+                "name": "Component TUT - Class Sect TT3L - Class ",
+                "daytime": [
+                    "Tuesday 660 780"
+                ],
+                "room": "CQAR4006-FCI PG Research Lab 2",
+                "instructor": "Foo Lee Kien"
+            }
+        ]
+    },
+    {
+        "courseTitle": "DISCRETE STRUCTURES",
+        "option": "4",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Tuesday 780 960"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "Chua Sook Ling @ Landa Chua"
+            },
+            {
+                "name": "Component TUT - Class Sect TT5L - Class ",
+                "daytime": [
+                    "Thursday 660 780"
+                ],
+                "room": "CQAR0002-FCI Intl ICT Centre",
+                "instructor": "Foo Lee Kien"
+            }
+        ]
+    }
+]
