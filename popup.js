@@ -26,54 +26,54 @@ document.addEventListener('DOMContentLoaded', function() {
       let courseTotal = document.getElementById('courseTotal').value;
       if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
  
-      // for(let i=0; i<courseTotal; i++) {
-      //   // Planner
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: clickPlanner
-      //   });
+      for(let i=0; i<courseTotal; i++) {
+        // Planner
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickPlanner
+        });
 
-      //   await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+        await waitForElement("tr[id^='PLANNER_NFF']", tabId);
 
-      //   // Trimester/Terms inside Planner
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: selectPlannerTrimester,
-      //     args: [selectedTrimester]
-      //   });
+        // Trimester/Terms inside Planner
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectPlannerTrimester,
+          args: [selectedTrimester]
+        });
 
-      //   await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+        await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
 
-      //   // Course selection interface
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: selectCourse,
-      //     args: [i],
-      //   });
+        // Course selection interface
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectCourse,
+          args: [i],
+        });
 
-      //   await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+        await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
 
-      //   // View Classes
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: clickViewClasses,
-      //   });
+        // View Classes
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickViewClasses,
+        });
 
-      //   await waitForElementWithText(selectedTrimester, tabId);
+        await waitForElementWithText(selectedTrimester, tabId);
 
-      //   // Trimester
-      //   await chrome.scripting.executeScript({
-      //     target: {tabId: tabId},
-      //     world: 'MAIN',
-      //     func: selectTrimester,
-      //     args: [selectedTrimester],
-      //   });
+        // Trimester
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectTrimester,
+          args: [selectedTrimester],
+        });
 
-      //   await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+        await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
 
         // Extract Classes Details
         await chrome.scripting.executeScript({
@@ -81,8 +81,8 @@ document.addEventListener('DOMContentLoaded', function() {
           world: 'MAIN',
           func: extractClassesDetails,
         });
-      // }
-      // alert("Extraction Completed.");
+      }
+      alert("Extraction Completed.");
       
     });
 
@@ -282,20 +282,21 @@ function extractClassesDetails() {
       const data = {
         courseTitle: courseTitle,
         option: optionBody.textContent.trim(),
-        room: roomBody.textContent.trim(), 
-        instructor: instructorBody.textContent.trim(), 
+        // room: roomBody.textContent.trim(), 
+        // instructor: instructorBody.textContent.trim(), 
         class: [], // for holding multiple classes
       }
 
-      // insert day and time into class
       classBody.forEach((rowClass, indexClass) => {
         const classData = {
           name: rowClass.textContent,
-          daytime: []
+          daytime: [],
         }
 
+        // insert day and time into class
         const dayTimeBody = row.querySelectorAll('td.ps_grid-cell.DAYS_TIMES div.ps_box-longedit')[indexClass];
-        const dayTimeBody_ = dayTimeBody.querySelectorAll('span.ps_box-value')
+        const dayTimeBody_ = dayTimeBody.querySelectorAll('span.ps_box-value');
+
         dayTimeBody_.forEach(element => {
           const text = element.textContent;
 
@@ -340,6 +341,22 @@ function extractClassesDetails() {
           const endMinutes = convertToMinutes(end);
 
           classData.daytime.push(`${day} ${startMinutes} ${endMinutes}`);
+        })
+
+        // insert room into class
+        const roomBody = row.querySelectorAll('td.ps_grid-cell.ROOM div.ps_box-edit')[indexClass];
+        const roomBody_ = roomBody.querySelectorAll('span.ps_box-value');
+
+        roomBody_.forEach(element => {
+          classData.room = element.textContent;
+        })
+
+        // insert instructor into class
+        const instructorBody = row.querySelectorAll('td.ps_grid-cell.INSTRUCTOR div.ps_box-longedit')[indexClass];
+        const instructorBody_ = instructorBody.querySelectorAll('span.ps_box-value');
+
+        instructorBody_.forEach(element => {
+          classData.instructor = element.textContent;
         })
 
         data.class.push(classData);
@@ -487,8 +504,6 @@ function startGenerate() {
       .filters h2 { margin-bottom: 10px; }
       .filters label { display: block; margin: 5px 0; }
       .filters input[type="checkbox"] { margin-right: 5px; }
-      .filters table { width: 100%; border-collapse: collapse; }
-      .filters th, .filters td { padding: 5px; text-align: left; }
     </style>
   </head>
   <body>
@@ -504,23 +519,6 @@ function startGenerate() {
         <label><input type="checkbox" name="excludeDays" value="Friday"> Friday</label>
         <label><input type="checkbox" name="excludeDays" value="Saturday"> Saturday</label>
         <label><input type="checkbox" name="excludeDays" value="Sunday"> Sunday</label>
-      </div>
-      <div>
-        <h3>Time Filters:</h3>
-        <table>
-          <tr>
-            <th>Day</th>
-            <th>Earliest Start Time</th>
-            <th>Latest End Time</th>
-          </tr>
-          ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
-            <tr>
-              <td>${day}</td>
-              <td><input type="time" id="${day}-earliest" /></td>
-              <td><input type="time" id="${day}-latest" /></td>
-            </tr>
-          `).join('')}
-        </table>
       </div>
       <button onclick="applyFilters()">Apply Filters</button>
     </div>
@@ -548,24 +546,6 @@ function startGenerate() {
         const excludeDaysCheckboxes = document.querySelectorAll('input[name="excludeDays"]:checked');
         const excludeDays = Array.from(excludeDaysCheckboxes).map(cb => cb.value);
 
-        // Get time filters
-        const timeFilters = {};
-        ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
-          const earliest = document.getElementById(\`\${day}-earliest\`).value;
-          const latest = document.getElementById(\`\${day}-latest\`).value;
-          if (earliest || latest) {
-            timeFilters[day] = {};
-            if (earliest) {
-              const [hours, minutes] = earliest.split(':').map(Number);
-              timeFilters[day].earliest = hours * 60 + minutes;
-            }
-            if (latest) {
-              const [hours, minutes] = latest.split(':').map(Number);
-              timeFilters[day].latest = hours * 60 + minutes;
-            }
-          }
-        });
-
         // Filter combinations
         filteredCombinations = allCombinations.filter(combination => {
           // Check each class in the combination
@@ -573,22 +553,9 @@ function startGenerate() {
             for (const classComponent of course.class) {
               for (const daytime of classComponent.daytime) {
                 const [day, startStr, endStr] = daytime.split(' ');
-                const start = parseInt(startStr);
-                const end = parseInt(endStr);
-
                 // Exclude days check
                 if (excludeDays.includes(day)) {
                   return false;
-                }
-
-                // Time filters check
-                if (timeFilters[day]) {
-                  if (timeFilters[day].earliest !== undefined && end <= timeFilters[day].earliest) {
-                    return false; // Class ends before or at earliest start time
-                  }
-                  if (timeFilters[day].latest !== undefined && start >= timeFilters[day].latest) {
-                    return false; // Class starts after or at latest end time
-                  }
                 }
               }
             }
@@ -761,10 +728,10 @@ function startGenerate() {
   </html>
   `;
 
-// Write the HTML content to the popup window
-popupWindow.document.open();
-popupWindow.document.write(htmlContent);
-popupWindow.document.close(); 
+  // Write the HTML content to the popup window
+  popupWindow.document.open();
+  popupWindow.document.write(htmlContent);
+  popupWindow.document.close(); 
 }
 
 /**
