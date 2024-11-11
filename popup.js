@@ -518,6 +518,7 @@ let htmlContent = `
       --class-cell-bg-color: #d9edf7;    /* Background color for class cells */
       --time-cell-bg-color: #f2f2f2;     /* Background color for time row cells */
       --day-header-bg-color: #f2f2f2;    /* Background color for day header cells */
+      --time-filters-header-bg-color: #f2f2f2; /* Background color for time filters header */
     }
     body { font-family: Arial, sans-serif; margin: 20px; font-size: 14px; }
     .timetable {
@@ -587,7 +588,7 @@ let htmlContent = `
       font-size: 12px;
     }
     #time-filters th {
-      background-color: var(--day-header-bg-color);
+      background-color: var(--time-filters-header-bg-color);
     }
     /* Ensure each instructor checkbox is on a new line */
     #instructor-checkboxes label {
@@ -735,6 +736,7 @@ let htmlContent = `
       document.documentElement.style.setProperty('--class-cell-bg-color', classCellColor);
       document.documentElement.style.setProperty('--time-cell-bg-color', timeCellColor);
       document.documentElement.style.setProperty('--day-header-bg-color', dayHeaderColor);
+      // Do not change --time-filters-header-bg-color
     }
 
     function applyFilters() {
