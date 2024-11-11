@@ -528,11 +528,11 @@ let htmlContent = `
     }
     .timetable th, .timetable td {
       border: 1px solid #ccc;
-      padding: 3px;
+      padding: 0; /* Remove padding */
       text-align: center;
       vertical-align: top;
       width: 14.28%;
-      height: 30px; /* Each time slot represents 30 minutes */
+      height: 20px; /* Each time slot represents 20 pixels */
       word-wrap: break-word;
       font-size: 12px; /* Reduced font size */
     }
@@ -545,6 +545,7 @@ let htmlContent = `
       width: 60px;
       text-align: center;
       vertical-align: middle; /* Center the text vertically */
+      height: 20px;
     }
     .class-cell {
       background-color: var(--class-cell-bg-color);
@@ -555,10 +556,12 @@ let htmlContent = `
       display: flex;
       flex-direction: column;
       justify-content: center;
+      align-items: center; /* Center the content horizontally */
       height: 100%;
+      padding: 2px; /* Reduce padding */
     }
     .class-info > * {
-      margin: 2px 0;
+      margin: 1px 0; /* Reduce margin */
     }
     .navigation { margin: 20px 0; text-align: center; }
     .navigation button { padding: 8px 16px; font-size: 14px; margin: 0 5px; }
@@ -700,6 +703,9 @@ let htmlContent = `
     let globalMinTime = Infinity;
     let globalMaxTime = 0;
 
+    // Variable to store maximum rowspan
+    let maxRowspan = 0;
+
     // Populate instructor checkboxes and calculate global times
     function populateInstructorFilters() {
       const instructorSet = new Set();
@@ -711,6 +717,8 @@ let htmlContent = `
               const [day, startStr, endStr] = daytime.split(' ');
               const start = parseInt(startStr);
               const end = parseInt(endStr);
+              const duration = (end - start) / 30;
+              if (duration > maxRowspan) maxRowspan = duration;
               if (start < globalMinTime) globalMinTime = start;
               if (end > globalMaxTime) globalMaxTime = end;
             });
@@ -727,6 +735,13 @@ let htmlContent = `
     }
 
     populateInstructorFilters();
+
+    // Adjust cell height based on maxRowspan
+    const baseCellHeight = 600 / ((globalMaxTime - globalMinTime) / 30);
+    const adjustedCellHeight = baseCellHeight < 20 ? baseCellHeight : 20;
+    document.querySelectorAll('.timetable th, .timetable td').forEach(cell => {
+      cell.style.height = adjustedCellHeight + 'px';
+    });
 
     // Round global times to nearest 30 minutes
     globalMinTime = Math.floor(globalMinTime / 30) * 30;
@@ -945,7 +960,7 @@ let htmlContent = `
         const timeLabel = timeLabels[i];
         tableHtml += '<tr>';
         if (timeLabel.isHour) {
-          tableHtml += '<td class="time-label" rowspan="2">' + timeLabel.label + '</td>';
+          tableHtml += '<td class="time-label" rowspan="2" style="height:40px;">' + timeLabel.label + '</td>';
         } else if (i === 0 || timeLabels[i - 1].isHour) {
           // Skip adding time label cell
         }
