@@ -543,8 +543,8 @@ let htmlContent = `
     .time-label {
       background-color: var(--time-cell-bg-color);
       width: 60px;
-      text-align: right;
-      padding-right: 5px;
+      text-align: center;
+      vertical-align: middle; /* Center the text vertically */
     }
     .class-cell {
       background-color: var(--class-cell-bg-color);
@@ -607,6 +607,9 @@ let htmlContent = `
     .customise-colors {
       width: 300px; /* Adjust as needed */
     }
+    .all-days-row {
+      background-color: #d3d3d3; /* Darker background color */
+    }
   </style>
 </head>
 <body>
@@ -637,6 +640,11 @@ let htmlContent = `
           <th>Earliest Start Time</th>
           <th>Latest End Time</th>
         </tr>
+        <tr class="all-days-row">
+          <td>All Days</td>
+          <td><input type="time" id="AllDays-earliest" /></td>
+          <td><input type="time" id="AllDays-latest" /></td>
+        </tr>
         ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
           <tr>
             <td>${day}</td>
@@ -647,6 +655,7 @@ let htmlContent = `
       </table>
     </div>
     <button onclick="applyFilters()">Apply Filters</button>
+    <button onclick="resetFilters()">Reset Filters</button>
   </div>
   <div id="timetable-container"></div>
   <div class="navigation">
@@ -747,19 +756,37 @@ let htmlContent = `
       const excludedInstructors = Array.from(instructorCheckboxes).map(cb => cb.value);
 
       const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
       const timeFilters = {};
+      const allDaysEarliest = document.getElementById('AllDays-earliest').value;
+      const allDaysLatest = document.getElementById('AllDays-latest').value;
+
+      let allDaysEarliestMinutes, allDaysLatestMinutes;
+      if (allDaysEarliest) {
+        const [hours, minutes] = allDaysEarliest.split(':').map(Number);
+        allDaysEarliestMinutes = hours * 60 + minutes;
+      }
+      if (allDaysLatest) {
+        const [hours, minutes] = allDaysLatest.split(':').map(Number);
+        allDaysLatestMinutes = hours * 60 + minutes;
+      }
+
       daysOfWeek.forEach(day => {
-        const earliest = document.getElementById(\`\${day}-earliest\`).value;
-        const latest = document.getElementById(\`\${day}-latest\`).value;
-        if (earliest || latest) {
+        let earliest = document.getElementById(\`\${day}-earliest\`).value;
+        let latest = document.getElementById(\`\${day}-latest\`).value;
+        if (earliest || latest || allDaysEarliest || allDaysLatest) {
           timeFilters[day] = {};
           if (earliest) {
             const [hours, minutes] = earliest.split(':').map(Number);
             timeFilters[day].earliest = hours * 60 + minutes;
+          } else if (allDaysEarliestMinutes !== undefined) {
+            timeFilters[day].earliest = allDaysEarliestMinutes;
           }
           if (latest) {
             const [hours, minutes] = latest.split(':').map(Number);
             timeFilters[day].latest = hours * 60 + minutes;
+          } else if (allDaysLatestMinutes !== undefined) {
+            timeFilters[day].latest = allDaysLatestMinutes;
           }
         }
       });
@@ -810,6 +837,29 @@ let htmlContent = `
         document.getElementById('timetable-container').innerHTML = '<p>No combinations available with the selected filters.</p>';
         document.getElementById('course-list').innerHTML = '';
       }
+    }
+
+    function resetFilters() {
+      // Uncheck all exclude days checkboxes
+      document.querySelectorAll('input[name="excludeDays"]').forEach(cb => cb.checked = false);
+
+      // Uncheck all instructor checkboxes
+      document.querySelectorAll('input[name="instructors"]').forEach(cb => cb.checked = false);
+
+      // Clear all time filters
+      ['AllDays', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+        document.getElementById(\`\${day}-earliest\`).value = '';
+        document.getElementById(\`\${day}-latest\`).value = '';
+      });
+
+      // Reset color pickers to default values
+      document.getElementById('class-cell-color').value = '#d9edf7';
+      document.getElementById('time-cell-color').value = '#f2f2f2';
+      document.getElementById('day-header-color').value = '#f2f2f2';
+      updateColors();
+
+      // Re-apply filters (which are now reset)
+      applyFilters();
     }
 
     function formatComponentName(name) {
