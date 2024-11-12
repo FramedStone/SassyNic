@@ -5,7 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
      */
     const selectedTrimester = document.getElementById('trimester').value; 
 
-    // Reset / Stop
+    // Reset
     document.getElementById('btnReset').addEventListener('click', async () => {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
       const tabId = tabs[0].id;
@@ -504,558 +504,557 @@ function startGenerate() {
   const finalCombinations = startGenerate_(data); 
 
   // Create a popup window to display the timetables
-const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
+  const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
 
-// Prepare the HTML content
-let htmlContent = `
-<!DOCTYPE html>
-<html>
-<head>
-  <title>Timetable Viewer</title>
-  <style>
-    :root {
-      /* Define CSS variables for background colors */
-      --class-cell-bg-color: #d9edf7;    /* Background color for class cells */
-      --time-cell-bg-color: #f2f2f2;     /* Background color for time row cells */
-      --day-header-bg-color: #f2f2f2;    /* Background color for day header cells */
-      --time-filters-header-bg-color: #f2f2f2; /* Background color for time filters header */
-    }
-    body { font-family: Arial, sans-serif; margin: 20px; font-size: 14px; }
-    .timetable {
-      border-collapse: collapse;
-      width: 100%;
-      table-layout: fixed;
-    }
-    .timetable th, .timetable td {
-      border: 1px solid #ccc;
-      padding: 0; /* Remove padding */
-      text-align: center;
-      vertical-align: top;
-      width: 14.28%;
-      height: 20px; /* Each time slot represents 20 pixels */
-      word-wrap: break-word;
-      font-size: 12px; /* Reduced font size */
-    }
-    .timetable th {
-      background-color: var(--day-header-bg-color);
-      height: auto;
-    }
-    .time-label {
-      background-color: var(--time-cell-bg-color);
-      width: 60px;
-      text-align: center;
-      vertical-align: middle; /* Center the text vertically */
-      height: 20px;
-    }
-    .class-cell {
-      background-color: var(--class-cell-bg-color);
-      vertical-align: middle;
-      text-align: center;
-    }
-    .class-info {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center; /* Center the content horizontally */
-      height: 100%;
-      padding: 2px; /* Reduce padding */
-    }
-    .class-info > * {
-      margin: 1px 0; /* Reduce margin */
-    }
-    .navigation { margin: 20px 0; text-align: center; }
-    .navigation button { padding: 8px 16px; font-size: 14px; margin: 0 5px; }
-    .course-list { margin: 20px 0; font-size: 14px; }
-    .filters { margin: 20px 0; }
-    .filters h3 { margin-bottom: 10px; font-size: 16px; }
-    .filter-row {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 20px;
-    }
-    .filter-section {
-      flex: 1;
-      min-width: 200px;
-    }
-    #time-filters {
-      margin-top: 20px;
-    }
-    #time-filters table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-    #time-filters th, #time-filters td {
-      border: 1px solid #ccc;
-      padding: 3px;
-      text-align: center;
-      font-size: 12px;
-    }
-    #time-filters th {
-      background-color: var(--time-filters-header-bg-color);
-    }
-    /* Ensure each instructor checkbox is on a new line */
-    #instructor-checkboxes label {
-      display: block;
-    }
-    /* Style for color pickers */
-    .color-picker {
-      margin-bottom: 10px;
-    }
-    /* Bottom section styling */
-    .bottom-section {
-      display: flex;
-      justify-content: flex-end;
-      margin-top: 20px;
-    }
-    .customise-colors {
-      width: 300px; /* Adjust as needed */
-    }
-    .all-days-row {
-      background-color: #d3d3d3; /* Darker background color */
-    }
-  </style>
-</head>
-<body>
-  <div class="filters">
-    <div class="filter-row">
-      <div class="filter-section">
-        <h3>Exclude Days:</h3>
-        <label><input type="checkbox" name="excludeDays" value="Monday"> Monday</label>
-        <label><input type="checkbox" name="excludeDays" value="Tuesday"> Tuesday</label>
-        <label><input type="checkbox" name="excludeDays" value="Wednesday"> Wednesday</label>
-        <label><input type="checkbox" name="excludeDays" value="Thursday"> Thursday</label>
-        <label><input type="checkbox" name="excludeDays" value="Friday"> Friday</label>
-        <label><input type="checkbox" name="excludeDays" value="Saturday"> Saturday</label>
-        <label><input type="checkbox" name="excludeDays" value="Sunday"> Sunday</label>
+  // Prepare the HTML content
+  let htmlContent = `
+  <!DOCTYPE html>
+  <html>
+  <head>
+    <title>Timetable Viewer</title>
+    <style>
+      :root {
+        /* Define CSS variables for background colors */
+        --class-cell-bg-color: #d9edf7;    /* Background color for class cells */
+        --time-cell-bg-color: #f2f2f2;     /* Background color for time row cells */
+        --day-header-bg-color: #f2f2f2;    /* Background color for day header cells */
+        --time-filters-header-bg-color: #f2f2f2; /* Background color for time filters header */
+      }
+      body { font-family: Arial, sans-serif; margin: 20px; font-size: 14px; }
+      .timetable {
+        border-collapse: collapse;
+        width: 100%;
+        table-layout: fixed;
+      }
+      .timetable th, .timetable td {
+        border: 1px solid #ccc;
+        padding: 0; /* Remove padding */
+        text-align: center;
+        vertical-align: top;
+        width: 14.28%;
+        height: 20px; /* Each time slot represents 20 pixels */
+        word-wrap: break-word;
+        font-size: 12px; /* Reduced font size */
+      }
+      .timetable th {
+        background-color: var(--day-header-bg-color);
+        height: auto;
+      }
+      .time-label {
+        background-color: var(--time-cell-bg-color);
+        width: 60px;
+        text-align: center;
+        vertical-align: middle; /* Center the text vertically */
+        height: 20px;
+      }
+      .class-cell {
+        background-color: var(--class-cell-bg-color);
+        vertical-align: middle;
+        text-align: center;
+      }
+      .class-info {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center; /* Center the content horizontally */
+        height: 100%;
+        padding: 2px; /* Reduce padding */
+      }
+      .class-info > * {
+        margin: 1px 0; /* Reduce margin */
+      }
+      .navigation { margin: 20px 0; text-align: center; }
+      .navigation button { padding: 8px 16px; font-size: 14px; margin: 0 5px; }
+      .course-list { margin: 20px 0; font-size: 14px; }
+      .filters { margin: 20px 0; }
+      .filters h3 { margin-bottom: 10px; font-size: 16px; }
+      .filter-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+      }
+      .filter-section {
+        flex: 1;
+        min-width: 200px;
+      }
+      #time-filters {
+        margin-top: 20px;
+      }
+      #time-filters table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      #time-filters th, #time-filters td {
+        border: 1px solid #ccc;
+        padding: 3px;
+        text-align: center;
+        font-size: 12px;
+      }
+      #time-filters th {
+        background-color: var(--time-filters-header-bg-color);
+      }
+      /* Ensure each instructor checkbox is on a new line */
+      #instructor-checkboxes label {
+        display: block;
+      }
+      /* Style for color pickers */
+      .color-picker {
+        margin-bottom: 10px;
+      }
+      /* Bottom section styling */
+      .bottom-section {
+        display: flex;
+        justify-content: flex-end;
+        margin-top: 20px;
+      }
+      .customise-colors {
+        width: 300px; /* Adjust as needed */
+      }
+      .all-days-row {
+        background-color: #d3d3d3; /* Darker background color */
+      }
+    </style>
+  </head>
+  <body>
+    <div class="filters">
+      <div class="filter-row">
+        <div class="filter-section">
+          <h3>Exclude Days:</h3>
+          <label><input type="checkbox" name="excludeDays" value="Monday"> Monday</label>
+          <label><input type="checkbox" name="excludeDays" value="Tuesday"> Tuesday</label>
+          <label><input type="checkbox" name="excludeDays" value="Wednesday"> Wednesday</label>
+          <label><input type="checkbox" name="excludeDays" value="Thursday"> Thursday</label>
+          <label><input type="checkbox" name="excludeDays" value="Friday"> Friday</label>
+          <label><input type="checkbox" name="excludeDays" value="Saturday"> Saturday</label>
+          <label><input type="checkbox" name="excludeDays" value="Sunday"> Sunday</label>
+        </div>
+        <div class="filter-section">
+          <h3>Exclude Instructors:</h3>
+          <div id="instructor-checkboxes">
+            <!-- Instructor checkboxes will be populated here -->
+          </div>
+        </div>
       </div>
-      <div class="filter-section">
-        <h3>Exclude Instructors:</h3>
-        <div id="instructor-checkboxes">
-          <!-- Instructor checkboxes will be populated here -->
+      <div id="time-filters">
+        <h3>Time Filters:</h3>
+        <table>
+          <tr>
+            <th>Day</th>
+            <th>Earliest Start Time</th>
+            <th>Latest End Time</th>
+          </tr>
+          <tr class="all-days-row">
+            <td>All Days</td>
+            <td><input type="time" id="AllDays-earliest" /></td>
+            <td><input type="time" id="AllDays-latest" /></td>
+          </tr>
+          ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
+            <tr>
+              <td>${day}</td>
+              <td><input type="time" id="${day}-earliest" /></td>
+              <td><input type="time" id="${day}-latest" /></td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+      <button onclick="applyFilters()">Apply Filters</button>
+      <button onclick="resetFilters()">Reset Filters</button>
+    </div>
+    <div id="timetable-container"></div>
+    <div class="navigation">
+      <button onclick="prevCombination()">Previous</button>
+      <span>
+        Combination 
+        <input type="number" id="combination-input" value="1" min="1" style="width: 50px;" onchange="goToCombination()" />
+        / <span id="total-combinations"></span>
+      </span>
+      <button onclick="nextCombination()">Next</button>
+    </div>
+    <div class="course-list" id="course-list"></div>
+    <div class="bottom-section">
+      <div class="customise-colors">
+        <h3>Customise Cells Colors:</h3>
+        <div class="color-picker">
+          <label for="class-cell-color">Class Cell Color:</label>
+          <input type="color" id="class-cell-color" value="#d9edf7">
+        </div>
+        <div class="color-picker">
+          <label for="time-cell-color">Time Cell Color:</label>
+          <input type="color" id="time-cell-color" value="#f2f2f2">
+        </div>
+        <div class="color-picker">
+          <label for="day-header-color">Day Header Color:</label>
+          <input type="color" id="day-header-color" value="#f2f2f2">
         </div>
       </div>
     </div>
-    <div id="time-filters">
-      <h3>Time Filters:</h3>
-      <table>
-        <tr>
-          <th>Day</th>
-          <th>Earliest Start Time</th>
-          <th>Latest End Time</th>
-        </tr>
-        <tr class="all-days-row">
-          <td>All Days</td>
-          <td><input type="time" id="AllDays-earliest" /></td>
-          <td><input type="time" id="AllDays-latest" /></td>
-        </tr>
-        ${['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].map(day => `
-          <tr>
-            <td>${day}</td>
-            <td><input type="time" id="${day}-earliest" /></td>
-            <td><input type="time" id="${day}-latest" /></td>
-          </tr>
-        `).join('')}
-      </table>
-    </div>
-    <button onclick="applyFilters()">Apply Filters</button>
-    <button onclick="resetFilters()">Reset Filters</button>
-  </div>
-  <div id="timetable-container"></div>
-  <div class="navigation">
-    <button onclick="prevCombination()">Previous</button>
-    <span>
-      Combination 
-      <input type="number" id="combination-input" value="1" min="1" style="width: 50px;" onchange="goToCombination()" />
-      / <span id="total-combinations"></span>
-    </span>
-    <button onclick="nextCombination()">Next</button>
-  </div>
-  <div class="course-list" id="course-list"></div>
-  <div class="bottom-section">
-    <div class="customise-colors">
-      <h3>Customise Cells Colors:</h3>
-      <div class="color-picker">
-        <label for="class-cell-color">Class Cell Color:</label>
-        <input type="color" id="class-cell-color" value="#d9edf7">
-      </div>
-      <div class="color-picker">
-        <label for="time-cell-color">Time Cell Color:</label>
-        <input type="color" id="time-cell-color" value="#f2f2f2">
-      </div>
-      <div class="color-picker">
-        <label for="day-header-color">Day Header Color:</label>
-        <input type="color" id="day-header-color" value="#f2f2f2">
-      </div>
-    </div>
-  </div>
-  <script>
-    let allCombinations = ${JSON.stringify(finalCombinations)};
-    
-    // Deduplicate combinations
-    allCombinations = Array.from(new Set(allCombinations.map(combo => JSON.stringify(combo)))).map(comboStr => JSON.parse(comboStr));
+    <script>
+      let allCombinations = ${JSON.stringify(finalCombinations)};
+      
+      // Deduplicate combinations
+      allCombinations = Array.from(new Set(allCombinations.map(combo => JSON.stringify(combo)))).map(comboStr => JSON.parse(comboStr));
 
-    let filteredCombinations = allCombinations;
-    let currentIndex = 0;
+      let filteredCombinations = allCombinations;
+      let currentIndex = 0;
 
-    document.getElementById('total-combinations').innerText = filteredCombinations.length;
+      document.getElementById('total-combinations').innerText = filteredCombinations.length;
 
-    // Variables to store global earliest and latest times
-    let globalMinTime = Infinity;
-    let globalMaxTime = 0;
+      // Variables to store global earliest and latest times
+      let globalMinTime = Infinity;
+      let globalMaxTime = 0;
 
-    // Variable to store maximum rowspan
-    let maxRowspan = 0;
+      // Variable to store maximum rowspan
+      let maxRowspan = 0;
 
-    // Populate instructor checkboxes and calculate global times
-    function populateInstructorFilters() {
-      const instructorSet = new Set();
-      allCombinations.forEach(combination => {
+      // Populate instructor checkboxes and calculate global times
+      function populateInstructorFilters() {
+        const instructorSet = new Set();
+        allCombinations.forEach(combination => {
+          combination.forEach(course => {
+            course.class.forEach(classComponent => {
+              instructorSet.add(classComponent.instructor);
+              classComponent.daytime.forEach(daytime => {
+                const [day, startStr, endStr] = daytime.split(' ');
+                const start = parseInt(startStr);
+                const end = parseInt(endStr);
+                const duration = (end - start) / 30;
+                if (duration > maxRowspan) maxRowspan = duration;
+                if (start < globalMinTime) globalMinTime = start;
+                if (end > globalMaxTime) globalMaxTime = end;
+              });
+            });
+          });
+        });
+        const instructorCheckboxesDiv = document.getElementById('instructor-checkboxes');
+        const instructors = Array.from(instructorSet).sort();
+        instructors.forEach(instructor => {
+          const label = document.createElement('label');
+          label.innerHTML = \`<input type="checkbox" name="instructors" value="\${instructor}"> \${instructor}\`;
+          instructorCheckboxesDiv.appendChild(label);
+        });
+      }
+
+      populateInstructorFilters();
+
+      // Adjust cell height based on maxRowspan
+      const baseCellHeight = 600 / ((globalMaxTime - globalMinTime) / 30);
+      const adjustedCellHeight = baseCellHeight < 20 ? baseCellHeight : 20;
+      document.querySelectorAll('.timetable th, .timetable td').forEach(cell => {
+        cell.style.height = adjustedCellHeight + 'px';
+      });
+
+      // Round global times to nearest 30 minutes
+      globalMinTime = Math.floor(globalMinTime / 30) * 30;
+      globalMaxTime = Math.ceil(globalMaxTime / 30) * 30;
+
+      // Add event listeners for color pickers
+      document.getElementById('class-cell-color').addEventListener('input', updateColors);
+      document.getElementById('time-cell-color').addEventListener('input', updateColors);
+      document.getElementById('day-header-color').addEventListener('input', updateColors);
+
+      function updateColors() {
+        const classCellColor = document.getElementById('class-cell-color').value;
+        const timeCellColor = document.getElementById('time-cell-color').value;
+        const dayHeaderColor = document.getElementById('day-header-color').value;
+
+        document.documentElement.style.setProperty('--class-cell-bg-color', classCellColor);
+        document.documentElement.style.setProperty('--time-cell-bg-color', timeCellColor);
+        document.documentElement.style.setProperty('--day-header-bg-color', dayHeaderColor);
+        // Do not change --time-filters-header-bg-color
+      }
+
+      function applyFilters() {
+        const excludeDaysCheckboxes = document.querySelectorAll('input[name="excludeDays"]:checked');
+        const excludeDays = Array.from(excludeDaysCheckboxes).map(cb => cb.value);
+
+        const instructorCheckboxes = document.querySelectorAll('input[name="instructors"]:checked');
+        const excludedInstructors = Array.from(instructorCheckboxes).map(cb => cb.value);
+
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        const timeFilters = {};
+        const allDaysEarliest = document.getElementById('AllDays-earliest').value;
+        const allDaysLatest = document.getElementById('AllDays-latest').value;
+
+        let allDaysEarliestMinutes, allDaysLatestMinutes;
+        if (allDaysEarliest) {
+          const [hours, minutes] = allDaysEarliest.split(':').map(Number);
+          allDaysEarliestMinutes = hours * 60 + minutes;
+        }
+        if (allDaysLatest) {
+          const [hours, minutes] = allDaysLatest.split(':').map(Number);
+          allDaysLatestMinutes = hours * 60 + minutes;
+        }
+
+        daysOfWeek.forEach(day => {
+          let earliest = document.getElementById(\`\${day}-earliest\`).value;
+          let latest = document.getElementById(\`\${day}-latest\`).value;
+          if (earliest || latest || allDaysEarliest || allDaysLatest) {
+            timeFilters[day] = {};
+            if (earliest) {
+              const [hours, minutes] = earliest.split(':').map(Number);
+              timeFilters[day].earliest = hours * 60 + minutes;
+            } else if (allDaysEarliestMinutes !== undefined) {
+              timeFilters[day].earliest = allDaysEarliestMinutes;
+            }
+            if (latest) {
+              const [hours, minutes] = latest.split(':').map(Number);
+              timeFilters[day].latest = hours * 60 + minutes;
+            } else if (allDaysLatestMinutes !== undefined) {
+              timeFilters[day].latest = allDaysLatestMinutes;
+            }
+          }
+        });
+
+        filteredCombinations = allCombinations.filter(combination => {
+          // Check time filters
+          for (const course of combination) {
+            for (const classComponent of course.class) {
+              for (const daytime of classComponent.daytime) {
+                const [day, startStr, endStr] = daytime.split(' ');
+                const start = parseInt(startStr);
+                const end = parseInt(endStr);
+
+                if (timeFilters[day]) {
+                  if (timeFilters[day].earliest !== undefined && start < timeFilters[day].earliest) {
+                    return false;
+                  }
+                  if (timeFilters[day].latest !== undefined && end > timeFilters[day].latest) {
+                    return false;
+                  }
+                }
+              }
+            }
+          }
+
+          // Exclude days and instructors
+          for (const course of combination) {
+            for (const classComponent of course.class) {
+              for (const daytime of classComponent.daytime) {
+                const [day, startStr, endStr] = daytime.split(' ');
+                if (excludeDays.includes(day)) {
+                  return false;
+                }
+                if (excludedInstructors.includes(classComponent.instructor)) {
+                  return false;
+                }
+              }
+            }
+          }
+          return true;
+        });
+
+        currentIndex = 0;
+        document.getElementById('total-combinations').innerText = filteredCombinations.length;
+        if (filteredCombinations.length > 0) {
+          renderCombination(currentIndex);
+        } else {
+          document.getElementById('timetable-container').innerHTML = '<p>No combinations available with the selected filters.</p>';
+          document.getElementById('course-list').innerHTML = '';
+        }
+      }
+
+      function resetFilters() {
+        // Uncheck all exclude days checkboxes
+        document.querySelectorAll('input[name="excludeDays"]').forEach(cb => cb.checked = false);
+
+        // Uncheck all instructor checkboxes
+        document.querySelectorAll('input[name="instructors"]').forEach(cb => cb.checked = false);
+
+        // Clear all time filters
+        ['AllDays', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
+          document.getElementById(\`\${day}-earliest\`).value = '';
+          document.getElementById(\`\${day}-latest\`).value = '';
+        });
+
+        // Reset color pickers to default values
+        document.getElementById('class-cell-color').value = '#d9edf7';
+        document.getElementById('time-cell-color').value = '#f2f2f2';
+        document.getElementById('day-header-color').value = '#f2f2f2';
+        updateColors();
+
+        // Re-apply filters (which are now reset)
+        applyFilters();
+      }
+
+      function formatComponentName(name) {
+        let component = '';
+        let section = '';
+        const componentMatch = name.match(/Component\\s+(\\w+)/);
+        if (componentMatch) {
+          switch (componentMatch[1]) {
+            case 'LAB':
+              component = 'Laboratory';
+              break;
+            case 'TUT':
+              component = 'Tutorial';
+              break;
+            case 'LEC':
+              component = 'Lecture';
+              break;
+            default:
+              component = componentMatch[1];
+          }
+        }
+        const sectionMatch = name.match(/Sect\\s+(\\w+)/);
+        if (sectionMatch) {
+          section = sectionMatch[1];
+        }
+        return component + ' - ' + section;
+      }
+
+      function renderCombination(index) {
+        const combination = filteredCombinations[index];
+        document.getElementById('combination-input').value = index + 1;
+        const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+        // Initialize schedule
+        const schedule = {};
+        daysOfWeek.forEach(day => {
+          schedule[day] = {};
+        });
+
+        // Populate schedule with classes
         combination.forEach(course => {
           course.class.forEach(classComponent => {
-            instructorSet.add(classComponent.instructor);
             classComponent.daytime.forEach(daytime => {
               const [day, startStr, endStr] = daytime.split(' ');
               const start = parseInt(startStr);
               const end = parseInt(endStr);
-              const duration = (end - start) / 30;
-              if (duration > maxRowspan) maxRowspan = duration;
-              if (start < globalMinTime) globalMinTime = start;
-              if (end > globalMaxTime) globalMaxTime = end;
+              const duration = (end - start) / 30; // Number of 30-minute intervals
+              if (!schedule[day][start]) {
+                schedule[day][start] = {
+                  classInfo: {
+                    courseTitle: course.courseTitle,
+                    componentName: formatComponentName(classComponent.name),
+                    instructor: classComponent.instructor,
+                    room: classComponent.room,
+                    startTimeLabel: formatTime(start),
+                    endTimeLabel: formatTime(end),
+                    rowspan: duration
+                  }
+                };
+              }
             });
           });
         });
-      });
-      const instructorCheckboxesDiv = document.getElementById('instructor-checkboxes');
-      const instructors = Array.from(instructorSet).sort();
-      instructors.forEach(instructor => {
-        const label = document.createElement('label');
-        label.innerHTML = \`<input type="checkbox" name="instructors" value="\${instructor}"> \${instructor}\`;
-        instructorCheckboxesDiv.appendChild(label);
-      });
-    }
 
-    populateInstructorFilters();
+        // Generate time labels
+        const timeLabels = [];
+        for (let time = globalMinTime; time <= globalMaxTime - 1; time += 30) {
+          if (time % 60 === 0) {
+            timeLabels.push({ time, label: formatTime(time), isHour: true });
+          } else {
+            timeLabels.push({ time, label: '', isHour: false });
+          }
+        }
 
-    // Adjust cell height based on maxRowspan
-    const baseCellHeight = 600 / ((globalMaxTime - globalMinTime) / 30);
-    const adjustedCellHeight = baseCellHeight < 20 ? baseCellHeight : 20;
-    document.querySelectorAll('.timetable th, .timetable td').forEach(cell => {
-      cell.style.height = adjustedCellHeight + 'px';
-    });
+        let tableHtml = '<table class="timetable">';
+        tableHtml += '<tr><th class="time-label">Time</th>';
+        daysOfWeek.forEach(day => {
+          tableHtml += '<th>' + day + '</th>';
+        });
+        tableHtml += '</tr>';
 
-    // Round global times to nearest 30 minutes
-    globalMinTime = Math.floor(globalMinTime / 30) * 30;
-    globalMaxTime = Math.ceil(globalMaxTime / 30) * 30;
+        for (let i = 0; i < timeLabels.length; i++) {
+          const timeLabel = timeLabels[i];
+          tableHtml += '<tr>';
+          if (timeLabel.isHour) {
+            tableHtml += '<td class="time-label" rowspan="2" style="height:40px;">' + timeLabel.label + '</td>';
+          } else if (i === 0 || timeLabels[i - 1].isHour) {
+            // Skip adding time label cell
+          }
+          daysOfWeek.forEach(day => {
+            const cellData = schedule[day][timeLabel.time];
+            if (cellData && cellData.classInfo) {
+              const rowspan = cellData.classInfo.rowspan;
+              tableHtml += '<td class="class-cell" rowspan="' + rowspan + '">';
+              tableHtml += '<div class="class-info">';
+              tableHtml += '<strong>' + cellData.classInfo.courseTitle + '</strong>';
+              tableHtml += '<span>' + cellData.classInfo.componentName + '</span>';
+              tableHtml += '<span>' + cellData.classInfo.instructor + '</span>';
+              tableHtml += '<span>' + cellData.classInfo.room + '</span>';
+              tableHtml += '<span>' + cellData.classInfo.startTimeLabel + ' - ' + cellData.classInfo.endTimeLabel + '</span>';
+              tableHtml += '</div>';
+              tableHtml += '</td>';
+            } else if (!isCellRenderedPreviously(schedule, day, timeLabel.time)) {
+              tableHtml += '<td></td>';
+            }
+          });
+          tableHtml += '</tr>';
+        }
 
-    // Add event listeners for color pickers
-    document.getElementById('class-cell-color').addEventListener('input', updateColors);
-    document.getElementById('time-cell-color').addEventListener('input', updateColors);
-    document.getElementById('day-header-color').addEventListener('input', updateColors);
+        tableHtml += '</table>';
 
-    function updateColors() {
-      const classCellColor = document.getElementById('class-cell-color').value;
-      const timeCellColor = document.getElementById('time-cell-color').value;
-      const dayHeaderColor = document.getElementById('day-header-color').value;
+        document.getElementById('timetable-container').innerHTML = tableHtml;
 
-      document.documentElement.style.setProperty('--class-cell-bg-color', classCellColor);
-      document.documentElement.style.setProperty('--time-cell-bg-color', timeCellColor);
-      document.documentElement.style.setProperty('--day-header-bg-color', dayHeaderColor);
-      // Do not change --time-filters-header-bg-color
-    }
-
-    function applyFilters() {
-      const excludeDaysCheckboxes = document.querySelectorAll('input[name="excludeDays"]:checked');
-      const excludeDays = Array.from(excludeDaysCheckboxes).map(cb => cb.value);
-
-      const instructorCheckboxes = document.querySelectorAll('input[name="instructors"]:checked');
-      const excludedInstructors = Array.from(instructorCheckboxes).map(cb => cb.value);
-
-      const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-      const timeFilters = {};
-      const allDaysEarliest = document.getElementById('AllDays-earliest').value;
-      const allDaysLatest = document.getElementById('AllDays-latest').value;
-
-      let allDaysEarliestMinutes, allDaysLatestMinutes;
-      if (allDaysEarliest) {
-        const [hours, minutes] = allDaysEarliest.split(':').map(Number);
-        allDaysEarliestMinutes = hours * 60 + minutes;
-      }
-      if (allDaysLatest) {
-        const [hours, minutes] = allDaysLatest.split(':').map(Number);
-        allDaysLatestMinutes = hours * 60 + minutes;
+        let courseListHtml = '<ul>';
+        combination.forEach(course => {
+          courseListHtml += '<li><strong>' + course.courseTitle + '</strong>, Option: ' + course.option + '</li>';
+        });
+        courseListHtml += '</ul>';
+        document.getElementById('course-list').innerHTML = courseListHtml;
       }
 
-      daysOfWeek.forEach(day => {
-        let earliest = document.getElementById(\`\${day}-earliest\`).value;
-        let latest = document.getElementById(\`\${day}-latest\`).value;
-        if (earliest || latest || allDaysEarliest || allDaysLatest) {
-          timeFilters[day] = {};
-          if (earliest) {
-            const [hours, minutes] = earliest.split(':').map(Number);
-            timeFilters[day].earliest = hours * 60 + minutes;
-          } else if (allDaysEarliestMinutes !== undefined) {
-            timeFilters[day].earliest = allDaysEarliestMinutes;
-          }
-          if (latest) {
-            const [hours, minutes] = latest.split(':').map(Number);
-            timeFilters[day].latest = hours * 60 + minutes;
-          } else if (allDaysLatestMinutes !== undefined) {
-            timeFilters[day].latest = allDaysLatestMinutes;
+      function isCellRenderedPreviously(schedule, day, time) {
+        // Check if there is a class starting before this time that covers this time slot
+        for (const classTime in schedule[day]) {
+          const classInfo = schedule[day][classTime].classInfo;
+          if (classTime < time && (parseInt(classTime) + classInfo.rowspan * 30) > time) {
+            return true;
           }
         }
-      });
+        return false;
+      }
 
-      filteredCombinations = allCombinations.filter(combination => {
-        // Check time filters
-        for (const course of combination) {
-          for (const classComponent of course.class) {
-            for (const daytime of classComponent.daytime) {
-              const [day, startStr, endStr] = daytime.split(' ');
-              const start = parseInt(startStr);
-              const end = parseInt(endStr);
+      function formatTime(minutes) {
+        const hours = Math.floor(minutes / 60);
+        const mins = minutes % 60;
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const displayHours = hours % 12 === 0 ? 12 : hours % 12;
+        return displayHours + ':' + (mins < 10 ? '0' : '') + mins + ' ' + ampm;
+      }
 
-              if (timeFilters[day]) {
-                if (timeFilters[day].earliest !== undefined && start < timeFilters[day].earliest) {
-                  return false;
-                }
-                if (timeFilters[day].latest !== undefined && end > timeFilters[day].latest) {
-                  return false;
-                }
-              }
-            }
-          }
+      function prevCombination() {
+        if (currentIndex > 0) {
+          currentIndex--;
+          renderCombination(currentIndex);
         }
+      }
 
-        // Exclude days and instructors
-        for (const course of combination) {
-          for (const classComponent of course.class) {
-            for (const daytime of classComponent.daytime) {
-              const [day, startStr, endStr] = daytime.split(' ');
-              if (excludeDays.includes(day)) {
-                return false;
-              }
-              if (excludedInstructors.includes(classComponent.instructor)) {
-                return false;
-              }
-            }
-          }
+      function nextCombination() {
+        if (currentIndex < filteredCombinations.length - 1) {
+          currentIndex++;
+          renderCombination(currentIndex);
         }
-        return true;
-      });
+      }
 
-      currentIndex = 0;
-      document.getElementById('total-combinations').innerText = filteredCombinations.length;
+      function goToCombination() {
+        const input = document.getElementById('combination-input');
+        let index = parseInt(input.value) - 1;
+        if (index >= 0 && index < filteredCombinations.length) {
+          currentIndex = index;
+          renderCombination(currentIndex);
+        } else {
+          alert('Invalid combination number.');
+          input.value = currentIndex + 1;
+        }
+      }
+
       if (filteredCombinations.length > 0) {
         renderCombination(currentIndex);
       } else {
-        document.getElementById('timetable-container').innerHTML = '<p>No combinations available with the selected filters.</p>';
-        document.getElementById('course-list').innerHTML = '';
+        document.getElementById('timetable-container').innerHTML = '<p>No combinations available.</p>';
       }
-    }
+    </script>
+  </body>
+  </html>
+  `;
 
-    function resetFilters() {
-      // Uncheck all exclude days checkboxes
-      document.querySelectorAll('input[name="excludeDays"]').forEach(cb => cb.checked = false);
-
-      // Uncheck all instructor checkboxes
-      document.querySelectorAll('input[name="instructors"]').forEach(cb => cb.checked = false);
-
-      // Clear all time filters
-      ['AllDays', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].forEach(day => {
-        document.getElementById(\`\${day}-earliest\`).value = '';
-        document.getElementById(\`\${day}-latest\`).value = '';
-      });
-
-      // Reset color pickers to default values
-      document.getElementById('class-cell-color').value = '#d9edf7';
-      document.getElementById('time-cell-color').value = '#f2f2f2';
-      document.getElementById('day-header-color').value = '#f2f2f2';
-      updateColors();
-
-      // Re-apply filters (which are now reset)
-      applyFilters();
-    }
-
-    function formatComponentName(name) {
-      let component = '';
-      let section = '';
-      const componentMatch = name.match(/Component\\s+(\\w+)/);
-      if (componentMatch) {
-        switch (componentMatch[1]) {
-          case 'LAB':
-            component = 'Laboratory';
-            break;
-          case 'TUT':
-            component = 'Tutorial';
-            break;
-          case 'LEC':
-            component = 'Lecture';
-            break;
-          default:
-            component = componentMatch[1];
-        }
-      }
-      const sectionMatch = name.match(/Sect\\s+(\\w+)/);
-      if (sectionMatch) {
-        section = sectionMatch[1];
-      }
-      return component + ' - ' + section;
-    }
-
-    function renderCombination(index) {
-      const combination = filteredCombinations[index];
-      document.getElementById('combination-input').value = index + 1;
-      const daysOfWeek = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-
-      // Initialize schedule
-      const schedule = {};
-      daysOfWeek.forEach(day => {
-        schedule[day] = {};
-      });
-
-      // Populate schedule with classes
-      combination.forEach(course => {
-        course.class.forEach(classComponent => {
-          classComponent.daytime.forEach(daytime => {
-            const [day, startStr, endStr] = daytime.split(' ');
-            const start = parseInt(startStr);
-            const end = parseInt(endStr);
-            const duration = (end - start) / 30; // Number of 30-minute intervals
-            if (!schedule[day][start]) {
-              schedule[day][start] = {
-                classInfo: {
-                  courseTitle: course.courseTitle,
-                  componentName: formatComponentName(classComponent.name),
-                  instructor: classComponent.instructor,
-                  room: classComponent.room,
-                  startTimeLabel: formatTime(start),
-                  endTimeLabel: formatTime(end),
-                  rowspan: duration
-                }
-              };
-            }
-          });
-        });
-      });
-
-      // Generate time labels
-      const timeLabels = [];
-      for (let time = globalMinTime; time <= globalMaxTime - 1; time += 30) {
-        if (time % 60 === 0) {
-          timeLabels.push({ time, label: formatTime(time), isHour: true });
-        } else {
-          timeLabels.push({ time, label: '', isHour: false });
-        }
-      }
-
-      let tableHtml = '<table class="timetable">';
-      tableHtml += '<tr><th class="time-label">Time</th>';
-      daysOfWeek.forEach(day => {
-        tableHtml += '<th>' + day + '</th>';
-      });
-      tableHtml += '</tr>';
-
-      for (let i = 0; i < timeLabels.length; i++) {
-        const timeLabel = timeLabels[i];
-        tableHtml += '<tr>';
-        if (timeLabel.isHour) {
-          tableHtml += '<td class="time-label" rowspan="2" style="height:40px;">' + timeLabel.label + '</td>';
-        } else if (i === 0 || timeLabels[i - 1].isHour) {
-          // Skip adding time label cell
-        }
-        daysOfWeek.forEach(day => {
-          const cellData = schedule[day][timeLabel.time];
-          if (cellData && cellData.classInfo) {
-            const rowspan = cellData.classInfo.rowspan;
-            tableHtml += '<td class="class-cell" rowspan="' + rowspan + '">';
-            tableHtml += '<div class="class-info">';
-            tableHtml += '<strong>' + cellData.classInfo.courseTitle + '</strong>';
-            tableHtml += '<span>' + cellData.classInfo.componentName + '</span>';
-            tableHtml += '<span>' + cellData.classInfo.instructor + '</span>';
-            tableHtml += '<span>' + cellData.classInfo.room + '</span>';
-            tableHtml += '<span>' + cellData.classInfo.startTimeLabel + ' - ' + cellData.classInfo.endTimeLabel + '</span>';
-            tableHtml += '</div>';
-            tableHtml += '</td>';
-          } else if (!isCellRenderedPreviously(schedule, day, timeLabel.time)) {
-            tableHtml += '<td></td>';
-          }
-        });
-        tableHtml += '</tr>';
-      }
-
-      tableHtml += '</table>';
-
-      document.getElementById('timetable-container').innerHTML = tableHtml;
-
-      let courseListHtml = '<ul>';
-      combination.forEach(course => {
-        courseListHtml += '<li><strong>' + course.courseTitle + '</strong>, Option: ' + course.option + '</li>';
-      });
-      courseListHtml += '</ul>';
-      document.getElementById('course-list').innerHTML = courseListHtml;
-    }
-
-    function isCellRenderedPreviously(schedule, day, time) {
-      // Check if there is a class starting before this time that covers this time slot
-      for (const classTime in schedule[day]) {
-        const classInfo = schedule[day][classTime].classInfo;
-        if (classTime < time && (parseInt(classTime) + classInfo.rowspan * 30) > time) {
-          return true;
-        }
-      }
-      return false;
-    }
-
-    function formatTime(minutes) {
-      const hours = Math.floor(minutes / 60);
-      const mins = minutes % 60;
-      const ampm = hours >= 12 ? 'PM' : 'AM';
-      const displayHours = hours % 12 === 0 ? 12 : hours % 12;
-      return displayHours + ':' + (mins < 10 ? '0' : '') + mins + ' ' + ampm;
-    }
-
-    function prevCombination() {
-      if (currentIndex > 0) {
-        currentIndex--;
-        renderCombination(currentIndex);
-      }
-    }
-
-    function nextCombination() {
-      if (currentIndex < filteredCombinations.length - 1) {
-        currentIndex++;
-        renderCombination(currentIndex);
-      }
-    }
-
-    function goToCombination() {
-      const input = document.getElementById('combination-input');
-      let index = parseInt(input.value) - 1;
-      if (index >= 0 && index < filteredCombinations.length) {
-        currentIndex = index;
-        renderCombination(currentIndex);
-      } else {
-        alert('Invalid combination number.');
-        input.value = currentIndex + 1;
-      }
-    }
-
-    if (filteredCombinations.length > 0) {
-      renderCombination(currentIndex);
-    } else {
-      document.getElementById('timetable-container').innerHTML = '<p>No combinations available.</p>';
-    }
-  </script>
-</body>
-</html>
-`;
-
-// Write the HTML content to the popup window
-popupWindow.document.open();
-popupWindow.document.write(htmlContent);
-popupWindow.document.close();
-
+  // Write the HTML content to the popup window
+  popupWindow.document.open();
+  popupWindow.document.write(htmlContent);
+  popupWindow.document.close();
 
 }
 
@@ -1082,7 +1081,7 @@ function waitForElement(selector, tabId) {
         (results) => {
           if (chrome.runtime.lastError) {
             clearInterval(checkExist);
-            reject(new Error('Script injection failed.'));
+            alert('Script injection failed.');
             return;
           }
           if (results && results[0] && results[0].result) {
@@ -1096,7 +1095,7 @@ function waitForElement(selector, tabId) {
     // wait for 10 seconds, return error if element not found
     setTimeout(() => {
       clearInterval(checkExist);
-      reject(new Error(`Element ${selector} not found within timeout`));
+      alert(`Element ${selector} not found within timeout`);
     }, timeout);
   });
 }
@@ -1132,7 +1131,7 @@ function waitForElementWithText(expectedText, tabId) {
         (results) => {
           if (chrome.runtime.lastError) {
             clearInterval(intervalId);
-            reject(new Error('Script injection failed.'));
+            alert('Script injection failed.');
             return;
           }
 
@@ -1142,7 +1141,7 @@ function waitForElementWithText(expectedText, tabId) {
             resolve();
           } else if (Date.now() - startTime >= timeout) {
             clearInterval(intervalId);
-            reject(new Error(`Element with text "${expectedText}" not found within timeout`));
+            alert(`Element with text "${expectedText}" not found within timeout`);
           }
         }
       );
@@ -1166,7 +1165,7 @@ function waitForElementWithText(expectedText, tabId) {
       (results) => {
         if (chrome.runtime.lastError) {
           clearInterval(intervalId);
-          reject(new Error('Script injection failed.'));
+          alert('Script injection failed.');
           return;
         }
 
