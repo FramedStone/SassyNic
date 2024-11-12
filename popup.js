@@ -1081,7 +1081,7 @@ function waitForElement(selector, tabId) {
         (results) => {
           if (chrome.runtime.lastError) {
             clearInterval(checkExist);
-            alert('Script injection failed.');
+            reject(new Error('Script injection failed.'));
             return;
           }
           if (results && results[0] && results[0].result) {
@@ -1095,7 +1095,7 @@ function waitForElement(selector, tabId) {
     // wait for 10 seconds, return error if element not found
     setTimeout(() => {
       clearInterval(checkExist);
-      alert(`Element ${selector} not found within timeout`);
+      reject(new Error(`Element ${selector} not found within timeout`));
     }, timeout);
   });
 }
@@ -1131,7 +1131,7 @@ function waitForElementWithText(expectedText, tabId) {
         (results) => {
           if (chrome.runtime.lastError) {
             clearInterval(intervalId);
-            alert('Script injection failed.');
+            reject(new Error('Script injection failed.'));
             return;
           }
 
@@ -1141,7 +1141,7 @@ function waitForElementWithText(expectedText, tabId) {
             resolve();
           } else if (Date.now() - startTime >= timeout) {
             clearInterval(intervalId);
-            alert(`Element with text "${expectedText}" not found within timeout`);
+            reject(new Error(`Element with text "${expectedText}" not found within timeout`));
           }
         }
       );
@@ -1165,7 +1165,7 @@ function waitForElementWithText(expectedText, tabId) {
       (results) => {
         if (chrome.runtime.lastError) {
           clearInterval(intervalId);
-          alert('Script injection failed.');
+          reject(new Error('Script injection failed.'));
           return;
         }
 
