@@ -204,7 +204,62 @@ label {
     overflow: hidden;
 }
 
-#customizationSection.visible {
+#customizationSection.visible, #enrollSection.visible {
     max-height: 500px;
     opacity: 1;
+}
+
+.enroll-input {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.enroll-input input {
+    flex: 2;
+    margin-bottom: 0;
+}
+
+.enroll-input button {
+    flex: 1;
+    margin: 0;
+    padding: 8px;
+    min-width: fit-content; 
+}
+
+.class-fields-container {
+    max-height: 200px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+    width: 100%;
+}
+
+.class-fields-container::-webkit-scrollbar {
+    width: 6px;
+}
+
+.class-fields-container::-webkit-scrollbar-track {
+    background: var(--input-bg);
+}
+
+.class-fields-container::-webkit-scrollbar-thumb {
+    background-color: var(--button-bg);
+    border-radius: 3px;
+}
+
+.class-fields-container input {
+    width: calc(100% - 20px);
+    margin-bottom: 10px;;
+}
+
+#enrollButton {
+    margin-top: 15px;
+    width: 100%;
+    display: block;
+}
+
+#enrollSection {
+    width: 100%;
 }
