@@ -158,49 +158,6 @@ document.addEventListener('DOMContentLoaded', function() {
             : 'Extract Customization 🔽';
     });
 
-    // Expand/Collapse for Enroll Section
-    const toggleEnrollBtn = document.getElementById('toggleEnroll');
-    const enrollSection = document.getElementById('enrollSection');
-    const classCount = document.getElementById('classCount');
-    const generateFieldsBtn = document.getElementById('generateFields');
-    const classFields = document.getElementById('classFields');
-    const enrollButton = document.getElementById('enrollButton');
-
-
-    toggleEnrollBtn.addEventListener('click', () => {
-        enrollSection.classList.toggle('visible');
-        enrollSection.classList.toggle('hidden');
-        toggleEnrollBtn.textContent = enrollSection.classList.contains('visible') 
-            ? 'Enroll Section 🔼' 
-            : 'Enroll Section 🔽';
-        if (enrollSection.classList.contains('visible')) {
-            enrollButton.classList.remove('hidden');
-        } else {
-            enrollButton.classList.add('hidden');
-        }
-    });
-
-    generateFieldsBtn.addEventListener('click', () => {
-        const count = parseInt(classCount.value);
-        if (isNaN(count) || count <= 0) {
-            alert('Please enter a valid number of classes.');
-            return;
-        }
-
-        classFields.innerHTML = '';
-        for (let i = 1; i <= count; i++) {
-            const input = document.createElement('input');
-            input.type = 'text';
-            input.placeholder = `Class ${i}`;
-            input.id = `class${i}`;
-            classFields.appendChild(input);
-        }
-        classFields.classList.remove('hidden');
-    });
-
-    enrollButton.addEventListener('click', () => {
-        alert('Enrollment process initiated!');
-    });
 });
 
 /**
