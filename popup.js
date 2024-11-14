@@ -157,6 +157,45 @@ document.addEventListener('DOMContentLoaded', function() {
             ? 'Extract Customization 🔼' 
             : 'Extract Customization 🔽';
     });
+
+    // Enroll Section
+    const toggleEnrollBtn = document.getElementById('toggleEnroll');
+    const enrollSection = document.getElementById('enrollSection');
+
+    toggleEnrollBtn.addEventListener('click', async () => {
+      const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+      const tabId = tabs[0].id;
+
+      enrollSection.classList.toggle('visible');
+      enrollSection.classList.toggle('hidden');
+      toggleEnrollBtn.textContent = enrollSection.classList.contains('visible') 
+          ? 'Enroll 🔼' 
+          : 'Enroll 🔽';
+
+      // Enroll Button
+      const btnEnroll = document.getElementById('btnEnroll');
+      btnEnroll.addEventListener('click', async () => {
+        chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: () => {
+            console.log("enroll button pressed.")
+          }
+        }); 
+      }); 
+
+      // Add To Shopping Cart Button
+      const btnAddToSC = document.getElementById('btnAddToSC');
+      btnAddToSC.addEventListener('click', async () => {
+        chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: () => {
+            console.log("Add To Shopping Cart button pressed.")
+          }
+        }); 
+      }); 
+    });
 });
 
 /**
