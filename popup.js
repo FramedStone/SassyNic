@@ -161,6 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Enroll Section
     const toggleEnrollBtn = document.getElementById('toggleEnroll');
     const enrollSection = document.getElementById('enrollSection');
+    const inputFieldsContainer = document.getElementById('inputFieldsContainer');
 
     toggleEnrollBtn.addEventListener('click', async () => {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
@@ -171,6 +172,108 @@ document.addEventListener('DOMContentLoaded', function() {
       toggleEnrollBtn.textContent = enrollSection.classList.contains('visible') 
           ? 'Enroll 🔼' 
           : 'Enroll 🔽';
+
+      // Option fields
+      if (enrollSection.classList.contains('visible')) {
+        try {
+          // Request data from the page context
+          const keys = await getCourseKeys();
+          generateInputFields(keys);
+        } catch (error) {
+          console.error('Error retrieving course keys:', error);
+        }
+      } 
+
+      /**
+       * Function to get course keys from current domain's 'localStorage' 
+       * @returns {Promise<string[]>} - course keys
+       */
+      async function getCourseKeys() {
+        return new Promise((resolve, reject) => {
+          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs.length === 0) {
+              reject('No active tab found.');
+              return;
+            }
+            const tabId = tabs[0].id;
+
+            chrome.scripting.executeScript(
+              {
+                target: { tabId: tabId },
+                func: () => {
+                  // This function runs in the page context
+                  function getKeys() {
+                    const keys = Object.keys(localStorage);
+
+                    const keys_ = keys.filter(key => {
+                      const value = localStorage.getItem(key);
+
+                      try {
+                        const parsedValue = JSON.parse(value);
+
+                        return Array.isArray(parsedValue) && parsedValue.every(item => {
+                          return item.hasOwnProperty("courseTitle");
+                        });
+                      } catch (error) {
+                        return false;
+                      }
+                    });
+
+                    return keys_;
+                  }
+
+                  return getKeys();
+                },
+                world: 'MAIN',
+              },
+              (results) => {
+                if (chrome.runtime.lastError) {
+                  console.error(chrome.runtime.lastError);
+                  reject('Could not get course keys.');
+                } else if (results && results[0] && results[0].result) {
+                  const keys = results[0].result;
+                  resolve(keys);
+                } else {
+                  reject('No results returned.');
+                }
+              }
+            );
+          });
+        });
+      }
+
+      /**
+       * Function to create input fields based on courses retrieved from 'localStorage'
+       * @param {Object} keys - courses from 'localStorage' 
+       */
+      function generateInputFields(keys) {
+        inputFieldsContainer.innerHTML = '';
+
+        keys.forEach((option, index) => {
+          // Create a wrapper div for styling purposes (optional)
+          const inputWrapper = document.createElement('div');
+          inputWrapper.classList.add('input-wrapper');
+
+          // Create the label for the input field
+          const label = document.createElement('label');
+          label.htmlFor = `inputField${index}`;
+          label.textContent = `${option}:`;
+
+          // Create the input field
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.name = `inputField${index}`;
+          input.id = `inputField${index}`;
+          input.placeholder = 'option'; 
+
+          // Append the label and input to the wrapper
+          inputWrapper.appendChild(label);
+          inputWrapper.appendChild(input);
+
+          // Append the wrapper to the container
+          inputFieldsContainer.appendChild(inputWrapper);
+        });
+      }
 
       // Enroll Button
       const btnEnroll = document.getElementById('btnEnroll');
@@ -541,6 +644,7 @@ function startGenerate() {
   }
 
   const finalCombinations = startGenerate_(data); 
+  console.log(finalCombinations);
 
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
