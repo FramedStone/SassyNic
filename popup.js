@@ -261,7 +261,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
           // Create the input field
           const input = document.createElement('input');
-          input.type = 'text';
+          input.type = 'number';
           input.name = `inputField${index}`;
           input.id = `inputField${index}`;
           input.placeholder = 'option'; 
