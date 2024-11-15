@@ -1,10 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    /**
-     * Things to manually adjust every trimester
-     * @selectedTrimester
-     */
-    const selectedTrimester = document.getElementById('trimester').value; 
-
     // Reset
     document.getElementById('btnReset').addEventListener('click', async () => {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
@@ -22,6 +16,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('btnExtract').addEventListener('click', async () => {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
       const tabId = tabs[0].id;
+
+      let selectedTrimester = document.getElementById('trimester').value;  // first encounter
+      let currentTrimester = document.getElementById('currentTrimester').value; // current trimester
 
       let courseTotal = document.getElementById('courseTotal').value;
       if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
@@ -41,7 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
           target: {tabId: tabId},
           world: 'MAIN',
           func: selectPlannerTrimester,
-          args: [document.getElementById('trimester').value]
+          args: [selectedTrimester]
         });
 
         await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
@@ -63,14 +60,14 @@ document.addEventListener('DOMContentLoaded', function() {
           func: clickViewClasses,
         });
 
-        await waitForElementWithText(document.getElementById('trimester').value, tabId);
+        await waitForElementWithText(selectedTrimester, tabId);
 
         // Trimester
         await chrome.scripting.executeScript({
           target: {tabId: tabId},
           world: 'MAIN',
           func: selectTrimester,
-          args: [document.getElementById('trimester').value],
+          args: [currentTrimester],
         });
 
         await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
@@ -379,7 +376,7 @@ document.addEventListener('DOMContentLoaded', function() {
             target: {tabId: tabId},
             world: 'MAIN',
             func: selectPlannerTrimester,
-            args: [document.getElementById('trimester').value]
+            args: [selectedTrimester]
           });
 
           await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
@@ -401,14 +398,14 @@ document.addEventListener('DOMContentLoaded', function() {
             func: clickViewClasses,
           });
 
-          await waitForElementWithText(document.getElementById('trimester').value, tabId);
+          await waitForElementWithText(selectedTrimester, tabId);
 
           // Trimester
           await chrome.scripting.executeScript({
             target: {tabId: tabId},
             world: 'MAIN',
             func: selectTrimester,
-            args: [document.getElementById('trimester').value],
+            args: [selectedTrimester],
           });
 
           await waitForElement("table.ps_grid-flex[title='Class Options']", tabId)
@@ -538,7 +535,7 @@ function selectPlannerTrimester(selectedTrimester) {
     // <td class="ps_grid-cell TERMS">
     const termCell = row.querySelectorAll("td.ps_grid-cell.TERMS a.ps-link");
     for(let i=0; i<termCell.length; i++) {
-      if (termCell && termCell[i].textContent.trim() === document.getElementById('trimester').value) {
+      if (termCell && termCell[i].textContent.trim() === selectedTrimester) {
         if (typeof OnRowAction === 'function') {
           OnRowAction(row, `SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$${i}`);
           found = true;
@@ -550,7 +547,7 @@ function selectPlannerTrimester(selectedTrimester) {
     }
   } 
   if (!found) {
-    console.log(`Trimester "${document.getElementById('trimester').value}" not found`);
+    console.log(`Trimester "${selectedTrimester}" not found`);
   }
 }
 
