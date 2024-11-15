@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         await chrome.scripting.executeScript({
           target: {tabId: tabId},
           world: 'MAIN',
-          func: selectCourse,
+          func: selectCourse_,
           args: [i],
         });
 
@@ -158,6 +158,326 @@ document.addEventListener('DOMContentLoaded', function() {
             : 'Extract Customization 🔽';
     });
 
+    // Enroll Section
+    const toggleEnrollBtn = document.getElementById('toggleEnroll');
+    const enrollSection = document.getElementById('enrollSection');
+    let  inputFieldsContainer = document.getElementById('inputFieldsContainer');
+
+    toggleEnrollBtn.addEventListener('click', async () => {
+      const tabs = await chrome.tabs.query({active: true, currentWindow: true});
+      const tabId = tabs[0].id;
+
+      enrollSection.classList.toggle('visible');
+      enrollSection.classList.toggle('hidden');
+      toggleEnrollBtn.textContent = enrollSection.classList.contains('visible') 
+          ? 'Enroll 🔼' 
+          : 'Enroll 🔽';
+
+      // Option fields
+      if (enrollSection.classList.contains('visible')) {
+        try {
+          // Request data from the page context
+          const keys = await getCourseKeys();
+          generateInputFields(keys);
+        } catch (error) {
+          console.error('Error retrieving course keys:', error);
+        }
+      } 
+
+      /**
+       * Function to get course keys from current domain's 'localStorage' 
+       * @returns {Promise<string[]>} - course keys
+       */
+      async function getCourseKeys() {
+        return new Promise((resolve, reject) => {
+          chrome.tabs.query({active: true, currentWindow: true}, (tabs) => {
+            if (tabs.length === 0) {
+              reject('No active tab found.');
+              return;
+            }
+            const tabId = tabs[0].id;
+
+            chrome.scripting.executeScript(
+              {
+                target: { tabId: tabId },
+                func: () => {
+                  // This function runs in the page context
+                  function getKeys() {
+                    const keys = Object.keys(localStorage);
+
+                    const keys_ = keys.filter(key => {
+                      const value = localStorage.getItem(key);
+
+                      try {
+                        const parsedValue = JSON.parse(value);
+
+                        return Array.isArray(parsedValue) && parsedValue.every(item => {
+                          return item.hasOwnProperty("courseTitle");
+                        });
+                      } catch (error) {
+                        return false;
+                      }
+                    });
+
+                    return keys_;
+                  }
+
+                  return getKeys();
+                },
+                world: 'MAIN',
+              },
+              (results) => {
+                if (chrome.runtime.lastError) {
+                  console.error(chrome.runtime.lastError);
+                  reject('Could not get course keys.');
+                } else if (results && results[0] && results[0].result) {
+                  const keys = results[0].result;
+                  resolve(keys);
+                } else {
+                  reject('No results returned.');
+                }
+              }
+            );
+          });
+        });
+      }
+
+      /**
+       * Function to get course codes from current domain's 'localStorage'
+       * @returns {Promise<string[]>} - course codes
+       */
+      async function getCourseCodes() {
+        return new Promise((resolve, reject) => {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length === 0) {
+              reject('No active tab found.');
+              return;
+            }
+            const tabId = tabs[0].id;
+
+            chrome.scripting.executeScript(
+              {
+                target: { tabId: tabId },
+                func: () => {
+                  // This function runs in the page context
+                  function getCourseCodesFromLocalStorage() {
+                    const keys = Object.keys(localStorage);
+                    const courseCodes = [];
+
+                    keys.forEach((key) => {
+                      const value = localStorage.getItem(key);
+
+                      try {
+                        const parsedValue = JSON.parse(value);
+
+                        if (
+                          Array.isArray(parsedValue) &&
+                          parsedValue.every((item) => item.hasOwnProperty('courseTitle'))
+                        ) {
+                          parsedValue.forEach((item) => {
+                            if (item.courseCode && !courseCodes.includes(item.courseCode)) {
+                              courseCodes.push(item.courseCode);
+                            }
+                          });
+                        }
+                      } catch (error) {
+                        // Ignore parsing errors
+                      }
+                    });
+
+                    return courseCodes;
+                  }
+
+                  return getCourseCodesFromLocalStorage();
+                },
+                world: 'MAIN',
+              },
+              (results) => {
+                if (chrome.runtime.lastError) {
+                  console.error(chrome.runtime.lastError);
+                  reject('Could not get course codes.');
+                } else if (results && results[0] && results[0].result) {
+                  const courseCodes = results[0].result;
+                  resolve(courseCodes);
+                } else {
+                  reject('No results returned.');
+                }
+              }
+            );
+          });
+        });
+      }
+
+      /**
+       * Function to create input fields based on courses retrieved from 'localStorage'
+       * @param {Object} keys - courses from 'localStorage' 
+       */
+      function generateInputFields(keys) {
+        inputFieldsContainer.innerHTML = '';
+
+        keys.forEach((option, index) => {
+          // Create a wrapper div for styling purposes (optional)
+          const inputWrapper = document.createElement('div');
+          inputWrapper.classList.add('input-wrapper');
+
+          // Create the label for the input field
+          const label = document.createElement('label');
+          label.htmlFor = `inputField${index}`;
+          label.textContent = `${option}:`;
+
+          // Create the input field
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.name = `inputField${index}`;
+          input.id = `inputField${index}`;
+          input.placeholder = 'option'; 
+
+          // Append the label and input to the wrapper
+          inputWrapper.appendChild(label);
+          inputWrapper.appendChild(input);
+
+          // Append the wrapper to the container
+          inputFieldsContainer.appendChild(inputWrapper);
+        });
+      }
+
+      // Enroll Button
+      const btnEnroll = document.getElementById('btnEnroll');
+      inputFieldsContainer = Array.from(inputFieldsContainer.querySelectorAll('input')); // get option values from input fields
+
+      btnEnroll.addEventListener('click', async () => {
+        const optionValues = getOptionsValues();
+
+        // chrome.scripting.executescript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: startEnroll,
+        //   args: [optionValues], 
+        // }); 
+      }); 
+
+      // Add To Shopping Cart Button
+      const btnAddToSC = document.getElementById('btnAddToSC');
+
+      btnAddToSC.addEventListener('click', async () => {
+        const optionValues = getOptionsValues();
+        const courseTotal = optionValues.length;
+        const courseCodes = await getCourseCodes(); // using key's courseCodes to select the correct course (as the order of courses is arbitrary in 'localStorage');
+
+        for(let i=0; i<courseTotal; i++) {
+          // Planner
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickPlanner
+          });
+
+          await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+
+          // Trimester/Terms inside Planner
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectPlannerTrimester,
+            args: [selectedTrimester]
+          });
+
+          await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+
+          // Course selection interface
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectCourse,
+            args: [courseCodes[i]],
+          });
+
+          await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+
+          // View Classes
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickViewClasses,
+          });
+
+          await waitForElementWithText(selectedTrimester, tabId);
+
+          // Trimester
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectTrimester,
+            args: [selectedTrimester],
+          });
+
+          await waitForElement("table.ps_grid-flex[title='Class Options']", tabId)
+
+          // select class row
+          // javascript:OnRowAction(this,'SSR_CLSRCH_F_WK_SSR_OPTION_DESCR$0'); - change the '0' accordingly 
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectClassRow, 
+            args: [optionValues[i]],
+          }); 
+
+          await waitForElement('div.ps_box-button', tabId);
+
+          // next (Enroll / Add to Shopping Cart)
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickNext, 
+          }); 
+
+          await waitForElement('div.ps_box-control', tabId);
+
+          // select 'Add to Shopping Cart' radio button
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickAddToSC, 
+          }); 
+
+          // next (step 3 of 3) page
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickNext, 
+          }); 
+
+          await waitForElement('div.ps_box-button', tabId); 
+
+          // submit 
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickSubmit, 
+          }); 
+
+          await waitForElement('div.ps_box-button', tabId); 
+
+          // confirm submit
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickConfirmSubmit,
+          });
+
+          await waitForElement("div.psa_tab_SSR_PLNR_TERM_FL", tabId);
+        };
+
+        // Navigate to Shopping Cart 
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickShoppingCart,
+        });
+
+        alert("All Courses Has Been Added To Shopping Cart.");
+      }); 
+    });
 });
 
 /**
@@ -180,6 +500,29 @@ function clickPlanner() {
   }
   if (!found) {
     console.log("Planner element not found");
+  }
+}
+
+/**
+ * function that click '' element using 'MouseEvent'
+ */
+function clickShoppingCart() {
+  // <ul class="ps_box-scrollarea psa_list-linkmenu psc_list-has-icon psa_vtab" id="win3divSCC_NAV_TAB$0">
+  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
+  let found = false;
+
+  for (let liElement of liElements) {
+    // <span class="ps-text">Planner</span>
+    const spanText = liElement.querySelector("span.ps-text");
+    if (spanText && spanText.textContent.trim() === "Shopping Cart") {
+      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+      liElement.dispatchEvent(event);
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    console.log("Shopping Cart element not found");
   }
 }
 
@@ -213,7 +556,7 @@ function selectPlannerTrimester(selectedTrimester) {
  * function that trigger element's 'onClick' javascript
  * @param {number} index 
  */
-function selectCourse(index) {
+function selectCourse_(index) {
   const row = document.querySelector(`tr[id='PLANNER_ITEMS_NFF$0_row_${index}']`);
   if (row && typeof OnRowAction === 'function') {
     OnRowAction(row, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${index}`);
@@ -223,6 +566,31 @@ function selectCourse(index) {
     }
     if (typeof OnRowAction !== 'function') {
       console.log('OnRowAction function not found');
+    }
+  }
+}
+
+/**
+ * Function that clicks on the course row based on the 'courseCode' 
+ * @param {Array<string>} courseCode 
+ */
+function selectCourse(courseCode) {
+  const row = document.querySelectorAll('tr.ps_grid-row.psc_rowact');
+
+  for(let i=0; i<row.length; i++) {
+    const courseName_ = row[i].querySelector('td.ps_grid-cell.COURSE').textContent.trim();
+    console.log(courseName_);
+    if(courseName_ === courseCode.trim()) {
+      const row = document.querySelector(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`);
+      OnRowAction(row, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${i}`);
+      break;
+    } else {
+      if (!row) {
+        console.log(`Course Details row at index ${i} not found`);
+      }
+      if (typeof OnRowAction !== 'function') {
+        console.log('OnRowAction function not found');
+      }
     }
   }
 }
@@ -275,7 +643,7 @@ function extractClassesDetails() {
   }
 
   var dataBody = [];
-  const body = table.querySelectorAll('tbody tr');
+  const body = table.querySelectorAll('tbody tr:not(.psc_disabled)');
   
   /*
     0: ps_grid-cell OPTION_NSFF
@@ -291,18 +659,18 @@ function extractClassesDetails() {
   */
 
   const courseTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent;
+  const courseCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent;
 
   body.forEach(row => {
     const optionBody = row.querySelector('td.ps_grid-cell.OPTION_NSFF');
     const statusBody = row.querySelector('td.ps_grid-cell span.ps_box-value'); // first encounter (STATUS doesn't have unique class naming like others)
     const classBody = row.querySelectorAll('td.ps_grid-cell.CMPNT_CLASS_NBR a.ps-link');
-    const roomBody = row.querySelector('td.ps_grid-cell.ROOM');
-    const instructorBody = row.querySelector('td.ps_grid-cell.INSTRUCTOR');
 
     // filter status 
     if(statusBody.textContent === "Open") {
       const data = {
         courseTitle: courseTitle,
+        courseCode: courseCode,
         option: optionBody.textContent.trim(),
         // room: roomBody.textContent.trim(), 
         // instructor: instructorBody.textContent.trim(), 
@@ -503,6 +871,7 @@ function startGenerate() {
   }
 
   const finalCombinations = startGenerate_(data); 
+  console.log(finalCombinations);
 
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
@@ -1057,6 +1426,54 @@ function startGenerate() {
   popupWindow.document.write(htmlContent);
   popupWindow.document.close();
 
+}
+
+/**
+ * Function that will return all the options values in the popup window 
+ * @returns {Array} - return all the options values in the popup window
+ */
+function getOptionsValues() {
+  const inputs = inputFieldsContainer.querySelectorAll('input');
+  return Array.from(inputs).map(input => input.value);
+}
+
+/**
+ * Function that will select the class rows based on the option values
+ * @param {Array<Number>} optionValues - Array of option values in popup window
+ */
+function selectClassRow(optionValue) {
+  console.log(optionValue);
+  OnRowAction(this,`SSR_CLSRCH_F_WK_SSR_OPTION_DESCR$${optionValue-1}`);
+}
+
+/**
+ * Function that will click the next button in the page (usually on top right corner)
+ */
+function clickNext() {
+  const nextButton = document.getElementById('PTGP_GPLT_WRK_PTGP_NEXT_PB');
+  nextButton.click();
+}
+
+/**
+ * Function that will click the 'Add to Shopping Cart' button during 'Step 2 of 3'
+ */
+function clickAddToSC() {
+  const btnAddToSC = document.querySelector('input[value="CART"]');
+  btnAddToSC.click();
+}
+
+/**
+ * Function that will click the 'Submit' button during 'Step 3 of 3'
+ */
+function clickSubmit() {
+  const btnSubmit_ = document.querySelector('div.psc_primary');
+  const btnSubmit = btnSubmit_.querySelector('a.ps-button');
+  btnSubmit.click();
+}
+
+function clickConfirmSubmit() {
+  const btnConfirmSubmit = document.querySelector('a[id="#ICYes"]');
+  btnConfirmSubmit.click();
 }
 
 /**
