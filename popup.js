@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', function() {
         await chrome.scripting.executeScript({
           target: {tabId: tabId},
           world: 'MAIN',
-          func: selectCourse,
+          func: selectCourse_,
           args: [i],
         });
 
@@ -243,6 +243,72 @@ document.addEventListener('DOMContentLoaded', function() {
       }
 
       /**
+       * Function to get course codes from current domain's 'localStorage'
+       * @returns {Promise<string[]>} - course codes
+       */
+      async function getCourseCodes() {
+        return new Promise((resolve, reject) => {
+          chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+            if (tabs.length === 0) {
+              reject('No active tab found.');
+              return;
+            }
+            const tabId = tabs[0].id;
+
+            chrome.scripting.executeScript(
+              {
+                target: { tabId: tabId },
+                func: () => {
+                  // This function runs in the page context
+                  function getCourseCodesFromLocalStorage() {
+                    const keys = Object.keys(localStorage);
+                    const courseCodes = [];
+
+                    keys.forEach((key) => {
+                      const value = localStorage.getItem(key);
+
+                      try {
+                        const parsedValue = JSON.parse(value);
+
+                        if (
+                          Array.isArray(parsedValue) &&
+                          parsedValue.every((item) => item.hasOwnProperty('courseTitle'))
+                        ) {
+                          parsedValue.forEach((item) => {
+                            if (item.courseCode && !courseCodes.includes(item.courseCode)) {
+                              courseCodes.push(item.courseCode);
+                            }
+                          });
+                        }
+                      } catch (error) {
+                        // Ignore parsing errors
+                      }
+                    });
+
+                    return courseCodes;
+                  }
+
+                  return getCourseCodesFromLocalStorage();
+                },
+                world: 'MAIN',
+              },
+              (results) => {
+                if (chrome.runtime.lastError) {
+                  console.error(chrome.runtime.lastError);
+                  reject('Could not get course codes.');
+                } else if (results && results[0] && results[0].result) {
+                  const courseCodes = results[0].result;
+                  resolve(courseCodes);
+                } else {
+                  reject('No results returned.');
+                }
+              }
+            );
+          });
+        });
+      }
+
+      /**
        * Function to create input fields based on courses retrieved from 'localStorage'
        * @param {Object} keys - courses from 'localStorage' 
        */
@@ -296,6 +362,8 @@ document.addEventListener('DOMContentLoaded', function() {
       btnAddToSC.addEventListener('click', async () => {
         const optionValues = getOptionsValues();
         const courseTotal = optionValues.length;
+        const keys = await getCourseKeys(); // using key's courseCodes to select the correct course (as the order of courses is arbitrary in 'localStorage')
+        const courseCodes = await getCourseCodes();
 
         for(let i=0; i<courseTotal; i++) {
           // Planner
@@ -322,7 +390,7 @@ document.addEventListener('DOMContentLoaded', function() {
             target: {tabId: tabId},
             world: 'MAIN',
             func: selectCourse,
-            args: [i],
+            args: [courseCodes[i]],
           });
 
           await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
@@ -458,7 +526,7 @@ function selectPlannerTrimester(selectedTrimester) {
  * function that trigger element's 'onClick' javascript
  * @param {number} index 
  */
-function selectCourse(index) {
+function selectCourse_(index) {
   const row = document.querySelector(`tr[id='PLANNER_ITEMS_NFF$0_row_${index}']`);
   if (row && typeof OnRowAction === 'function') {
     OnRowAction(row, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${index}`);
@@ -468,6 +536,31 @@ function selectCourse(index) {
     }
     if (typeof OnRowAction !== 'function') {
       console.log('OnRowAction function not found');
+    }
+  }
+}
+
+/**
+ * Function that clicks on the course row based on the 'courseCode' 
+ * @param {Array<string>} courseCode 
+ */
+function selectCourse(courseCode) {
+  const row = document.querySelectorAll('tr.ps_grid-row.psc_rowact');
+
+  for(let i=0; i<row.length; i++) {
+    const courseName_ = row[i].querySelector('td.ps_grid-cell.COURSE').textContent.trim();
+    console.log(courseName_);
+    if(courseName_ === courseCode.trim()) {
+      const row = document.querySelector(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`);
+      OnRowAction(row, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${i}`);
+      break;
+    } else {
+      if (!row) {
+        console.log(`Course Details row at index ${i} not found`);
+      }
+      if (typeof OnRowAction !== 'function') {
+        console.log('OnRowAction function not found');
+      }
     }
   }
 }
@@ -536,6 +629,7 @@ function extractClassesDetails() {
   */
 
   const courseTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent;
+  const courseCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent;
 
   body.forEach(row => {
     const optionBody = row.querySelector('td.ps_grid-cell.OPTION_NSFF');
@@ -546,6 +640,7 @@ function extractClassesDetails() {
     if(statusBody.textContent === "Open") {
       const data = {
         courseTitle: courseTitle,
+        courseCode: courseCode,
         option: optionBody.textContent.trim(),
         // room: roomBody.textContent.trim(), 
         // instructor: instructorBody.textContent.trim(), 
