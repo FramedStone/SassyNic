@@ -520,7 +520,7 @@ function extractClassesDetails() {
   }
 
   var dataBody = [];
-  const body = table.querySelectorAll('tbody tr');
+  const body = table.querySelectorAll('tbody tr:not(.psc_disabled)');
   
   /*
     0: ps_grid-cell OPTION_NSFF
@@ -541,8 +541,6 @@ function extractClassesDetails() {
     const optionBody = row.querySelector('td.ps_grid-cell.OPTION_NSFF');
     const statusBody = row.querySelector('td.ps_grid-cell span.ps_box-value'); // first encounter (STATUS doesn't have unique class naming like others)
     const classBody = row.querySelectorAll('td.ps_grid-cell.CMPNT_CLASS_NBR a.ps-link');
-    const roomBody = row.querySelector('td.ps_grid-cell.ROOM');
-    const instructorBody = row.querySelector('td.ps_grid-cell.INSTRUCTOR');
 
     // filter status 
     if(statusBody.textContent === "Open") {
