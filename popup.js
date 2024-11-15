@@ -41,7 +41,7 @@ document.addEventListener('DOMContentLoaded', function() {
           target: {tabId: tabId},
           world: 'MAIN',
           func: selectPlannerTrimester,
-          args: [selectedTrimester]
+          args: [document.getElementById('trimester').value]
         });
 
         await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
@@ -63,14 +63,14 @@ document.addEventListener('DOMContentLoaded', function() {
           func: clickViewClasses,
         });
 
-        await waitForElementWithText(selectedTrimester, tabId);
+        await waitForElementWithText(document.getElementById('trimester').value, tabId);
 
         // Trimester
         await chrome.scripting.executeScript({
           target: {tabId: tabId},
           world: 'MAIN',
           func: selectTrimester,
-          args: [selectedTrimester],
+          args: [document.getElementById('trimester').value],
         });
 
         await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
@@ -379,7 +379,7 @@ document.addEventListener('DOMContentLoaded', function() {
             target: {tabId: tabId},
             world: 'MAIN',
             func: selectPlannerTrimester,
-            args: [selectedTrimester]
+            args: [document.getElementById('trimester').value]
           });
 
           await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
@@ -401,14 +401,14 @@ document.addEventListener('DOMContentLoaded', function() {
             func: clickViewClasses,
           });
 
-          await waitForElementWithText(selectedTrimester, tabId);
+          await waitForElementWithText(document.getElementById('trimester').value, tabId);
 
           // Trimester
           await chrome.scripting.executeScript({
             target: {tabId: tabId},
             world: 'MAIN',
             func: selectTrimester,
-            args: [selectedTrimester],
+            args: [document.getElementById('trimester').value],
           });
 
           await waitForElement("table.ps_grid-flex[title='Class Options']", tabId)
@@ -538,9 +538,9 @@ function selectPlannerTrimester(selectedTrimester) {
     // <td class="ps_grid-cell TERMS">
     const termCell = row.querySelectorAll("td.ps_grid-cell.TERMS a.ps-link");
     for(let i=0; i<termCell.length; i++) {
-      if (termCell && termCell[i].textContent.trim() === selectedTrimester) {
+      if (termCell && termCell[i].textContent.trim() === document.getElementById('trimester').value) {
         if (typeof OnRowAction === 'function') {
-          OnRowAction(row, `SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0${i}`);
+          OnRowAction(row, `SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$${i}`);
           found = true;
         } else {
           console.log("OnRowAction function not found");
@@ -550,7 +550,7 @@ function selectPlannerTrimester(selectedTrimester) {
     }
   } 
   if (!found) {
-    console.log(`Trimester "${selectedTrimester}" not found`);
+    console.log(`Trimester "${document.getElementById('trimester').value}" not found`);
   }
 }
 
@@ -620,6 +620,7 @@ function selectTrimester(selectedTrimester) {
     console.log("Current Terms table not found");
   }
   const links = table.querySelectorAll('span.ps-link-wrapper a.ps-link');
+  console.log(links)
   let found = false;
   for (let link of links) {
     if (link.textContent.trim() === selectedTrimester) {
