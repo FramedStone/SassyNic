@@ -362,8 +362,7 @@ document.addEventListener('DOMContentLoaded', function() {
       btnAddToSC.addEventListener('click', async () => {
         const optionValues = getOptionsValues();
         const courseTotal = optionValues.length;
-        const keys = await getCourseKeys(); // using key's courseCodes to select the correct course (as the order of courses is arbitrary in 'localStorage')
-        const courseCodes = await getCourseCodes();
+        const courseCodes = await getCourseCodes(); // using key's courseCodes to select the correct course (as the order of courses is arbitrary in 'localStorage');
 
         for(let i=0; i<courseTotal; i++) {
           // Planner
@@ -467,8 +466,16 @@ document.addEventListener('DOMContentLoaded', function() {
           });
 
           await waitForElement("div.psa_tab_SSR_PLNR_TERM_FL", tabId);
-
         };
+
+        // Navigate to Shopping Cart 
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickShoppingCart,
+        });
+
+        alert("All Courses Has Been Added To Shopping Cart.");
       }); 
     });
 });
@@ -493,6 +500,29 @@ function clickPlanner() {
   }
   if (!found) {
     console.log("Planner element not found");
+  }
+}
+
+/**
+ * function that click '' element using 'MouseEvent'
+ */
+function clickShoppingCart() {
+  // <ul class="ps_box-scrollarea psa_list-linkmenu psc_list-has-icon psa_vtab" id="win3divSCC_NAV_TAB$0">
+  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
+  let found = false;
+
+  for (let liElement of liElements) {
+    // <span class="ps-text">Planner</span>
+    const spanText = liElement.querySelector("span.ps-text");
+    if (spanText && spanText.textContent.trim() === "Shopping Cart") {
+      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
+      liElement.dispatchEvent(event);
+      found = true;
+      break;
+    }
+  }
+  if (!found) {
+    console.log("Shopping Cart element not found");
   }
 }
 
@@ -1413,7 +1443,7 @@ function getOptionsValues() {
  */
 function selectClassRow(optionValue) {
   console.log(optionValue);
-  OnRowAction(this,`SSR_CLSRCH_F_WK_SSR_OPTION_DESCR$${optionValue}`);
+  OnRowAction(this,`SSR_CLSRCH_F_WK_SSR_OPTION_DESCR$${optionValue-1}`);
 }
 
 /**
