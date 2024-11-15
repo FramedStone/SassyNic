@@ -60,7 +60,7 @@ document.addEventListener('DOMContentLoaded', function() {
           func: clickViewClasses,
         });
 
-        await waitForElementWithText(selectedTrimester, tabId);
+        await waitForElementWithText(currentTrimester, tabId);
 
         // Trimester
         await chrome.scripting.executeScript({
@@ -529,23 +529,22 @@ function clickShoppingCart() {
  */
 function selectPlannerTrimester(selectedTrimester) {
   // <tr class="ps_grid-row psc_rowact" id="PLANNER_NFF$0_row_0" tabindex="0" data-role="button" onclick="javascript:OnRowAction(this,'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');cancelBubble(event);">
-  const rows = document.querySelectorAll("tr[id^='PLANNER_NFF']");
   let found = false;
-  for (let row of rows) {
-    // <td class="ps_grid-cell TERMS">
-    const termCell = row.querySelectorAll("td.ps_grid-cell.TERMS a.ps-link");
-    for(let i=0; i<termCell.length; i++) {
-      if (termCell && termCell[i].textContent.trim() === selectedTrimester) {
-        if (typeof OnRowAction === 'function') {
-          OnRowAction(row, `SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$${i}`);
-          found = true;
-        } else {
-          console.log("OnRowAction function not found");
-        }
+  const termCell = document.querySelectorAll("td.ps_grid-cell.TERMS a.ps-link");
+  // <td class="ps_grid-cell TERMS">
+  for(let i=0; i<termCell.length; i++) {
+    if (termCell && termCell[i].textContent.trim() === selectedTrimester) {
+      if (typeof OnRowAction === 'function') {
+        OnRowAction(termCell[i], `SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$${i}`);
+        console.log(termCell[i].textContent.trim());
+        console.log(i);
+        found = true;
         break; // Exit loop after the first match is found
+      } else {
+        console.log("OnRowAction function not found");
       }
     }
-  } 
+  }
   if (!found) {
     console.log(`Trimester "${selectedTrimester}" not found`);
   }
@@ -613,6 +612,7 @@ function clickViewClasses() {
  */
 function selectTrimester(selectedTrimester) {
   const table = document.querySelector("table.ps_grid-flex[title='Current Terms']");
+  console.log(selectedTrimester);
   if (!table) {
     console.log("Current Terms table not found");
   }
