@@ -536,17 +536,19 @@ function selectPlannerTrimester(selectedTrimester) {
   let found = false;
   for (let row of rows) {
     // <td class="ps_grid-cell TERMS">
-    const termCell = row.querySelector("td.ps_grid-cell.TERMS a.ps-link");
-    if (termCell && termCell.textContent.trim() === selectedTrimester) {
-      if (typeof OnRowAction === 'function') {
-        OnRowAction(row, 'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0');
-        found = true;
-      } else {
-        console.log("OnRowAction function not found");
+    const termCell = row.querySelectorAll("td.ps_grid-cell.TERMS a.ps-link");
+    for(let i=0; i<termCell.length; i++) {
+      if (termCell && termCell[i].textContent.trim() === selectedTrimester) {
+        if (typeof OnRowAction === 'function') {
+          OnRowAction(row, `SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0${i}`);
+          found = true;
+        } else {
+          console.log("OnRowAction function not found");
+        }
+        break; // Exit loop after the first match is found
       }
-      break; // Exit loop after the first match is found
     }
-  }
+  } 
   if (!found) {
     console.log(`Trimester "${selectedTrimester}" not found`);
   }
