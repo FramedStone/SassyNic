@@ -161,7 +161,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Enroll Section
     const toggleEnrollBtn = document.getElementById('toggleEnroll');
     const enrollSection = document.getElementById('enrollSection');
-    const inputFieldsContainer = document.getElementById('inputFieldsContainer');
+    let  inputFieldsContainer = document.getElementById('inputFieldsContainer');
 
     toggleEnrollBtn.addEventListener('click', async () => {
       const tabs = await chrome.tabs.query({active: true, currentWindow: true});
@@ -277,26 +277,130 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Enroll Button
       const btnEnroll = document.getElementById('btnEnroll');
+      inputFieldsContainer = Array.from(inputFieldsContainer.querySelectorAll('input')); // get option values from input fields
+
       btnEnroll.addEventListener('click', async () => {
-        chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: () => {
-            console.log("enroll button pressed.")
-          }
-        }); 
+        const optionValues = getOptionsValues();
+
+        // chrome.scripting.executescript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: startEnroll,
+        //   args: [optionValues], 
+        // }); 
       }); 
 
       // Add To Shopping Cart Button
       const btnAddToSC = document.getElementById('btnAddToSC');
+
       btnAddToSC.addEventListener('click', async () => {
-        chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: () => {
-            console.log("Add To Shopping Cart button pressed.")
-          }
-        }); 
+        const optionValues = getOptionsValues();
+        const courseTotal = optionValues.length;
+
+        for(let i=0; i<courseTotal; i++) {
+          // Planner
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickPlanner
+          });
+
+          await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+
+          // Trimester/Terms inside Planner
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectPlannerTrimester,
+            args: [selectedTrimester]
+          });
+
+          await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+
+          // Course selection interface
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectCourse,
+            args: [i],
+          });
+
+          await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+
+          // View Classes
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickViewClasses,
+          });
+
+          await waitForElementWithText(selectedTrimester, tabId);
+
+          // Trimester
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectTrimester,
+            args: [selectedTrimester],
+          });
+
+          await waitForElement("table.ps_grid-flex[title='Class Options']", tabId)
+
+          // select class row
+          // javascript:OnRowAction(this,'SSR_CLSRCH_F_WK_SSR_OPTION_DESCR$0'); - change the '0' accordingly 
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: selectClassRow, 
+            args: [optionValues[i]],
+          }); 
+
+          await waitForElement('div.ps_box-button', tabId);
+
+          // next (Enroll / Add to Shopping Cart)
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickNext, 
+          }); 
+
+          await waitForElement('div.ps_box-control', tabId);
+
+          // select 'Add to Shopping Cart' radio button
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickAddToSC, 
+          }); 
+
+          // next (step 3 of 3) page
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickNext, 
+          }); 
+
+          await waitForElement('div.ps_box-button', tabId); 
+
+          // submit 
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickSubmit, 
+          }); 
+
+          await waitForElement('div.ps_box-button', tabId); 
+
+          // confirm submit
+          await chrome.scripting.executeScript({
+            target: {tabId: tabId},
+            world: 'MAIN',
+            func: clickConfirmSubmit,
+          });
+
+          await waitForElement("div.psa_tab_SSR_PLNR_TERM_FL", tabId);
+
+        };
       }); 
     });
 });
@@ -1199,6 +1303,54 @@ function startGenerate() {
   popupWindow.document.write(htmlContent);
   popupWindow.document.close();
 
+}
+
+/**
+ * Function that will return all the options values in the popup window 
+ * @returns {Array} - return all the options values in the popup window
+ */
+function getOptionsValues() {
+  const inputs = inputFieldsContainer.querySelectorAll('input');
+  return Array.from(inputs).map(input => input.value);
+}
+
+/**
+ * Function that will select the class rows based on the option values
+ * @param {Array<Number>} optionValues - Array of option values in popup window
+ */
+function selectClassRow(optionValue) {
+  console.log(optionValue);
+  OnRowAction(this,`SSR_CLSRCH_F_WK_SSR_OPTION_DESCR$${optionValue}`);
+}
+
+/**
+ * Function that will click the next button in the page (usually on top right corner)
+ */
+function clickNext() {
+  const nextButton = document.getElementById('PTGP_GPLT_WRK_PTGP_NEXT_PB');
+  nextButton.click();
+}
+
+/**
+ * Function that will click the 'Add to Shopping Cart' button during 'Step 2 of 3'
+ */
+function clickAddToSC() {
+  const btnAddToSC = document.querySelector('input[value="CART"]');
+  btnAddToSC.click();
+}
+
+/**
+ * Function that will click the 'Submit' button during 'Step 3 of 3'
+ */
+function clickSubmit() {
+  const btnSubmit_ = document.querySelector('div.psc_primary');
+  const btnSubmit = btnSubmit_.querySelector('a.ps-button');
+  btnSubmit.click();
+}
+
+function clickConfirmSubmit() {
+  const btnConfirmSubmit = document.querySelector('a[id="#ICYes"]');
+  btnConfirmSubmit.click();
 }
 
 /**
