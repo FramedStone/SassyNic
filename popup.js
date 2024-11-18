@@ -24,53 +24,53 @@ document.addEventListener('DOMContentLoaded', function() {
       if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
  
       for(let i=0; i<courseTotal; i++) {
-        // Planner
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: clickPlanner
-        });
+        // // Planner
+        // await chrome.scripting.executeScript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: clickPlanner
+        // });
 
-        await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+        // await waitForElement("tr[id^='PLANNER_NFF']", tabId);
 
-        // Trimester/Terms inside Planner
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: selectPlannerTrimester,
-          args: [selectedTrimester]
-        });
+        // // Trimester/Terms inside Planner
+        // await chrome.scripting.executeScript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: selectPlannerTrimester,
+        //   args: [selectedTrimester]
+        // });
 
-        await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+        // await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
 
-        // Course selection interface
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: selectCourse_,
-          args: [i],
-        });
+        // // Course selection interface
+        // await chrome.scripting.executeScript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: selectCourse_,
+        //   args: [i],
+        // });
 
-        await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+        // await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
 
-        // View Classes
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: clickViewClasses,
-        });
+        // // View Classes
+        // await chrome.scripting.executeScript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: clickViewClasses,
+        // });
 
-        await waitForElementWithText(currentTrimester, tabId);
+        // await waitForElementWithText(currentTrimester, tabId);
 
-        // Trimester
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: selectTrimester,
-          args: [currentTrimester],
-        });
+        // // Trimester
+        // await chrome.scripting.executeScript({
+        //   target: {tabId: tabId},
+        //   world: 'MAIN',
+        //   func: selectTrimester,
+        //   args: [currentTrimester],
+        // });
 
-        await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+        // await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
 
         // Extract Classes Details
         await chrome.scripting.executeScript({
@@ -697,21 +697,29 @@ function extractClassesDetails() {
           
           // convert time to minutes (from 12 hours format / 24 hours format)
           const convertToMinutes = (time) => {
+            if (
+              typeof time !== 'string' ||
+              !time.trim() ||
+              time.toLowerCase().includes('to be announced')
+            ) {
+              return null;
+            }
+
             let match;
-          
-            // Try to match 12-hour format with AM/PM
-            match = time.match(/^(\d{1,2}):(\d{2})(AM|PM)$/i);
+
+            // Try to match 12-hour format with optional space before AM/PM
+            match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
             if (match) {
               let hour = parseInt(match[1], 10);
               const minute = parseInt(match[2], 10);
               const period = match[3].toUpperCase();
-          
-              if (period === "PM" && hour !== 12) hour += 12;
-              if (period === "AM" && hour === 12) hour = 0;
-          
+
+              if (period === 'PM' && hour !== 12) hour += 12;
+              if (period === 'AM' && hour === 12) hour = 0;
+
               return hour * 60 + minute;
             }
-          
+
             // Try to match 24-hour format
             match = time.match(/^(\d{1,2}):(\d{2})$/);
             if (match) {
@@ -719,10 +727,11 @@ function extractClassesDetails() {
               const minute = parseInt(match[2], 10);
               return hour * 60 + minute;
             }
-          
+
             // Unable to parse time string
-            return 0;
+            return null;
           };
+
           
           // Convert start and end times to minutes
           const startMinutes = convertToMinutes(start);
