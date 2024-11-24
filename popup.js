@@ -24,53 +24,53 @@ document.addEventListener('DOMContentLoaded', function() {
       if(!courseTotal) alert("Kindly key in how many courses you're taking this trimester.")
  
       for(let i=0; i<courseTotal; i++) {
-        // // Planner
-        // await chrome.scripting.executeScript({
-        //   target: {tabId: tabId},
-        //   world: 'MAIN',
-        //   func: clickPlanner
-        // });
+        // Planner
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickPlanner
+        });
 
-        // await waitForElement("tr[id^='PLANNER_NFF']", tabId);
+        await waitForElement("tr[id^='PLANNER_NFF']", tabId);
 
-        // // Trimester/Terms inside Planner
-        // await chrome.scripting.executeScript({
-        //   target: {tabId: tabId},
-        //   world: 'MAIN',
-        //   func: selectPlannerTrimester,
-        //   args: [selectedTrimester]
-        // });
+        // Trimester/Terms inside Planner
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectPlannerTrimester,
+          args: [selectedTrimester]
+        });
 
-        // await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
+        await waitForElement(`tr[id='PLANNER_ITEMS_NFF$0_row_${i}']`, tabId);
 
-        // // Course selection interface
-        // await chrome.scripting.executeScript({
-        //   target: {tabId: tabId},
-        //   world: 'MAIN',
-        //   func: selectCourse_,
-        //   args: [i],
-        // });
+        // Course selection interface
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectCourse_,
+          args: [i],
+        });
 
-        // await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
+        await waitForElement('#DERIVED_SAA_CRS_SSR_PB_GO\\$6\\$', tabId);
 
-        // // View Classes
-        // await chrome.scripting.executeScript({
-        //   target: {tabId: tabId},
-        //   world: 'MAIN',
-        //   func: clickViewClasses,
-        // });
+        // View Classes
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: clickViewClasses,
+        });
 
-        // await waitForElementWithText(currentTrimester, tabId);
+        await waitForElementWithText(currentTrimester, tabId);
 
-        // // Trimester
-        // await chrome.scripting.executeScript({
-        //   target: {tabId: tabId},
-        //   world: 'MAIN',
-        //   func: selectTrimester,
-        //   args: [currentTrimester],
-        // });
+        // Trimester
+        await chrome.scripting.executeScript({
+          target: {tabId: tabId},
+          world: 'MAIN',
+          func: selectTrimester,
+          args: [currentTrimester],
+        });
 
-        // await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
+        await waitForElement("table.ps_grid-flex[title='Class Options']", tabId);
 
         // Extract Classes Details
         await chrome.scripting.executeScript({
@@ -878,7 +878,32 @@ function startGenerate() {
   }
 
   const finalCombinations = startGenerate_(data); 
-  console.log(finalCombinations);
+  console.log("Total Combinations: ", finalCombinations.length);
+  console.log("Size of Total Combinations in MB: ", getTotalCombinationSize());
+  console.log("Size of Local Storage in MB (current): ", getLocalStorageSize()); 
+
+  /**
+   * Function that will return the size of total combinations in MB 
+   * @returns {number} - size of total combinations in MB
+   */
+  function getTotalCombinationSize() {
+    const totalCombination_ = JSON.stringify(finalCombinations);
+
+    // return size in MB 
+    return(new Blob([totalCombination_]).size / (1024*1024));
+  } 
+
+  function getLocalStorageSize() {
+    let size = 0;
+
+    for(let i=0; i<localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const value = localStorage.getItem(key);
+      if(value) size += new Blob([value]).size;
+    }
+
+    return size / (1024*1024);
+  }
 
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
