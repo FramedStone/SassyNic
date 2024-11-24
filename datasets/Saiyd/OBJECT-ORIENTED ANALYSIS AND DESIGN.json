@@ -1,0 +1,439 @@
+[
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Thursday 960 1080"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Zainudin Bin Johari"
+            },
+            {
+                "name": "Component TUT - Class Sect T19L - Class ",
+                "daytime": [
+                    "Friday 900 1020"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Zainudin Bin Johari"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Thursday 960 1080"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Zainudin Bin Johari"
+            },
+            {
+                "name": "Component TUT - Class Sect T17L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Zainudin Bin Johari"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Thursday 960 1080"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Zainudin Bin Johari"
+            },
+            {
+                "name": "Component TUT - Class Sect T20L - Class ",
+                "daytime": [
+                    "Friday 1020 1140"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Zainudin Bin Johari"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "4",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Thursday 960 1080"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Zainudin Bin Johari"
+            },
+            {
+                "name": "Component TUT - Class Sect T18L - Class ",
+                "daytime": [
+                    "Monday 960 1080"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Roslaily Binti Muhammad"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "5",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            },
+            {
+                "name": "Component TUT - Class Sect TT1L - Class ",
+                "daytime": [
+                    "Wednesday 720 840"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "6",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            },
+            {
+                "name": "Component TUT - Class Sect TT2L - Class ",
+                "daytime": [
+                    "Thursday 600 720"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "7",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            },
+            {
+                "name": "Component TUT - Class Sect TT3L - Class ",
+                "daytime": [
+                    "Friday 480 600"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "8",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            },
+            {
+                "name": "Component TUT - Class Sect TT4L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Pang Nyuk Khee @ Angeline Pang"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "9",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chai Ian"
+            },
+            {
+                "name": "Component TUT - Class Sect TT8L - Class ",
+                "daytime": [
+                    "Tuesday 960 1080"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Al Abrar bin Abdul Wahid"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "10",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chai Ian"
+            },
+            {
+                "name": "Component TUT - Class Sect TT7L - Class ",
+                "daytime": [
+                    "Tuesday 840 960"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Al Abrar bin Abdul Wahid"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "11",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chai Ian"
+            },
+            {
+                "name": "Component TUT - Class Sect TT6L - Class ",
+                "daytime": [
+                    "Thursday 960 1080"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Chai Ian"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "12",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chai Ian"
+            },
+            {
+                "name": "Component TUT - Class Sect TT5L - Class ",
+                "daytime": [
+                    "Thursday 720 840"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Chai Ian"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "13",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Alaa Haddad"
+            },
+            {
+                "name": "Component TUT - Class Sect T12L - Class ",
+                "daytime": [
+                    "Tuesday 480 600"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Alaa Haddad"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "14",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Alaa Haddad"
+            },
+            {
+                "name": "Component TUT - Class Sect TT9L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Alaa Haddad"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "15",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Alaa Haddad"
+            },
+            {
+                "name": "Component TUT - Class Sect T10L - Class ",
+                "daytime": [
+                    "Friday 900 1020"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Roslaily Binti Muhammad"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "16",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Alaa Haddad"
+            },
+            {
+                "name": "Component TUT - Class Sect T11L - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Alaa Haddad"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "17",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Thursday 600 720"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Nur Hafizah Binti Abd Munir"
+            },
+            {
+                "name": "Component TUT - Class Sect T16L - Class ",
+                "daytime": [
+                    "Monday 720 840"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Al Abrar bin Abdul Wahid"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "18",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Thursday 600 720"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Nur Hafizah Binti Abd Munir"
+            },
+            {
+                "name": "Component TUT - Class Sect T14L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CQAR2005-FCI CISCO Network Lab",
+                "instructor": "Nur Hafizah Binti Abd Munir"
+            }
+        ]
+    },
+    {
+        "courseTitle": "OBJECT-ORIENTED ANALYSIS AND DESIGN",
+        "courseCode": "C CP6224",
+        "option": "19",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Thursday 600 720"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Nur Hafizah Binti Abd Munir"
+            },
+            {
+                "name": "Component TUT - Class Sect T13L - Class ",
+                "daytime": [
+                    "Monday 720 840"
+                ],
+                "room": "CQAR2004-FCI Msoft .NET Lab",
+                "instructor": "Alaa Haddad"
+            }
+        ]
+    }
+]
