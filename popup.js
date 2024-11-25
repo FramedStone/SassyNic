@@ -882,29 +882,6 @@ function startGenerate() {
   console.log("Size of Total Combinations in MB: ", getTotalCombinationSize());
   console.log("Size of Local Storage in MB (current): ", getLocalStorageSize()); 
 
-  /**
-   * Function that will return the size of total combinations in MB 
-   * @returns {number} - size of total combinations in MB
-   */
-  function getTotalCombinationSize() {
-    const totalCombination_ = JSON.stringify(finalCombinations);
-
-    // return size in MB 
-    return(new Blob([totalCombination_]).size / (1024*1024));
-  } 
-
-  function getLocalStorageSize() {
-    let size = 0;
-
-    for(let i=0; i<localStorage.length; i++) {
-      const key = localStorage.key(i);
-      const value = localStorage.getItem(key);
-      if(value) size += new Blob([value]).size;
-    }
-
-    return size / (1024*1024);
-  }
-
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
 
