@@ -878,9 +878,6 @@ function startGenerate() {
   }
 
   const finalCombinations = startGenerate_(data); 
-  console.log("Total Combinations: ", finalCombinations.length);
-  console.log("Size of Total Combinations in MB: ", getTotalCombinationSize());
-  console.log("Size of Local Storage in MB (current): ", getLocalStorageSize()); 
 
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
