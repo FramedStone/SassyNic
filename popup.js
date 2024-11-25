@@ -902,6 +902,7 @@ function startGenerate() {
 
   // Assign the unique combinations back to finalCombinations
   finalCombinations = Array.from(uniqueCombinationsMap.values());
+  console.log(finalCombinations);
 
   /**
    * Helper function to deep clone and sort object keys recursively
