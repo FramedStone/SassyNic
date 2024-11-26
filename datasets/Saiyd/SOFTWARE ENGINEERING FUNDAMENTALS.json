@@ -1,0 +1,577 @@
+[
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "FCIV0005",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T18L - Class ",
+                "daytime": [
+                    "Wednesday 720 840"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Rohana Binti Mydin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "FCIV0005",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T17L - Class ",
+                "daytime": [
+                    "Friday 900 1020"
+                ],
+                "room": "CQAR2006-FCI CISCO IP C.I. C1",
+                "instructor": "Rohana Binti Mydin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC7L - Class ",
+                "daytime": [
+                    "Friday 900 1020"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "V Segaran A/L Veeraya"
+            },
+            {
+                "name": "Component TUT - Class Sect T26L - Class ",
+                "daytime": [
+                    "Friday 480 600"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "V Segaran A/L Veeraya"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "4",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC7L - Class ",
+                "daytime": [
+                    "Friday 900 1020"
+                ],
+                "room": "CQMX0001-FCI Lecture Theater",
+                "instructor": "V Segaran A/L Veeraya"
+            },
+            {
+                "name": "Component TUT - Class Sect T25L - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "V Segaran A/L Veeraya"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "5",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "FCIV0005",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T19L - Class ",
+                "daytime": [
+                    "Thursday 960 1080"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Shaari Bin Shafie"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "6",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC5L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "FCIV0005",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T20L - Class ",
+                "daytime": [
+                    "Tuesday 720 840"
+                ],
+                "room": "CQAR3006-FCI Microsoft SE Lab",
+                "instructor": "Shaari Bin Shafie"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "7",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "FCIV0003",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            },
+            {
+                "name": "Component TUT - Class Sect TT1L - Class ",
+                "daytime": [
+                    "Thursday 720 840"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "8",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "FCIV0003",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            },
+            {
+                "name": "Component TUT - Class Sect TT2L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "9",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "FCIV0003",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            },
+            {
+                "name": "Component TUT - Class Sect TT3L - Class ",
+                "daytime": [
+                    "Wednesday 480 600"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "10",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC1L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "FCIV0003",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            },
+            {
+                "name": "Component TUT - Class Sect TT4L - Class ",
+                "daytime": [
+                    "Tuesday 960 1080"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Zuriani Hayati Binti Abdullah"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "11",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "FCIV0001",
+                "instructor": "Tengku Sri Suriyanor Binti Tengku Yahya"
+            },
+            {
+                "name": "Component TUT - Class Sect TT8L - Class ",
+                "daytime": [
+                    "Wednesday 960 1080"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "12",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "FCIV0001",
+                "instructor": "Tengku Sri Suriyanor Binti Tengku Yahya"
+            },
+            {
+                "name": "Component TUT - Class Sect TT7L - Class ",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "CQAR3003-FCI Project Lab 2",
+                "instructor": "Tengku Sri Suriyanor Binti Tengku Yahya"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "13",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "FCIV0001",
+                "instructor": "Tengku Sri Suriyanor Binti Tengku Yahya"
+            },
+            {
+                "name": "Component TUT - Class Sect TT6L - Class ",
+                "daytime": [
+                    "Monday 960 1080"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "14",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC2L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "FCIV0001",
+                "instructor": "Tengku Sri Suriyanor Binti Tengku Yahya"
+            },
+            {
+                "name": "Component TUT - Class Sect TT5L - Class ",
+                "daytime": [
+                    "Thursday 840 960"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "15",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Monday 960 1080"
+                ],
+                "room": "FCIV0002",
+                "instructor": "Palanichamy Naveen"
+            },
+            {
+                "name": "Component TUT - Class Sect T12L - Class ",
+                "daytime": [
+                    "Thursday 480 600"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Loo Yim Ling,Palanichamy Naveen"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "16",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Monday 960 1080"
+                ],
+                "room": "FCIV0002",
+                "instructor": "Palanichamy Naveen"
+            },
+            {
+                "name": "Component TUT - Class Sect TT9L - Class ",
+                "daytime": [
+                    "Tuesday 840 960"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Palanichamy Naveen"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "17",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Monday 960 1080"
+                ],
+                "room": "FCIV0002",
+                "instructor": "Palanichamy Naveen"
+            },
+            {
+                "name": "Component TUT - Class Sect T10L - Class ",
+                "daytime": [
+                    "Tuesday 600 720"
+                ],
+                "room": "CQAR3006-FCI Microsoft SE Lab",
+                "instructor": "Palanichamy Naveen"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "18",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC3L - Class ",
+                "daytime": [
+                    "Monday 960 1080"
+                ],
+                "room": "FCIV0002",
+                "instructor": "Palanichamy Naveen"
+            },
+            {
+                "name": "Component TUT - Class Sect T11L - Class ",
+                "daytime": [
+                    "Monday 840 960"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Palanichamy Naveen"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "19",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Monday 840 960"
+                ],
+                "room": "FCIV0004",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T14L - Class ",
+                "daytime": [
+                    "Friday 900 1020"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "20",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Monday 840 960"
+                ],
+                "room": "FCIV0004",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T13L - Class ",
+                "daytime": [
+                    "Monday 480 600"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "21",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Monday 840 960"
+                ],
+                "room": "FCIV0004",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T15L - Class ",
+                "daytime": [
+                    "Tuesday 600 720"
+                ],
+                "room": "CQAR3003-FCI Project Lab 2",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "22",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC4L - Class ",
+                "daytime": [
+                    "Monday 840 960"
+                ],
+                "room": "FCIV0004",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T16L - Class ",
+                "daytime": [
+                    "Monday 600 720"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Message not found."
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "23",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC6L - Class ",
+                "daytime": [
+                    "Monday 600 720"
+                ],
+                "room": "FCIV0006",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T24L - Class ",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Kairulanuar Bin Ab Kadir"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "24",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC6L - Class ",
+                "daytime": [
+                    "Monday 600 720"
+                ],
+                "room": "FCIV0006",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T23L - Class ",
+                "daytime": [
+                    "Thursday 600 720"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Kairulanuar Bin Ab Kadir"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SOFTWARE ENGINEERING FUNDAMENTALS",
+        "courseCode": "C SE6214",
+        "option": "25",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect TC6L - Class ",
+                "daytime": [
+                    "Monday 600 720"
+                ],
+                "room": "FCIV0006",
+                "instructor": "Message not found."
+            },
+            {
+                "name": "Component TUT - Class Sect T21L - Class ",
+                "daytime": [
+                    "Monday 720 840"
+                ],
+                "room": "CQAR2002-FCI CA E. IT Mgt Lab",
+                "instructor": "Nur Haifa Binti Mohd Fathil"
+            }
+        ]
+    }
+]
