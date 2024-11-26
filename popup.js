@@ -501,7 +501,7 @@ function clickPlanner() {
 }
 
 /**
- * function that click '' element using 'MouseEvent'
+ * function that click 'Shopping Cart' radio button using 'MouseEvent'
  */
 function clickShoppingCart() {
   // <ul class="ps_box-scrollarea psa_list-linkmenu psc_list-has-icon psa_vtab" id="win3divSCC_NAV_TAB$0">
@@ -877,52 +877,9 @@ function startGenerate() {
       return combinations;
   }
 
-  let finalCombinations = startGenerate_(data); 
-
-  // Remove duplicate combinations by comparing the entire structure
-  const uniqueCombinationsMap = new Map();
-
-  finalCombinations.forEach(combination => {
-    // Deep clone and sort each combination
-    const sortedCombination = combination.map(classOption => sortObject(classOption));
-
-    // sort the array
-    sortedCombination.sort((a, b) => {
-      // sort by courseTitle
-      return a.courseTitle.localeCompare(b.courseTitle);
-    });
-
-    // Create a unique key by serializing the sorted combination
-    const key = JSON.stringify(sortedCombination);
-
-    if (!uniqueCombinationsMap.has(key)) {
-      uniqueCombinationsMap.set(key, combination);
-    }
-  });
-
-  // Assign the unique combinations back to finalCombinations
-  finalCombinations = Array.from(uniqueCombinationsMap.values());
+  const finalCombinations = startGenerate_(data); 
+  console.log("Total Combinations: ", finalCombinations.length);
   console.log(finalCombinations);
-
-  /**
-   * Helper function to deep clone and sort object keys recursively
-   * @param {Object} obj 
-   * @returns 
-   */
-  function sortObject(obj) {
-    if (Array.isArray(obj)) {
-      return obj.map(item => sortObject(item));
-    } else if (obj !== null && typeof obj === 'object') {
-      const sortedObj = {};
-      const keys = Object.keys(obj).sort();
-      for (const key of keys) {
-        sortedObj[key] = sortObject(obj[key]);
-      }
-      return sortedObj;
-    } else {
-      return obj;
-    }
-  }
 
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
