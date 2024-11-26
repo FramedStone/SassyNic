@@ -643,7 +643,7 @@ function extractClassesDetails() {
   }
 
   var dataBody = [];
-  const body = table.querySelectorAll('tbody tr');
+  const body = table.querySelectorAll('tbody tr:not(.psc_disabled)'); // tbody tr = no filters
   
   /*
     0: ps_grid-cell OPTION_NSFF
@@ -667,7 +667,7 @@ function extractClassesDetails() {
     const classBody = row.querySelectorAll('td.ps_grid-cell.CMPNT_CLASS_NBR a.ps-link');
 
     // filter status 
-    // if(statusBody.textContent === "Open") {
+    if(statusBody.textContent === "Open") {
       const data = {
         courseTitle: courseTitle,
         courseCode: courseCode,
@@ -760,7 +760,7 @@ function extractClassesDetails() {
       })
   
       dataBody.push(data);
-    // }    
+    }    
   })
   localStorage.setItem(courseTitle, JSON.stringify(dataBody));
 
