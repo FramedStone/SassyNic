@@ -14,10 +14,8 @@
       {
           "matches": ["https://clic.mmu.edu.my/*"],
           "js": [
-            "./scripts/content.js",
-            "./scripts/helpers/navigation.js"
-          ],
-          "run_at": "document_idle"
+            "./scripts/content.js"
+          ]
       }
   ],
   "background": {

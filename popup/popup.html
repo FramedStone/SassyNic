@@ -13,7 +13,9 @@
         <button id="darkModeToggle" class="icon-button">☀️</button>
 
         <button id="btnExtract" class="action-button">▶️ Start Extraction</button>
-        <input id="courseTotal" placeholder="Total of courses">
+        <div id="trimester-list">
+            <p>Fetching trimester lists...</p>
+        </div>
 
         <button id="btnShowExtracted" class="action-button">👁️ Show Extracted Data</button>
 
@@ -61,6 +63,6 @@
         </div>
     </div>
 
-    <script src="popup.js"></script>
+    <script type="module" src="popup.js" defer></script>
 </body>
 </html>
