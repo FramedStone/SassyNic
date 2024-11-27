@@ -1,0 +1,259 @@
+[
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "1",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect UG2 - Class N",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "MCMR0001-Examination Hall",
+                "instructor": "Elaine Ang Hwee Chin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "2",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect UG3 - Class N",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "MCMR0001-Examination Hall",
+                "instructor": "Elaine Ang Hwee Chin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "3",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect UG4 - Class N",
+                "daytime": [
+                    "Wednesday 840 960"
+                ],
+                "room": "MCMR0001-Examination Hall",
+                "instructor": "Elaine Ang Hwee Chin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "4",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FAC1 - Class ",
+                "daytime": [
+                    "Friday 600 720",
+                    "Friday 600 720"
+                ],
+                "room": "CLCR3047-FOE Lecture Room 17",
+                "instructor": "Siti Mazmi Niza Binti Ahmad Zawawi,Munirah Binti Munawar Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "5",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCAL - Class ",
+                "daytime": [
+                    "Friday 600 720",
+                    "To null null"
+                ],
+                "room": "To be announced",
+                "instructor": "Munirah Binti Munawar Ali,Saufee Bin Mohammad"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "6",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCI2 - Class ",
+                "daytime": [
+                    "Tuesday 1080 1200"
+                ],
+                "room": "CNMX1005-CLC Lecture Theatre 5",
+                "instructor": "Chinnasamy Palanichamy,Munirah Binti Munawar Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "7",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect UG1 - Class N",
+                "daytime": [
+                    "Wednesday 600 720"
+                ],
+                "room": "MCMR0001-Examination Hall",
+                "instructor": "Elaine Ang Hwee Chin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "8",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FOM1 - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CSMR0009-DTC Main Hall",
+                "instructor": "Sunita Lylia Binti Hamdan,Abby Ashraff Bin Saprudin,Nurul Nadia Binti Nordin,Low Jing Hong,Abdullah Al Mamun Sarwar,Fatin Zaida Binti Zaidi,Nurul Atiah Binti Mohd Zin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "9",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect EC01 - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "FOEV0001",
+                "instructor": "Munirah Binti Munawar Ali,Sin Yew Keong,Nurul Nadia Binti Ahmad,Tan Wooi Nee,Mohd Haris Lye Bin Abdullah,Tan Yi Fei,Hezerul Bin Abdul Karim"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "10",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCM1 - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CSMR0009-DTC Main Hall",
+                "instructor": "Munirah Binti Munawar Ali,Mazlan Bin Mahadzir"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "11",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCM2 - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CSMR0009-DTC Main Hall",
+                "instructor": "Munirah Binti Munawar Ali,Norzaful Anuwar Bin Ahmad Najamuddin"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "12",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCM3 - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CSMR0009-DTC Main Hall",
+                "instructor": "Munirah Binti Munawar Ali,Ahmad Ridhwan Bin Abd Razak"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "13",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCM4 - Class ",
+                "daytime": [
+                    "Friday 600 720"
+                ],
+                "room": "CSMR0009-DTC Main Hall",
+                "instructor": "Munirah Binti Munawar Ali,Afdhal Nidzam Bin Abd Raffar"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "14",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCI1 - Class ",
+                "daytime": [
+                    "Monday 1080 1200"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chinnasamy Palanichamy,Munirah Binti Munawar Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "15",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCI3 - Class ",
+                "daytime": [
+                    "Wednesday 1080 1200"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chinnasamy Palanichamy,Munirah Binti Munawar Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "16",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCI4 - Class ",
+                "daytime": [
+                    "Thursday 1080 1200"
+                ],
+                "room": "CNMX1004-CLC Lecture Theatre 4",
+                "instructor": "Chinnasamy Palanichamy,Munirah Binti Munawar Ali"
+            }
+        ]
+    },
+    {
+        "courseTitle": "SUSTAINABLE SOCIETY",
+        "courseCode": "LS SW6112",
+        "option": "17",
+        "class": [
+            {
+                "name": "Component LEC - Class Sect FCI5 - Class ",
+                "daytime": [
+                    "Friday 1080 1200"
+                ],
+                "room": "CNMX1005-CLC Lecture Theatre 5",
+                "instructor": "Chinnasamy Palanichamy,Munirah Binti Munawar Ali"
+            }
+        ]
+    }
+]

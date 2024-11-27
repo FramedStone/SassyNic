@@ -501,7 +501,7 @@ function clickPlanner() {
 }
 
 /**
- * function that click '' element using 'MouseEvent'
+ * function that click 'Shopping Cart' radio button using 'MouseEvent'
  */
 function clickShoppingCart() {
   // <ul class="ps_box-scrollarea psa_list-linkmenu psc_list-has-icon psa_vtab" id="win3divSCC_NAV_TAB$0">
@@ -643,7 +643,7 @@ function extractClassesDetails() {
   }
 
   var dataBody = [];
-  const body = table.querySelectorAll('tbody tr:not(.psc_disabled)');
+  const body = table.querySelectorAll('tbody tr:not(.psc_disabled)'); // tbody tr = no filters
   
   /*
     0: ps_grid-cell OPTION_NSFF
@@ -672,8 +672,6 @@ function extractClassesDetails() {
         courseTitle: courseTitle,
         courseCode: courseCode,
         option: optionBody.textContent.trim(),
-        // room: roomBody.textContent.trim(), 
-        // instructor: instructorBody.textContent.trim(), 
         class: [], // for holding multiple classes
       }
 
@@ -699,21 +697,29 @@ function extractClassesDetails() {
           
           // convert time to minutes (from 12 hours format / 24 hours format)
           const convertToMinutes = (time) => {
+            if (
+              typeof time !== 'string' ||
+              !time.trim() ||
+              time.toLowerCase().includes('to be announced')
+            ) {
+              return null;
+            }
+
             let match;
-          
-            // Try to match 12-hour format with AM/PM
-            match = time.match(/^(\d{1,2}):(\d{2})(AM|PM)$/i);
+
+            // Try to match 12-hour format with optional space before AM/PM
+            match = time.match(/^(\d{1,2}):(\d{2})\s*(AM|PM)$/i);
             if (match) {
               let hour = parseInt(match[1], 10);
               const minute = parseInt(match[2], 10);
               const period = match[3].toUpperCase();
-          
-              if (period === "PM" && hour !== 12) hour += 12;
-              if (period === "AM" && hour === 12) hour = 0;
-          
+
+              if (period === 'PM' && hour !== 12) hour += 12;
+              if (period === 'AM' && hour === 12) hour = 0;
+
               return hour * 60 + minute;
             }
-          
+
             // Try to match 24-hour format
             match = time.match(/^(\d{1,2}):(\d{2})$/);
             if (match) {
@@ -721,10 +727,11 @@ function extractClassesDetails() {
               const minute = parseInt(match[2], 10);
               return hour * 60 + minute;
             }
-          
+
             // Unable to parse time string
-            return 0;
+            return null;
           };
+
           
           // Convert start and end times to minutes
           const startMinutes = convertToMinutes(start);
