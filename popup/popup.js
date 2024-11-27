@@ -25,10 +25,9 @@ document.addEventListener('DOMContentLoaded', function() {
  
       for(let i=0; i<courseTotal; i++) {
         // Planner
-        await chrome.scripting.executeScript({
-          target: {tabId: tabId},
-          world: 'MAIN',
-          func: clickPlanner
+        chrome.tabs.sendMessage(tabId, { action: "clickPlanner" }, () => {
+          if(chrome.runtime.lastError) 
+            console.error("Error clicking 'Planner':", chrome.runtime.lastError);
         });
 
         await waitForElement("tr[id^='PLANNER_NFF']", tabId);
@@ -476,29 +475,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }); 
     });
 });
-
-/**
- * function that click 'Planner' element using 'MouseEvent'
- */
-function clickPlanner() {
-  // <ul class="ps_box-scrollarea psa_list-linkmenu psc_list-has-icon psa_vtab" id="win3divSCC_NAV_TAB$0">
-  const liElements = document.querySelectorAll("ul.psa_list-linkmenu li");
-  let found = false;
-
-  for (let liElement of liElements) {
-    // <span class="ps-text">Planner</span>
-    const spanText = liElement.querySelector("span.ps-text");
-    if (spanText && spanText.textContent.trim() === "Planner") {
-      const event = new MouseEvent('click', {bubbles: true, cancelable: true});
-      liElement.dispatchEvent(event);
-      found = true;
-      break;
-    }
-  }
-  if (!found) {
-    console.log("Planner element not found");
-  }
-}
 
 /**
  * function that click 'Shopping Cart' radio button using 'MouseEvent'

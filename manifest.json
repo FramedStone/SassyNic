@@ -3,8 +3,24 @@
   "name": "SassyNic",
   "version": "1.0.0",
   "description": "Provide combinations of timetable formats to choose.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs", "windows"],
+  "host_permissions": [
+        "https://clic.mmu.edu.my/*"  
+  ],
   "action": {
-    "default_popup": "popup.html"
+    "default_popup": "./popup/popup.html"
+  },
+  "content_scripts": [
+      {
+          "matches": ["https://clic.mmu.edu.my/*"],
+          "js": [
+            "./scripts/content.js",
+            "./scripts/helpers/navigation.js"
+          ],
+          "run_at": "document_idle"
+      }
+  ],
+  "background": {
+    "service_worker": "./scripts/background.js"
   }
 }
