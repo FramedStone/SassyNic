@@ -779,7 +779,7 @@ function startGenerate() {
         return Array.isArray(parsedValue) && parsedValue.every(item => {
           return item.hasOwnProperty("courseTitle");
         });
-      }catch(error) {
+      } catch(error) {
         return false;
       }
     });
@@ -792,97 +792,100 @@ function startGenerate() {
 
   const data = [];
 
-  /*
-    all possible combintaitons of timetable(without any constraints) = course's options * (course - 1)'s options 
-
-    example: 
-      courseTotal = 5
-      each course options = c1[1], c2[1,2], c3[1,2,3], c4[1,2,3,4], c5[1,2,3,4,5]
-      possible combinations = c1 * c2 * c3 * c4 * c5
-                            = 1 * 2 * 3 * 4 * 5
-                            = 120 total combinations 
-  */
-
-  // load datasets into 'data'
+  // Load datasets into 'data'
   for(let i=0; i<keys.length; i++) {
     data.push(JSON.parse(localStorage.getItem(keys[i])));
   }
 
   /**
-   * generate all possible combinations by using 'backtrack' algorithm
+   * Generate all possible combinations by using 'backtrack' algorithm
    * @param {Array} data 
    * @returns {Array} combinations - all possible combinations 
    */
   function startGenerate_(data) {
     const combinations = []; 
-      function backtrack(index, currentCombination) { 
-        // when reached the end of all the data arrays (after popping all used combinations)  
-        if(index === data.length) {
-          combinations.push([...currentCombination]);
-          return;
-        }
-
-        const course = data[index]; // current course array
-        for(const class_ of course) {
-          // daytime conflict check
-          if(!isDaytimeConflict(currentCombination, class_)) {
-            currentCombination.push(class_);
-            backtrack(index + 1, currentCombination);
-            currentCombination.pop(); // pop used combinations
-          }
-        }
+    function backtrack(index, currentCombination) { 
+      // When reached the end of all the data arrays
+      if(index === data.length) {
+        combinations.push([...currentCombination]);
+        return;
       }
 
-      function isDaytimeConflict(currentCombination, classOption) {
-        // check if there's any daytime conflict within the existing combinations
-        return currentCombination.some(existingCourse => {            // course
-          return existingCourse.class.some(existingClass => {         // class
-            return existingClass.daytime.some(existingDayTime => {    // daytime
-              // parse existing daytime
-              const [day_, strStart_, strEnd_] = existingDayTime.split(" ");
-              // convert start and end time to numbers
-              const start_ = parseInt(strStart_);
-              const end_ = parseInt(strEnd_);
-              
-              // check with current classOption
-              return classOption.class.some(class_ => {              // class
-                return class_.daytime.some(daytime_ => {             // daytime
-                  // parse new daytime
-                  const [day, strStart, strEnd] = daytime_.split(" ");
+      const course = data[index]; // Current course array
+      for(const class_ of course) {
+        // Daytime conflict check
+        if(!isDaytimeConflict(currentCombination, class_)) {
+          currentCombination.push(class_);
+          backtrack(index + 1, currentCombination);
+          currentCombination.pop(); // Pop used combinations
+        }
+      }
+    }
 
-                  // convert start and end time to numbers
-                  const start = parseInt(strStart);
-                  const end = parseInt(strEnd);
+    function isDaytimeConflict(currentCombination, classOption) {
+      // Check if there's any daytime conflict within the existing combinations
+      return currentCombination.some(existingCourse => {            // course
+        return existingCourse.class.some(existingClass => {         // class
+          return existingClass.daytime.some(existingDayTime => {    // daytime
+            // Parse existing daytime
+            const [day_, strStart_, strEnd_] = existingDayTime.split(" ");
+            // Convert start and end time to numbers
+            const start_ = parseInt(strStart_);
+            const end_ = parseInt(strEnd_);
 
-                  // check if daytime is conflicting
-                  if(day_.trim() === day.trim() && (start_ < end && start < end_)) {
-                    return true; // break the loop
-                  }
-                  return false; // continue the loop
-                })
+            // Check with current classOption
+            return classOption.class.some(class_ => {              // class
+              return class_.daytime.some(daytime_ => {             // daytime
+                // Parse new daytime
+                const [day, strStart, strEnd] = daytime_.split(" ");
+
+                // Convert start and end time to numbers
+                const start = parseInt(strStart);
+                const end = parseInt(strEnd);
+
+                // Check if daytime is conflicting
+                if(day_.trim() === day.trim() && (start_ < end && start < end_)) {
+                  return true; // Conflict detected
+                }
+                return false; // No conflict
               })
             })
           })
         })
-      }
-        
-      backtrack(0,[]); // start the backtracking process from first datasets array 
-      return combinations;
+      })
+    }
+
+    backtrack(0, []); // Start the backtracking process from first datasets array 
+    return combinations;
   }
 
-  const finalCombinations = startGenerate_(data); 
+  const finalCombinations = startGenerate_(data);
+  console.log("Total Combinations: ", finalCombinations.length);
   console.log(finalCombinations);
+
+  // Split finalCombinations into smaller chunks
+  const chunkSize = 1000; // Adjust based on performance and limits
+  function splitIntoChunks(array, size) {
+    const chunks = [];
+    for(let i = 0; i < array.length; i += size) {
+      chunks.push(array.slice(i, i + size));
+    }
+    return chunks;
+  }
+
+  const combinationChunks = splitIntoChunks(finalCombinations, chunkSize);
 
   // Create a popup window to display the timetables
   const popupWindow = window.open("", "_blank", "width=1200,height=800,scrollbars=yes");
 
-  // Prepare the HTML content
+  // Prepare the HTML content with embedded chunks
   let htmlContent = `
   <!DOCTYPE html>
   <html>
   <head>
     <title>Timetable Viewer</title>
     <style>
+      /* Your existing CSS styles */
       :root {
         /* Define CSS variables for background colors */
         --class-cell-bg-color: #d9edf7;    /* Background color for class cells */
@@ -1059,8 +1062,12 @@ function startGenerate() {
       </div>
     </div>
     <script>
-      let allCombinations = ${JSON.stringify(finalCombinations)};
-      
+      // Initialize allCombinations as an empty array
+      let allCombinations = [];
+
+      // Push each chunk into allCombinations
+      ${combinationChunks.map((chunk, index) => `allCombinations.push(...${JSON.stringify(chunk)});`).join('\n')}
+
       // Deduplicate combinations
       allCombinations = Array.from(new Set(allCombinations.map(combo => JSON.stringify(combo)))).map(comboStr => JSON.parse(comboStr));
 
@@ -1425,7 +1432,6 @@ function startGenerate() {
   popupWindow.document.open();
   popupWindow.document.write(htmlContent);
   popupWindow.document.close();
-
 }
 
 /**
