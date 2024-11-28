@@ -4,24 +4,12 @@
   "name": "SassyNic",
   "version": "1.0.0",
   "minimum_chrome_version": "131.0.6778.86",
-  "description": "Extract class details from MMU's clic, generate possible timetable combinations and auto enrollment.",
+  "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
   "permissions": ["activeTab", "scripting", "storage", "tabs", "windows"],
-  "host_permissions": [
-        "https://clic.mmu.edu.my/*"  
-  ],
   "action": {
     "default_popup": "./popup/popup.html"
   },
-  "content_scripts": [
-      {
-          "matches": ["https://clic.mmu.edu.my/*"],
-          "js": [
-            "./scripts/content.js"
-          ]
-      }
-  ],
   "background": {
-    "service_worker": "./scripts/background.js",
-    "type": "module"
+    "service_worker": "./scripts/background.js"
   }
 }
