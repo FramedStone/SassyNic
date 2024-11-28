@@ -1,8 +1,10 @@
 {
   "manifest_version": 3,
+  "author": "leewx07@gmail.com",
   "name": "SassyNic",
   "version": "1.0.0",
-  "description": "Provide combinations of timetable formats to choose.",
+  "minimum_chrome_version": "131.0.6778.86",
+  "description": "Extract class details from MMU's clic, generate possible timetable combinations and auto enrollment.",
   "permissions": ["activeTab", "scripting", "storage", "tabs", "windows"],
   "host_permissions": [
         "https://clic.mmu.edu.my/*"  

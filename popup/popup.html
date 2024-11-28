@@ -2,67 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SassyNic</title>
     <link rel="stylesheet" href="popup.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="container">
-        <h1>SassyNic</h1>
-        <button id="darkModeToggle" class="icon-button">☀️</button>
-
-        <button id="btnExtract" class="action-button">▶️ Start Extraction</button>
-        <div id="trimester-list">
-            <p>Fetching trimester lists...</p>
-        </div>
-
-        <button id="btnShowExtracted" class="action-button">👁️ Show Extracted Data</button>
-
-        <button id="btnGenerate" class="action-button">📅 Generate Timetables</button>
-
-        <button id="btnReset" class="action-button">🔄 Reset</button>
-
-        <div class="small-text">Current Trimester: October/November 2024</div>
-
-        <div class="separator"></div>
-
-        <button id="toggleCustomization" class="toggle-button">
-            Extract Customization 🔽
-        </button>
-
-        <div id="customizationSection" class="hidden">
-            <h3>Extract Customization <span class="info-icon" title="Modify only if needed"></span></h3>
-
-            <label for="trimester">Trimester (Planner)</label>
-            <input id="trimester" placeholder="Planner Trimester" value="Trimester Oct/Nov 2024">
-
-            <label for="currentTrimester">Current Trimester</label>
-            <input id="currentTrimester" placeholder="Current Trimester shown after selecting courses" value="Trimester Oct/Nov 2024">
-
-            <label for="interval">Extraction Interval (ms)</label>
-            <input id="interval" type="number" placeholder="in milliseconds" value="2500">
-
-            <label for="timeout">Extraction Timeout (ms) <span class="info-icon" title="Always set a bigger value than the interval"></span></label>
-            <input id="timeout" type="number" placeholder="in milliseconds" value="10000">
-        </div>
-
-        <div class="separator"></div>
-
-        <button id="toggleEnroll" class="toggle-button">
-            Enroll Section 🔽
-        </button>
-
-        <div id="enrollSection" class="hidden">
-            <h3>Enroll Section <span class="info-icon" title="Enroll Selected Timetable / Add To Shopping Cart"></span></h3>
-
-            <div id="inputFieldsContainer"></div>
-
-            <button id="btnEnroll" class="action-button">Enroll</button>
-            <button id="btnAddToSC" class="action-button">Add To Shopping Cart</button>
-        </div>
-    </div>
-
-    <script type="module" src="popup.js" defer></script>
+    <script src="popup.js" defer></script>
 </body>
 </html>
