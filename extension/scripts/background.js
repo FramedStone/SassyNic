@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     }
                 }, (result) => {
                     console.log(result[0].result); // result[0] because the response is an array
-                    sendResponse({ message: "Message Received from popup.js" });
+                    sendResponse({ message: result[0].result });
                 });
             } else {
                 sendResponse({ message: "No active tab found." });
