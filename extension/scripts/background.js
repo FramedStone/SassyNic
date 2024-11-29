@@ -4,10 +4,31 @@
 // });
 
 // listen for message from popup.js
+importScripts('./helpers/utils.js');
+
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => { 
-    if(message.action === "startExtraction") {
+    if (message.action === "startExtraction") {
         setLog(message, sender);
-        sendResponse({message: "Message Received from popup.js"})
+
+        // Call the helper function to get the tabId
+        getActiveTabId((tabId) => {
+            if (tabId !== null) {
+                chrome.scripting.executeScript({
+                    target: { tabId: tabId },
+                    func: () => {
+                        return document.querySelector('input#ps_submit_button').value;
+                    }
+                }, (result) => {
+                    console.log(result[0].result); // result[0] because the response is an array
+                    sendResponse({ message: "Message Received from popup.js" });
+                });
+            } else {
+                sendResponse({ message: "No active tab found." });
+            }
+        });
+
+        // Returning true to indicate we're sending a response asynchronously
+        return true;
     }
 });
 
@@ -19,48 +40,4 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 function setLog(message, sender) {
     console.log(message);
     console.log(sender);
-}
-
-/**
- * Function that will get the current DOM's active tab ID
- * @returns {Promise<number>} Promise that resolves to the ID of the active tab
- */
-function getActiveTab() {
-    return new Promise((resolve, reject) => {
-        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-            if (chrome.runtime.lastError) {
-                reject(chrome.runtime.lastError);
-            } else if (tabs.length === 0) {
-                reject(new Error("No active tab found"));
-            } else {
-                resolve(tabs[0].id);
-            }
-        });
-    });    
-}
-
-/**
- * Function that will inject the script into target DOM's tab dynamically
- * @param {File} file 
- */
-function injectScript(file) {
-    return getActiveTab()
-        .then((tabId) => {
-            return new Promise((resolve, reject) => {
-                chrome.scripting.executeScript({
-                    target: { tabId: tabId },
-                    files: [file]
-                }, () => {
-                    if (chrome.runtime.lastError) {
-                        reject(new Error(chrome.runtime.lastError.message));
-                    } else {
-                        resolve(`Script ${file} injected successfully.`);
-                    }
-                });
-            });
-        })
-        .catch((error) => {
-            console.error("Failed to inject script:", error);
-            throw error;
-        });    
 }
