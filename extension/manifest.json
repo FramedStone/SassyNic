@@ -11,5 +11,11 @@
   },
   "background": {
     "service_worker": "./scripts/background.js"
-  }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://clic.mmu.edu.my/*"],
+      "js": ["./scripts/content.js"]
+    }
+  ]
 }
