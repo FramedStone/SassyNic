@@ -1,26 +1,45 @@
+// TODO: make observer into function to be called only when needed (current implementation will always check for every page reload)
+// TODO: wait for the element to be loaded before clicking it
+
 console.log("content script successfully injected");
 
-// TODO: create observe function for different elements to be observed (return(callback))
+let trimesterTitle = null;
 
-// TODO: observe trimester title change
-//document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent 
+// MutationObserver setup
+/**
+ * Observing lists:
+ * 1. span.ps-text[id="PANEL_TITLElbl"] - Trimester/Planner Title
+ */
+const config = { attributes: true, childList: true, subtree: true }; 
 
 const observer = new MutationObserver(() => {
-    const target = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]');
-    if (target) {
-        console.log("Target found:", target.textContent);
-        chrome.runtime.sendMessage({ action: "found_trimesterTitle", message: target.textContent });
+    trimesterTitle = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]');
+    if (trimesterTitle) {
+        console.log("Trimester/Planner Title found:", trimesterTitle.textContent);
+        trimesterTitle = trimesterTitle.textContent;
         observer.disconnect(); // Stop observing once the target is found
     }
 });
 
-observer.observe(document.body, { childList: true, subtree: true });
+observer.observe(document.body, config);
 
-console.log("Observing for changes in the DOM...");
+// Listen messages from 'background.js'
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+    if(message.action === 'extractTrimester') {
+        if (document.readyState === "complete") {
+            // If the page is already fully loaded
+            console.log(message.courseTotal);
+            console.log(message.trimesterTitle);
 
-// const config = { attributes: true, childList: true, subtree: true };
-// const callback = (mutationList) => {
+            setTimeout(() => {
+                document.getElementById('PLANNER_ITEMS_NFF$0_row_0').click();
+            }, 3000);
 
-// }
-
-// TODO: 'sendMessage' back to 'background.js' to execute the next step
+        } else {
+            // Attach listener for the load event
+            window.addEventListener("load", () => {
+                console.log("Test");
+            });
+        }
+    }
+});

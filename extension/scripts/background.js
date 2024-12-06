@@ -1,3 +1,5 @@
+// TODO: remove listener after the extraction is done
+
 importScripts("./helpers/utils.js");
 
 // Navigate to 'SassyNic' website on installed
@@ -26,14 +28,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     (result) => {
                         if (result && result[0]) {
                             courseTotal = result[0].result;
-                            sendResponse({ message: result[0].result });
+                            console.log(result[0].result);
                         } else {
-                            sendResponse({ message: "Error executing script." });
+                            console.log("No result found.");
                         }
                     }
                 );
             } else {
-                sendResponse({ message: "No active tab found." });
+                console.log("No active tab found.");
             }
         });
 
@@ -51,34 +53,21 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("Trimester course total:", courseTotal);
         console.log("Trimester title:", message.trimesterTitle);
 
-        // Start extracting classes
-        for (let i=0 ; i<courseTotal; i++){
-            getActiveTabId((tabId) => {
-                if (tabId !== null) {
-                    chrome.scripting.executeScript({
-                        target: { tabId: tabId },
-                        world: 'MAIN',
-                        func: (index) => {
-                            window.addEventListener('load', function() {
-                                // Select courses (descending order)
-                                OnRowAction(this, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${index}`);
-                                console.log('test')
-                            });
+        // wait for the page to be fully loaded
+        const onTabUpdated = (tabId, changeInfo, tab) => {
+            if(changeInfo.status === "complete") {
+                getActiveTabId((tabId) => {
+                    if(tabId !== null) {
+                        chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseTotal: courseTotal, trimesterTitle: message.trimesterTitle });
+                        chrome.tabs.onUpdated.removeListener(onTabUpdated);
+                    } else {
+                        console.log("No active tab found.");
+                    }
+                });
+            }
+        };
+        chrome.tabs.onUpdated.addListener(onTabUpdated);
 
-                            // Array.from(document.querySelectorAll('div.ps_box-button span.ps-button-wrapper a.ps-button'))
-                            //     .find(element => element.textContent === 'View Classes').click();
-                        },
-                        args: [i]
-                    });
-                }
-            });
-        }
-
-    }
-
-    // Listen for trimester title changes from 'content_scripts'
-    if (message.action === "found_trimesterTitle") {
-        setLog(message, sender);
     }
 });
 
