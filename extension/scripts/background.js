@@ -59,39 +59,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                         target: { tabId: tabId },
                         world: 'MAIN',
                         func: (index) => {
-                            /**
-                             * 
-                             * @param {*} selector 
-                             * @param {*} callback 
-                             * @param {*} timeout 
-                             * @returns 
-                             */
-                            function waitForElement(selector, callback, timeout) {
-                                const element = document.querySelector(selector);
-                                if(element) {
-                                    callback(element);
-                                    return;
-                                }
-
-                                const observer = new MutationObserver((mutations, obs) => {
-                                    const element_ = document.querySelector(selector);
-                                    if(element_) {
-                                        obs.disconnect();
-                                        callback(element_);
-                                    }
-                                });
-
-                                observer.observe(document.body, {
-                                    childList: true,
-                                    subtree: true
-                                });
-
-                                // Disconnect observer after timeout
-                                setTimeout(() => {
-                                    observer.disconnect();
-                                    console.warn(`wairForElement: Element ${selector} not within ${timeout}ms`);
-                                }, timeout);
-                            }
                             window.addEventListener('load', function() {
                                 // Select courses (descending order)
                                 OnRowAction(this, `SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG$${index}`);
@@ -107,6 +74,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             });
         }
 
+    }
+
+    // Listen for trimester title changes from 'content_scripts'
+    if (message.action === "found_trimesterTitle") {
+        setLog(message, sender);
     }
 });
 
