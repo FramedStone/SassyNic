@@ -1,4 +1,4 @@
-import { getActiveTabId } from './helpers/utils.js';
+import { getActiveTabId, onTabUpdated } from './helpers/utils.js';
 
 // Navigate to 'SassyNic' website on installed
 // chrome.runtime.onInstalled.addListener(function() {
@@ -50,42 +50,56 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         console.log("Trimester course total:", message.courseTotal);
         console.log("Trimester title:", message.trimesterTitle);
 
-        // wait for the page to be fully loaded
-        const onTabUpdated = (tabId, changeInfo, tab) => {
-            if(changeInfo.status === "complete") {
-                getActiveTabId((tabId) => {
-                    if(tabId !== null) {
-                        chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseIndex: courseIndex, trimesterTitle: message.trimesterTitle });
-                        chrome.tabs.onUpdated.removeListener(onTabUpdated);
-                    } else {
-                        console.log("No active tab found.");
-                    }
-                });
+        onTabUpdated((tabId) => {
+            if(tabId !== null) {
+                chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseIndex: courseIndex, trimesterTitle: message.trimesterTitle });
+            } else {
+                console.log("No active tab found.");
             }
-        };
-        chrome.tabs.onUpdated.addListener(onTabUpdated);
-        
+        });
+
     }
 
+    // Listen for "View Classes" button existence from 'extraction.js'
     if (message.action === "viewClasses_") {
         setLog(message, sender);
 
-        // wait for the page to be fully loaded
-        const onTabUpdated = (tabId, changeInfo, tab) => {
-            if(changeInfo.status === "complete") {
-                getActiveTabId((tabId) => {
+        onTabUpdated((tabId) => {
+            if(tabId !== null) {
+                chrome.tabs.sendMessage(tabId, { action: "viewClasses" });
+            } else {
+                console.log("No active tab found.");
+            }
+        });
+        
+    }
+
+    // Listen for "Click View Classes" button from 'extraction.js' and fire click event
+    if (message.action === "clickViewClasses") {
+        setLog(message, sender);
+
+        getActiveTabId((tabId) => {
+           chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                world: 'MAIN',
+                func: () => {
+                    const element = Array.from(document.querySelectorAll('div.ps_box-button span.ps-button-wrapper a.ps-button')).find(element => element.textContent === 'View Classes');
+                    element.click();
+
+                    return true;
+                }
+           }).then(() => {
+                onTabUpdated((tabId) => {
                     if(tabId !== null) {
-                        chrome.tabs.sendMessage(tabId, { action: "viewClasses" });
-                        chrome.tabs.onUpdated.removeListener(onTabUpdated);
+                        chrome.tabs.sendMessage(tabId, { action: "checkTrimester" });
                     } else {
                         console.log("No active tab found.");
                     }
                 });
-            }
-        };
-        chrome.tabs.onUpdated.addListener(onTabUpdated);
-        
+           }) 
+        });
     }
+
 });
 
 /**
@@ -100,14 +114,14 @@ function getTrimesterClicked() {
         alert("You may now select a trimester to extract.");
 
         console.log("Trimester rows element found:", row);
-        console.log("Planner element found:", planner);
+        console.log("Planner title found:", planner);
         Array.from(row).forEach((row_, index) => {
             row_.addEventListener("click", function () {
                 const courseTotal = document.querySelector(`span.ps_box-value[id="SSR_PLNR_FL_WRK_COURSES_ATTEMPTED$${index}"`).textContent.trim(); 
                 const trimesterTitle = document.querySelector(`a.ps-link[id="SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$${index}"]`).textContent.trim();
 
                 // Send the result back to the background script
-                chrome.runtime.sendMessage({ action: "trimesterSelected", courseTotal: courseTotal, trimesterTitle: trimesterTitle, message: `Trimester row selected: ${index}` });
+                chrome.runtime.sendMessage({ action: "trimesterSelected", courseTotal: courseTotal, trimesterTitle: trimesterTitle, message: `Trimester row index selected: ${index}` });
             });
         });
         return "Row element found and listener attached.";  

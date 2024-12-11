@@ -9,3 +9,14 @@ export function getActiveTabId(callback) {
         }
     });
 }
+
+// Helper function to get updated tab
+export function onTabUpdated(callback) {
+    const listener = (tabId, changeInfo, tab) => {
+        if (changeInfo.status === "complete") {
+            callback(tabId);
+            chrome.tabs.onUpdated.removeListener(listener);
+        }
+    };
+    chrome.tabs.onUpdated.addListener(listener);
+}

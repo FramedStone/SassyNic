@@ -3,7 +3,9 @@ console.log("content script successfully injected");
 // Listen messages from 'background.js'
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "extractTrimester") {
-        console.log("Current course index: ", message.courseIndex);
+        console.log("Current Course Index: ", message.courseIndex);
+        console.log("Trimester Title: ", message.trimesterTitle);
+
         waitForElement({
             selector: `PLANNER_ITEMS_NFF$0_row_${message.courseIndex}`,
             method: 'getElementById',
@@ -13,7 +15,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         }).then((element) => {
             element.click();
-            chrome.runtime.sendMessage({ action: "viewClasses_"});
+            chrome.runtime.sendMessage({ action: "viewClasses_" });
         }).catch((error) => {
             console.error(error);
         });
@@ -27,11 +29,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 "role": "button",
                 onclick: true
             },
-            textContent: "View Classes"
+            textContent: 'View Classes'
         }).then((element) => {
-            element.click()
+            console.log("View Classes button found: ", element);
+            chrome.runtime.sendMessage({ action: "clickViewClasses" });
         }).catch((error) => {
             console.error(error);
+        });
+    }
+
+    if(message.action === "checkTrimester") {
+        waitForElement({
+            selector: 'td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link',
+            method: 'querySelectorAll',
+            attributes: {onclick:true},
+            textContent: 'test' 
+        }).then((element) => {
+            // TODO: if trimester row is more than 1, trigger selection
+        }).catch(() => {
+            console.log("Trimester element not found.");
+            console.log("Attempt to proceed to the next step......")
+            // TODO: if there's no trimester row, proceed to the next step -> class details extraction
         });
     }
 });
@@ -169,7 +187,7 @@ function waitForElement({
                     if (checkAttributes(elements) && isElementInteractable(elements) && matchesFilter(elements)) {
                         resolve(elements);
                         obs.disconnect();
-                    }
+                    } 
                 }
             }
         });
