@@ -1,86 +1,51 @@
-// TODO: make observer into function to be called only when needed (current implementation will always check for every page reload)
-// TODO: wait for the element to be loaded before clicking it
-
 console.log("content script successfully injected");
-
-let trimesterTitle = null;
-
-// MutationObserver setup
-/**
- * Observing lists:
- * 1. span.ps-text[id="PANEL_TITLElbl"] - Trimester/Planner Title
- */
-const config = { attributes: true, childList: true, subtree: true }; 
-
-const observer = new MutationObserver(() => {
-    trimesterTitle = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]');
-    if (trimesterTitle) {
-        console.log("Trimester/Planner Title found:", trimesterTitle.textContent);
-        trimesterTitle = trimesterTitle.textContent;
-        observer.disconnect(); // Stop observing once the target is found
-    }
-});
-
-observer.observe(document.body, config);
 
 // Listen messages from 'background.js'
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    if(message.action === 'extractTrimester') {
-        if (document.readyState === "complete") {
-            // If the page is already fully loaded
-            console.log(message.courseTotal);
-            console.log(message.trimesterTitle);
+    if(message.action === "extractTrimester") {
+        console.log("Current course index: ", message.courseIndex);
+        waitForElement({
+            selector: `PLANNER_ITEMS_NFF$0_row_${message.courseIndex}`,
+            method: 'getElementById',
+            attributes: {
+                "data-role": "button",
+                onclick: true
+            }
+        }).then((element) => {
+            element.click();
+            chrome.runtime.sendMessage({ action: "viewClasses_"});
+        }).catch((error) => {
+            console.error(error);
+        });
+    }
 
-            let index = message.courseTotal - 1;
-
-            (async () => {
-                do {
-                    console.log("Index:", index);
-                    // Courses
-                    await waitForElement({
-                        selector: `PLANNER_ITEMS_NFF$0_row_${index}`, 
-                        method: 'getElementById', 
-                        attributes: {
-                            onclick: true, 
-                            'data-role': 'button'
-                        }
-                    }).then((element) => {
-                        element.click();
-                    }).catch((error) => {
-                        console.error(error);
-                    });
-
-                    // View Classes
-                    await waitForElement({
-                        selector: 'div.ps_box-button span.ps-button-wrapper a.ps-button',
-                        method: 'querySelectorAll',
-                        attributes: {
-                            'role': 'button',
-                            onclick: true
-                        },
-                        textContent: 'View Classes'
-                    }).then((element) => {
-                        console.log(element);
-                    }).catch((error) => {
-                        console.error(error);
-                    });
-                } while(index-- !== 0);
-            })();
-        }
+    if(message.action === "viewClasses") {
+        waitForElement({
+            selector: 'div.ps_box-button span.ps-button-wrapper a.ps-button',
+            method: 'querySelectorAll', 
+            attributes: {
+                "role": "button",
+                onclick: true
+            },
+            textContent: "View Classes"
+        }).then((element) => {
+            element.click()
+        }).catch((error) => {
+            console.error(error);
+        });
     }
 });
 
 /**
  * Waits for an element to appear in the DOM using specified selection methods and attribute conditions,
  * optionally filtering by textContent or value, and ensuring the element is interactable before resolving.
- * @param {Object} options - Configuration options.
- * @param {string} options.selector - The CSS selector or ID for the target element(s).
- * @param {string} [options.method='querySelector'] - The selection method: 'querySelector', 'querySelectorAll', 'getElementById'.
- * @param {Object} [options.observerConfig={ attributes: true, childList: true, subtree: true }] - MutationObserver configuration.
- * @param {number} [options.timeout=5000] - Maximum time to wait in milliseconds.
- * @param {Object|Array} [options.attributes=null] - Attribute conditions to check.
- * @param {string} [options.textContent=null] - Specific textContent to match.
- * @param {string} [options.value=null] - Specific value to match.
+ * @param {string} selector - The CSS selector or ID for the target element(s).
+ * @param {string} method - The selection method: 'querySelector', 'querySelectorAll', 'getElementById'.
+ * @param {Object} [observerConfig={ attributes: true, childList: true, subtree: true }] - MutationObserver configuration.
+ * @param {number} [timeout=5000] - Maximum time to wait in milliseconds.
+ * @param {Object|Array} [attributes=null] - Attribute conditions to check.
+ * @param {string} [textContent=null] - Specific textContent to match.
+ * @param {string} [value=null] - Specific value to match.
  * @returns {Promise<Element>} - Resolves with the found element that meets all conditions.
  */
 function waitForElement({

@@ -1,6 +1,4 @@
-// TODO: remove listener after the extraction is done
-
-importScripts("./helpers/utils.js");
+import { getActiveTabId } from './helpers/utils.js';
 
 // Navigate to 'SassyNic' website on installed
 // chrome.runtime.onInstalled.addListener(function() {
@@ -27,7 +25,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     },
                     (result) => {
                         if (result && result[0]) {
-                            courseTotal = result[0].result;
                             console.log(result[0].result);
                         } else {
                             console.log("No result found.");
@@ -47,10 +44,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.action === "trimesterSelected") {
         setLog(message, sender);
 
-        let courseTotal = message.courseTotal;
+        let courseIndex = message.courseTotal - 1;
         console.log(message.message);
         console.log("Extraction Timeout (ms): ", extractionTimeout); 
-        console.log("Trimester course total:", courseTotal);
+        console.log("Trimester course total:", message.courseTotal);
         console.log("Trimester title:", message.trimesterTitle);
 
         // wait for the page to be fully loaded
@@ -58,7 +55,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if(changeInfo.status === "complete") {
                 getActiveTabId((tabId) => {
                     if(tabId !== null) {
-                        chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseTotal: courseTotal, trimesterTitle: message.trimesterTitle });
+                        chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseIndex: courseIndex, trimesterTitle: message.trimesterTitle });
                         chrome.tabs.onUpdated.removeListener(onTabUpdated);
                     } else {
                         console.log("No active tab found.");
@@ -67,7 +64,27 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         };
         chrome.tabs.onUpdated.addListener(onTabUpdated);
+        
+    }
 
+    if (message.action === "viewClasses_") {
+        setLog(message, sender);
+
+        // wait for the page to be fully loaded
+        const onTabUpdated = (tabId, changeInfo, tab) => {
+            if(changeInfo.status === "complete") {
+                getActiveTabId((tabId) => {
+                    if(tabId !== null) {
+                        chrome.tabs.sendMessage(tabId, { action: "viewClasses" });
+                        chrome.tabs.onUpdated.removeListener(onTabUpdated);
+                    } else {
+                        console.log("No active tab found.");
+                    }
+                });
+            }
+        };
+        chrome.tabs.onUpdated.addListener(onTabUpdated);
+        
     }
 });
 
