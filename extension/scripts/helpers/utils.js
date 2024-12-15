@@ -13,7 +13,7 @@ export function getActiveTabId(callback) {
 // Helper function to get updated tab
 export function onTabUpdated(callback) {
     const listener = (tabId, changeInfo, tab) => {
-        if (changeInfo.status === "complete") {
+        if (changeInfo.status === "complete" && tab.active) {
             callback(tabId);
             chrome.tabs.onUpdated.removeListener(listener);
         }

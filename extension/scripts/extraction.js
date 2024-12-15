@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             }
         }).then((element) => {
             element.click();
-            chrome.runtime.sendMessage({ action: "viewClasses_" });
+            chrome.runtime.sendMessage({ action: "viewClasses_", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
         }).catch((error) => {
             console.error(error);
         });
@@ -32,7 +32,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             textContent: 'View Classes'
         }).then((element) => {
             console.log("View Classes button found: ", element);
-            chrome.runtime.sendMessage({ action: "clickViewClasses" });
+            chrome.runtime.sendMessage({ action: "clickViewClasses", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
         }).catch((error) => {
             console.error(error);
         });
@@ -43,14 +43,83 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             selector: 'td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link',
             method: 'querySelectorAll',
             attributes: {onclick:true},
-            textContent: 'test' 
         }).then((element) => {
-            // TODO: if trimester row is more than 1, trigger selection
-        }).catch(() => {
+            if(Array.from(element).length > 1) {
+                alert("Select the trimester row that you want to extract.");
+
+                Array.from(element).forEach((trimester) => {
+                    trimester.onclick = function() {
+                        console.log("Trimester selected: ", trimester.textContent);
+                        chrome.runtime.sendMessage({ action: "trimesterSelected_", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
+                    };
+                });
+            } else {
+                chrome.runtime.sendMessage({ action: "clickTrimester", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
+            }
+
+        }).catch((error) => {
+            console.error(error);
             console.log("Trimester element not found.");
             console.log("Attempt to proceed to the next step......")
-            // TODO: if there's no trimester row, proceed to the next step -> class details extraction
+
+            // Proceed to the next step
+            chrome.runtime.sendMessage({ action: "trimesterSelected_", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
         });
+    }
+
+    if(message.action === "extractClassDetails") {
+        waitForElement({
+            selector: 'SSR_CRSE_INFO_V_COURSE_TITLE_LONG',
+            method: 'getElementById',
+        }).then(() => {
+            let dataset = [];
+            // extract class details
+            // Subject Title + Code -> Option -> Misc
+            const title = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent;
+            const code = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent;
+            dataset.push({
+                title: title, code: code,
+                misc: []
+            }); 
+
+            // Misc
+            const option = document.querySelectorAll('td.OPTION_NSFF');
+
+            Array.from(option).forEach((option_, index) => {
+                const status = document.getElementById(`SSR_DER_CS_GRP_SSR_OPTION_STAT$${index}`);
+                const class_ = document.querySelectorAll('td.CMPNT_CLASS_NBR');
+                const daytime = document.querySelectorAll('td.DAYS_TIMES');
+                const room = document.querySelectorAll('td.ROOM');
+                const instructor = document.querySelectorAll('td.INSTRUCTOR');
+                const seats = document.querySelectorAll('td.SEATS');
+
+                dataset[message.courseIndex].misc.push({
+                    option: option_.textContent.trim(),
+                    status: status.textContent.trim(),
+                    class: [],
+                })
+
+                daytime[index].querySelectorAll('div.ps_box-longedit').forEach((daytime_, index_) => {
+                    let tempClass = class_[index].querySelectorAll('a.ps-link');
+                    let tempRoom = room[index].querySelectorAll('div.ps_box-edit');
+                    let tempInstructor = instructor[index].querySelectorAll('div.ps_box-longedit');
+                    let tempSeats = seats[index].querySelectorAll('div.ps_box-edit');
+
+                    dataset[message.courseIndex].misc[index].class.push({
+                        class: tempClass[index_].textContent.trim(),
+                        daytime: daytime_.textContent.trim(),
+                        room: tempRoom[index_].textContent.trim(),
+                        instructor: tempInstructor[index_].textContent.trim(),
+                        seats: tempSeats[index_].textContent.trim()
+                    });
+                });
+            });                      
+
+            console.log(dataset)
+        }).catch((error) => {
+            console.error(error);
+        });
+
     }
 });
 
@@ -180,7 +249,7 @@ function waitForElement({
                 if (method === 'querySelectorAll') {
                     const foundElement = Array.from(elements).find(el => checkAttributes(el) && isElementInteractable(el) && matchesFilter(el));
                     if (foundElement) {
-                        resolve(foundElement);
+                        resolve(elements);
                         obs.disconnect();
                     }
                 } else {
