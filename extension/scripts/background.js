@@ -63,13 +63,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "trimesterSelected_") {
         setLog(message, sender);
 
-        onTabUpdated((tabId) => {
-            if(tabId !== null) {
-                chrome.tabs.sendMessage(tabId, { action: "extractClassDetails", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
-            } else {
-                console.log("No active tab found.");
-            }
-        });
+        if(message.trimesterElement === false) {
+            getActiveTabId((tabId) => {
+                if(tabId !== null) {
+                    chrome.tabs.sendMessage(tabId, { action: "extractClassDetails", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null }); 
+                } else {
+                    console.log("No active tab found.");
+                }
+            });
+        } else {
+            onTabUpdated((tabId) => {
+                if(tabId !== null) {
+                    chrome.tabs.sendMessage(tabId, { action: "extractClassDetails", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null }); 
+                } else {
+                    console.log("No active tab found.");
+                }
+            });
+        }
 
     }
 
@@ -104,7 +114,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         onTabUpdated((tabId) => {
             if(tabId !== null) {
-                chrome.tabs.sendMessage(tabId, { action: "viewClasses", courseIndex: message.courseIndex, courseTotal: message.courseTotal }); 
+                chrome.tabs.sendMessage(tabId, { action: "viewClasses", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null });  
             } else {
                 console.log("No active tab found.");
             }
@@ -129,13 +139,65 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
            }).then(() => {
                 onTabUpdated((tabId) => {
                     if(tabId !== null) {
-                        chrome.tabs.sendMessage(tabId, { action: "checkTrimester", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
+                        chrome.tabs.sendMessage(tabId, { action: "checkTrimester", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null });
                     } else {
                         console.log("No active tab found.");
                     }
                 });
            }) 
         });
+    }
+
+    // Listen for next class extraction from 'extraction.js'
+    if (message.action === "nextClassExtraction") {
+        setLog(message, sender);
+
+        // save dataset into chrome storage
+        chrome.storage.local.set({ dataset: message.dataset }, () => {
+            console.log("Dataset saved.");
+            console.log(message.dataset);
+        });
+
+        message.courseIndex++;
+
+        // check if last class is extracted
+        if(message.courseIndex < message.courseTotal) {
+            getActiveTabId((tabId) => {
+                if(tabId !== null) {
+                    // press return button
+                    chrome.scripting.executeScript({
+                        target: { tabId: tabId },
+                        world: 'MAIN',
+                        func: () => {
+                            const element = document.getElementById('PT_WORK_PT_BUTTON_BACK');
+                            element.click();
+
+                            return true;
+                        }
+                    }).then(() => {
+                        console.log("Return button clicked.");
+                        onTabUpdated((tabId) => {
+                            if(tabId !== null) {
+                                chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseIndex: message.courseIndex, courseTotal: message.courseTotal, nextClass: true, dataset: message.dataset }); 
+                            } else {
+                                console.log("No active tab found.");
+                            }
+                        });
+                    }) 
+                } else {
+                    console.log("No active tab found.");
+                }
+            });
+        } else {
+            getActiveTabId((tabId) => {
+                if(tabId !== null) {
+                    console.log("Extraction completed.");
+                    chrome.tabs.sendMessage(tabId, { action: "extractionCompleted", message: "Extraction completed." });
+                } else {
+                    console.log("No active tab found.");
+                } 
+            });
+        }
     }
 
 });
