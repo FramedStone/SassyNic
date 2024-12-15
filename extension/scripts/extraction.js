@@ -101,14 +101,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             // Misc
             const option = document.querySelectorAll('td.OPTION_NSFF');
+            const class_ = document.querySelectorAll('td.CMPNT_CLASS_NBR a');
+            const daytime = document.querySelectorAll('td.DAYS_TIMES div div');
+            const room = document.querySelectorAll('td.ROOM div div');
+            const instructor = document.querySelectorAll('td.INSTRUCTOR div.ps_box-longedit');
+            const seats = document.querySelectorAll('td.SEATS div.ps_box-longedit');
 
             Array.from(option).forEach((option_, index) => {
                 const status = document.getElementById(`SSR_DER_CS_GRP_SSR_OPTION_STAT$${index}`);
-                const class_ = document.querySelectorAll('td.CMPNT_CLASS_NBR a');
-                const daytime = document.querySelectorAll('td.DAYS_TIMES div div');
-                const room = document.querySelectorAll('td.ROOM div.ps_box-edit');
-                const instructor = document.querySelectorAll('td.INSTRUCTOR div.ps_box-longedit');
-                const seats = document.querySelectorAll('td.SEATS div.ps_box-longedit');
 
                 dataset[message.courseIndex].misc.push({
                     option: option_.textContent.trim(),
@@ -121,17 +121,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     let tempDay = [], tempTime = []; 
                     let tempRoom = [], tempInstructor = [], tempSeats = [];
 
-                    // daytime with bundled format
-                    if(el.length > 1) {
-                        el.forEach(el_ => {
-                            let [tempDay_, tempTime_] = el_.innerText.split('\n');
-                            tempDay.push(tempDay_);
-                            tempTime.push(tempTime_);
-                            tempRoom.push(room[index_].textContent.trim());
-                        })
-                    } else {
-                        [tempDay, tempTime] = el[0].innerText.split('\n');
-                    }
+                    el.forEach((el_) => {
+                        let [tempDay_, tempTime_] = el_.innerHTML.includes('\n') 
+                            ? el_.innerHTML.split('\n') 
+                            : el_.innerText.split('\n');
+                        tempDay.push(tempDay_);
+                        tempTime.push(tempTime_.replace('<br>',''));
+                    });
+
+                    const elRoom = room[index_].querySelectorAll('span');
+                    elRoom.forEach((el_) => {
+                        tempRoom.push(el_.textContent.trim());
+                    });
 
                     dataset[message.courseIndex].misc[index].class.push({
                         class: class_[index_].textContent.trim(),
