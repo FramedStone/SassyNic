@@ -5,237 +5,141 @@ import { getActiveTabId, onTabUpdated } from './helpers/utils.js';
 //     chrome.tabs.create({ url: 'https://sassynic.com' });
 // });
 
-let extractionTimeout = 0;
-
-// Select a trimester to extract
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-    // Listen for the 'startExtraction' button click in 'popup.js'
-    if (message.action === "startExtraction") {
-        setLog(message, sender);
+    if(message.action === "startExtraction") {
+        console.log(message);
 
-        extractionTimeout = message.timeout;
-
-        // Call the helper function to get the tabId
-        getActiveTabId((tabId) => {
-            if (tabId !== null) {
-                chrome.scripting.executeScript(
-                    {
-                        target: { tabId: tabId },
-                        func: getTrimesterClicked,
-                    },
-                    (result) => {
-                        if (result && result[0]) {
-                            console.log(result[0].result);
-                        } else {
-                            console.log("No result found.");
-                        }
-                    }
-                );
+        getActiveTabId(tabId => {
+            if(tabId !== null) {
+                chrome.tabs.sendMessage(tabId, { action: "startExtraction_", term: message.term, index: 0, tabId: tabId });
+                console.log("startExtraction_ sent to extraction.js");
             } else {
-                console.log("No active tab found.");
+                console.log("No active tab found!");
             }
         });
-
-        // Returning true to indicate we're sending a response asynchronously
-        return true;
     }
 
-    // Listen for the selected trimester
-    if (message.action === "trimesterSelected") {
-        setLog(message, sender);
-
-        console.log(message.message);
-        console.log("Extraction Timeout (ms): ", extractionTimeout); 
-        console.log("Trimester course total:", message.courseTotal);
-        console.log("Trimester title:", message.trimesterTitle);
+    if(message.action === "selectedCourse") {
+        console.log(message);
 
         onTabUpdated((tabId) => {
             if(tabId !== null) {
-                chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseIndex: 0, trimesterTitle: message.trimesterTitle, courseTotal: message.courseTotal });
+                chrome.tabs.sendMessage(message.tabId, { action: "viewClasses_", term: message.term, index: message.index, tabId: message.tabId });
+                console.log("viewClasses sent to extraction.js");
             } else {
-                console.log("No active tab found.");
+                console.log("No active tab found!");
             }
         });
-
     }
 
-    // Listen for the selected trimester (after 'View Classes' button click)
-    if(message.action === "trimesterSelected_") {
-        setLog(message, sender);
+    if(message.action === "viewClasses") {
+        console.log(message);
 
-        if(message.trimesterElement === false) {
-            getActiveTabId((tabId) => {
-                if(tabId !== null) {
-                    chrome.tabs.sendMessage(tabId, { action: "extractClassDetails", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null }); 
-                } else {
-                    console.log("No active tab found.");
-                }
-            });
-        } else {
-            onTabUpdated((tabId) => {
-                if(tabId !== null) {
-                    chrome.tabs.sendMessage(tabId, { action: "extractClassDetails", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null }); 
-                } else {
-                    console.log("No active tab found.");
-                }
-            });
-        }
-
-    }
-
-    if(message.action === "clickTrimester") {
-        setLog(message, sender);
-
-        getActiveTabId((tabId) => {
-           chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                world: 'MAIN',
-                func: () => {
-                    const element = document.querySelector('td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link');
-                    element.click();
-
-                    return true;
-                }
-           }).then(() => {
-                onTabUpdated((tabId) => {
-                    if(tabId !== null) {
-                        chrome.tabs.sendMessage(tabId, { action: "trimesterSelected_", courseIndex: message.courseIndex, courseTotal: message.courseTotal });
-                    } else {
-                        console.log("No active tab found.");
-                    }
-                });
-           }) 
-        });
-    }
-
-    // Listen for "View Classes" button existence from 'extraction.js'
-    if (message.action === "viewClasses_") {
-        setLog(message, sender);
-
-        onTabUpdated((tabId) => {
-            if(tabId !== null) {
-                chrome.tabs.sendMessage(tabId, { action: "viewClasses", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null });  
-            } else {
-                console.log("No active tab found.");
+        chrome.scripting.executeScript({
+            target: { tabId: message.tabId },
+            world: 'MAIN',
+            func: () => {
+                document.querySelector('div.ps_box-button.psc_primary span a').click();
             }
-        });
-        
-    }
-
-    // Listen for "Click View Classes" button from 'extraction.js' and fire click event
-    if (message.action === "clickViewClasses") {
-        setLog(message, sender);
-
-        getActiveTabId((tabId) => {
-           chrome.scripting.executeScript({
-                target: { tabId: tabId },
-                world: 'MAIN',
-                func: () => {
-                    const element = Array.from(document.querySelectorAll('div.ps_box-button span.ps-button-wrapper a.ps-button')).find(element => element.textContent === 'View Classes');
-                    element.click();
-
-                    return true;
+        }).then(() => {
+            onTabUpdated(tabId => {
+                if(tabId !== null) {
+                    chrome.tabs.sendMessage(message.tabId, { action: "selectTerm_", term: message.term, index: message.index, tabId: message.tabId });
+                    console.log("selectTerm_ sent to extraction.js");
+                } else {
+                    console.log("No active tab found!");
                 }
-           }).then(() => {
-                onTabUpdated((tabId) => {
-                    if(tabId !== null) {
-                        chrome.tabs.sendMessage(tabId, { action: "checkTrimester", courseIndex: message.courseIndex, courseTotal: message.courseTotal, dataset: message.dataset ? message.dataset : null });
-                    } else {
-                        console.log("No active tab found.");
-                    }
-                });
-           }) 
+            });
         });
     }
 
-    // Listen for next class extraction from 'extraction.js'
-    if (message.action === "nextClassExtraction") {
-        setLog(message, sender);
+    if(message.action === "selectTerm") {
+        console.log(message);
 
-        // save dataset into chrome storage
-        chrome.storage.local.set({ dataset: message.dataset }, () => {
-            console.log("Dataset saved.");
+        chrome.scripting.executeScript({
+            target: { tabId: message.tabId },
+            world: 'MAIN',
+            func: (term) => {
+                Array.from(document.querySelectorAll('td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link')).find(element => element.textContent.trim() === term).click()  
+            },
+            args: [message.term]
+        }).then(() => {
+            onTabUpdated(tabId => {
+                if(tabId !== null) {
+                    chrome.tabs.sendMessage(message.tabId, { action: "extractClassDetails_", term: message.term, index: message.index, tabId: message.tabId });
+                    console.log("extractClassDetails_ sent to extraction.js");
+                } else {
+                    console.log("No active tab found!");
+                }
+            });
+        });
+    }
+
+    if(message.action === "extractClassDetails") {
+        console.log(message);
+
+        // Put dataset into chrome storage with 2 keys: message.title and message.code
+        chrome.storage.local.set({ [message.title]: message.dataset }, () => {
+            console.log("Dataset saved to storage");
             console.log(message.dataset);
         });
 
-        message.courseIndex++;
-
-        // check if last class is extracted
-        if(message.courseIndex < message.courseTotal) {
-            getActiveTabId((tabId) => {
+        chrome.scripting.executeScript({
+            target: { tabId: message.tabId },
+            world: 'MAIN',
+            func: () => {
+                window.history.back();
+            }
+        }).then(() => {
+            onTabUpdated(tabId => {
                 if(tabId !== null) {
-                    // press return button
                     chrome.scripting.executeScript({
-                        target: { tabId: tabId },
+                        target: { tabId: message.tabId },
                         world: 'MAIN',
                         func: () => {
-                            const element = document.getElementById('PT_WORK_PT_BUTTON_BACK');
-                            element.click();
+                            const waitForElement = ({ selector, method = 'querySelectorAll' }) => {
+                                return new Promise((resolve) => {
+                                    const observer = new MutationObserver(() => {
+                                        const elements = document[method](selector);
+                                        if (elements && (elements.length || elements)) {
+                                            observer.disconnect(); // Stop observing once the element is found
+                                            resolve(elements);
+                                        }
+                                    });
 
-                            return true;
+                                    // Observe changes in the entire document
+                                    observer.observe(document.body, { childList: true, subtree: true });
+                                });
+                            };
+
+                            waitForElement({
+                                selector: 'span',
+                                method: 'querySelectorAll'
+                            }).then(() => {
+                                window.history.back()
+                            })
                         }
                     }).then(() => {
-                        console.log("Return button clicked.");
-                        onTabUpdated((tabId) => {
+                        let index = message.index + 1; // Increment index to move to the next course
+                        onTabUpdated(tabId => {
                             if(tabId !== null) {
-                                chrome.tabs.sendMessage(tabId, { action: "extractTrimester", courseIndex: message.courseIndex, courseTotal: message.courseTotal, nextClass: true, dataset: message.dataset }); 
+                                chrome.tabs.sendMessage(message.tabId, { action: "startExtraction_", term: message.term, index: index, tabId: message.tabId });
+                                console.log("startExtraction_ sent to extraction.js with index: ", index);
                             } else {
-                                console.log("No active tab found.");
+                                console.log("No active tab found!");
                             }
                         });
-                    }) 
+                    })
                 } else {
-                    console.log("No active tab found.");
+                    console.log("No active tab found!");
                 }
             });
-        } else {
-            getActiveTabId((tabId) => {
-                if(tabId !== null) {
-                    console.log("Extraction completed.");
-                    chrome.tabs.sendMessage(tabId, { action: "extractionCompleted", message: "Extraction completed." });
-                } else {
-                    console.log("No active tab found.");
-                } 
-            });
-        }
-    }
-
-});
-
-/**
- * Function that will be injected into the active tab, listen for click event on the 'Trimester Row' element
- * @returns {String} - Message to indicate if the row element is found and listener attached
- */
-function getTrimesterClicked() {
-    const row = document.querySelectorAll('tr[data-role="button"]');
-    const planner = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]');
-
-    if (row && planner.textContent === "Planner") {
-        alert("You may now select a trimester to extract.");
-
-        console.log("Trimester rows element found:", row);
-        console.log("Planner title found:", planner);
-        Array.from(row).forEach((row_, index) => {
-            row_.addEventListener("click", function () {
-                const courseTotal = document.querySelector(`span.ps_box-value[id="SSR_PLNR_FL_WRK_COURSES_ATTEMPTED$${index}"`).textContent.trim(); 
-                const trimesterTitle = document.querySelector(`a.ps-link[id="SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$${index}"]`).textContent.trim();
-
-                // Send the result back to the background script
-                chrome.runtime.sendMessage({ action: "trimesterSelected", courseTotal: courseTotal, trimesterTitle: trimesterTitle, message: `Trimester row index selected: ${index}` });
-            });
         });
-        return "Row element found and listener attached.";  
-    } else {
-        return "Row element not found.";
     }
-}
 
-/**
- * Function to set log in background console
- * @param {Object} message
- * @param {Object} sender
- */
-function setLog(message, sender) {
-    console.log(message);
-    console.log(sender);
-}
+    if(message.action === "extractionCompleted") {
+        chrome.storage.local.get(null, function(items) {
+            console.log(items);
+        });
+    }
+});
