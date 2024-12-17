@@ -141,8 +141,52 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     }
 
     if(message.action === "extractionCompleted") {
+
+        /**
+         * dataset ->
+         */
+
         chrome.storage.local.get(null, function(items) {
-            console.log(items);
+            let dataset = items;
+            console.log("Dataset: ", dataset);
+            console.log("Pure backtracking result: ", backtrack_(dataset));
+
+            // Clear chrome storage
+            chrome.storage.local.clear();
+            console.log("Dataset cleared from chrome storage.");
         });
+
+        // Pure Backtracking
+        function backtrack_(data, courses = Object.keys(data), current = [], final = []) {
+            // Exit factor
+            if(current.length === courses.length) {
+                final.push([...current]);
+                return;
+            }
+
+            const course = courses[current.length];
+            const options = data[course].class;
+            const title = data[course].title;
+            const code = data[course].code;
+
+            for(let option of options) {
+                current.push({title: title, code: code, option});
+                backtrack_(data, courses, current, final, title);
+                current.pop(); // Backtrack
+            }
+
+            return final;
+        }
+
+        // Backtracking with constraints 
+        function backtrack(data, courses = Object.keys(data), current = [], final = []) {
+            // Exit Factor
+            if(current.length === courses.length) {
+                final.push([...current]);
+                return;
+            }
+
+        }
+
     }
 });

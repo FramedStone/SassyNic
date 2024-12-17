@@ -176,7 +176,7 @@ function extractClassDetails() {
                 times: times.slice(index * 2, index * 2 + 2),
                 rooms: rooms.slice(index * 2, index * 2 + 2),
                 instructors: instructors.slice(index * 2, index * 2 + 2),
-                seats: seats[index] || "N/A",
+                seats: seats[index] || "Closed",
                 classNumber: classNumber
             });
         });
