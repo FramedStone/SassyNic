@@ -89,108 +89,94 @@ function extractClassDetails() {
     const rows = document.querySelectorAll('.ps_grid-row'); // select all rows in the table
     const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
     const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-
     const dataset = { title: subjectTitle, code: subjectCode, class: [] };
 
+    // tr
     rows.forEach(row => {
         const class_ = {};
+        const option = row.querySelector('.OPTION_NSFF a').textContent.trim();
+        const status = row.querySelector('.ps_box-value').textContent.trim();
 
-        const option = row.querySelector('.OPTION_NSFF a') ? row.querySelector('.OPTION_NSFF a').textContent.trim() : 'N/A';
-        const status = row.querySelector('.ps_box-value') ? row.querySelector('.ps_box-value').textContent.trim() : 'N/A';
-        // const session = row.querySelector('.SESSION .ps_box-value') ? row.querySelector('.SESSION .ps_box-value').textContent.trim() : 'N/A';
-        // const meetingDates = row.querySelector('.DATES .ps_box-value') ? row.querySelector('.DATES .ps_box-value').textContent.trim() : 'N/A';
+        const classElements = row.querySelectorAll('.CMPNT_CLASS_NBR a.ps-link');
+        const seatsElements = row.querySelectorAll('.SEATS span.ps_box-value');
+        const dayTimeElements = row.querySelectorAll('.DAYS_TIMES .ps_box-longedit');
+        const roomElements = row.querySelectorAll('.ROOM .ps_box-edit');
+        const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit');
 
-        // Bundled data
-        const classNumbers = [];
-        row.querySelectorAll('.CMPNT_CLASS_NBR a').forEach(classNumber => {
-            classNumbers.push(classNumber.textContent.trim());
-        });
+        // class
+        const classes = Array.from(classElements).map((el, index) => {
+            const classText = el.textContent.trim();
+            const seats = (seatsElements[index].innerText.trim()).split(' ').filter(char => !isNaN(parseInt(char))).join(' ');
+            const misc = [];
 
-        const days = [], times = [], rooms = [], instructors = [], seats = [];
-        row.querySelectorAll('.DAYS_TIMES .ps_box-value').forEach(dayTime => {
-            let [day, time] = dayTime.innerText.split('\n');
-            days.push(day.trim());
+            // Bundle misc details (day, time, instructor, room)
+            if (dayTimeElements[index]) {
+                const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
+                const roomSpans = roomElements[index].querySelectorAll('span');
+                const instructorSpans = instructorElements[index].querySelectorAll('span');
 
-            // Convert time into minutes
-            let [start, end] = time.split('to');
-           
-            let [[h1, m1], [h2, m2]] = [start.split(':'), end.split(':')];
-
-            // 12-hours format
-            if(time.includes('AM') || time.includes('PM')) {
-                if(m1.includes('PM')) {
-                    if(h1.trim() !== '12') {
-                        h1 = parseInt(h1) + 12;
-                    }
-                    m1 = m1.replace('PM', '');
-                } else {
-                    if(h1.trim() === '12') {
-                        h1 = '0';
-                    }
-                    m1 = m1.replace('AM', '');
-                }
-    
-                if(m2.includes('PM')) {
-                    if(h2.trim() !== '12') {
-                        h2 = parseInt(h2) + 12;
-                    }
-                    m2 = m2.replace('PM', '');
-                } else {
-                    if(h2.trim() === '12') {
-                        h2 = 0;
-                    }
-                    m2 = m2.replace('AM', '');
-                }
+                daytimeSpans.forEach((span, index_) => {
+                    const [day, time] = parseDayAndTime(span.innerHTML.trim());
+                    const room = roomSpans[index_].innerText.trim();
+                    const instructor = instructorSpans[index_].innerText.trim();
+                    misc.push({ day, time, room, instructor });
+                });
             }
-            h2 = String(h2).trim();
-            h1 = String(h1).trim();
-            m1 = String(m1).trim();
-            m2 = String(m2).trim();
 
-            // Convert to minutes
-            time = String((parseInt(h1) * 60 + parseInt(m1)) + ' ' + (parseInt(h2) * 60 + parseInt(m2)));
-            console.log(time);
-
-            times.push(time.trim());
-        });
-
-        row.querySelectorAll('.ROOM .ps_box-value').forEach(room => {
-            rooms.push(room.textContent.trim());
-        });
-
-        row.querySelectorAll('.INSTRUCTOR .ps_box-value').forEach(instructor => {
-            instructors.push(instructor.textContent.trim());
-        });
-
-        row.querySelectorAll('.SEATS .ps_box-value').forEach(seat => {
-            const seatText = seat.textContent.trim();
-            const seatCount = seatText.split(' ').filter(item => !isNaN(item)).join(' ');
-            seats.push(seatCount);
-        });
-
-        // Structure the extracted data
-        const classes = [];
-        classNumbers.forEach((classNumber, index) => {
-            classes.push({
-                days: days.slice(index * 2, index * 2 + 2),  // Assuming there are 2 days per class (Adjust if necessary)
-                times: times.slice(index * 2, index * 2 + 2),
-                rooms: rooms.slice(index * 2, index * 2 + 2),
-                instructors: instructors.slice(index * 2, index * 2 + 2),
-                seats: seats[index] || "Closed",
-                classNumber: classNumber
-            });
+            return { classText, seats, misc };
         });
 
         class_.option = option;
         class_.status = status;
-        // class_.session = session;
-        // class_.meetingDates = meetingDates;
         class_.classes = classes;
-
-        // Push to dataset
+        
         dataset.class.push(class_);
     });
+
     return dataset;
+}
+
+/**
+ * Function to split daytime -> [day, time] and convert time into minutes -> "start end"
+ * @param {String} daytime - daytime string 
+ * @returns 
+ */
+function parseDayAndTime(daytime) {
+    const parts = daytime.split("<br>");
+    const day = parts[0]?.trim();
+    const time = parts[1]?.trim();
+
+    // Convert time to "start end" format in minutes
+    const timeToMinutes = (timeStr) => {
+        const isPM = timeStr.toUpperCase().includes('PM');
+        timeStr = timeStr.replace(/[AP]M/i, '').trim();
+        
+        // Split start and end times
+        const [startTime, endTime] = timeStr.split(/\s*to\s*/i);
+        
+        // Convert individual times to minutes
+        const convertSingleTime = (time) => {
+            let [hours, minutes] = time.split(':').map(Number);
+            
+            // Handle 12-hour PM conversion
+            if (isPM && hours !== 12) {
+                hours += 12;
+            }
+            // Handle midnight (12 AM)
+            if (!isPM && hours === 12) {
+                hours = 0;
+            }
+            
+            return hours * 60 + (minutes || 0);
+        };
+        
+        const startMinutes = convertSingleTime(startTime);
+        const endMinutes = convertSingleTime(endTime);
+        
+        return `${startMinutes} ${endMinutes}`;
+    };
+
+    return [day, timeToMinutes(time)];
 }
 
 
@@ -333,3 +319,4 @@ function waitForElement({
         observer.observe(document.body, observerConfig);
     });
 }
+
