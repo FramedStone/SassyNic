@@ -113,8 +113,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                             };
 
                             waitForElement({
-                                selector: 'span',
-                                method: 'querySelectorAll'
+                                selector: "div.ps_box-button.psc_primary span a",
+                                method: "querySelector",
+                                attributes: {
+                                    onclick:true
+                                }
                             }).then(() => {
                                 window.history.back()
                             })
