@@ -80,7 +80,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         // Put dataset into chrome storage with 2 keys: message.title and message.code
         chrome.storage.local.set({ [message.title]: message.dataset }, () => {
-            console.log("Dataset saved to storage");
+            console.log("Dataset saved to storage: ", message.title);
             console.log(message.dataset);
         });
 

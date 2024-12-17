@@ -86,7 +86,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * Function that extract class details and process extracted data
  */
 function extractClassDetails() {
-    const rows = document.querySelectorAll('.ps_grid-row'); // Select all rows in the table
+    const rows = document.querySelectorAll('.ps_grid-row'); // select all rows in the table
     const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
     const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
 
@@ -97,8 +97,8 @@ function extractClassDetails() {
 
         const option = row.querySelector('.OPTION_NSFF a') ? row.querySelector('.OPTION_NSFF a').textContent.trim() : 'N/A';
         const status = row.querySelector('.ps_box-value') ? row.querySelector('.ps_box-value').textContent.trim() : 'N/A';
-        const session = row.querySelector('.SESSION .ps_box-value') ? row.querySelector('.SESSION .ps_box-value').textContent.trim() : 'N/A';
-        const meetingDates = row.querySelector('.DATES .ps_box-value') ? row.querySelector('.DATES .ps_box-value').textContent.trim() : 'N/A';
+        // const session = row.querySelector('.SESSION .ps_box-value') ? row.querySelector('.SESSION .ps_box-value').textContent.trim() : 'N/A';
+        // const meetingDates = row.querySelector('.DATES .ps_box-value') ? row.querySelector('.DATES .ps_box-value').textContent.trim() : 'N/A';
 
         // Bundled data
         const classNumbers = [];
@@ -108,8 +108,49 @@ function extractClassDetails() {
 
         const days = [], times = [], rooms = [], instructors = [], seats = [];
         row.querySelectorAll('.DAYS_TIMES .ps_box-value').forEach(dayTime => {
-            const [day, time] = dayTime.innerText.split('\n');
+            let [day, time] = dayTime.innerText.split('\n');
             days.push(day.trim());
+
+            // Convert time into minutes
+            let [start, end] = time.split('to');
+           
+            let [[h1, m1], [h2, m2]] = [start.split(':'), end.split(':')];
+
+            // 12-hours format
+            if(time.includes('AM') || time.includes('PM')) {
+                if(m1.includes('PM')) {
+                    if(h1.trim() !== '12') {
+                        h1 = parseInt(h1) + 12;
+                    }
+                    m1 = m1.replace('PM', '');
+                } else {
+                    if(h1.trim() === '12') {
+                        h1 = '0';
+                    }
+                    m1 = m1.replace('AM', '');
+                }
+    
+                if(m2.includes('PM')) {
+                    if(h2.trim() !== '12') {
+                        h2 = parseInt(h2) + 12;
+                    }
+                    m2 = m2.replace('PM', '');
+                } else {
+                    if(h2.trim() === '12') {
+                        h2 = 0;
+                    }
+                    m2 = m2.replace('AM', '');
+                }
+            }
+            h2 = String(h2).trim();
+            h1 = String(h1).trim();
+            m1 = String(m1).trim();
+            m2 = String(m2).trim();
+
+            // Convert to minutes
+            time = String((parseInt(h1) * 60 + parseInt(m1)) + ' ' + (parseInt(h2) * 60 + parseInt(m2)));
+            console.log(time);
+
             times.push(time.trim());
         });
 
@@ -142,8 +183,8 @@ function extractClassDetails() {
 
         class_.option = option;
         class_.status = status;
-        class_.session = session;
-        class_.meetingDates = meetingDates;
+        // class_.session = session;
+        // class_.meetingDates = meetingDates;
         class_.classes = classes;
 
         // Push to dataset
