@@ -1,4 +1,5 @@
 import { getActiveTabId, onTabUpdated } from './helpers/utils.js';
+import { hasScheduleConflict } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' website on installed
 // chrome.runtime.onInstalled.addListener(function() {
@@ -150,6 +151,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             let dataset = items;
             console.log("Dataset: ", dataset);
             console.log("Pure backtracking result: ", backtrack_(dataset));
+            console.log("Backtracking with daytime conflict: ", backtrack(dataset));
 
             // Clear chrome storage
             chrome.storage.local.clear();
@@ -178,14 +180,28 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return final;
         }
 
-        // Backtracking with constraints 
+        // Backtracking with daytime conflict contraint 
         function backtrack(data, courses = Object.keys(data), current = [], final = []) {
-            // Exit Factor
-            if(current.length === courses.length) {
-                final.push([...current]);
+            // Exit factor
+            if (current.length === courses.length) {
+                if (!hasScheduleConflict(current)) {
+                    final.push([...current]);
+                }
                 return;
             }
 
+            const course = courses[current.length];
+            const options = data[course].class;
+            const title = data[course].title;
+            const code = data[course].code;
+
+            for (let option of options) {
+                current.push({ title, code, option });
+                backtrack(data, courses, current, final);
+                current.pop(); // Backtrack
+            }
+
+            return final;
         }
 
     }

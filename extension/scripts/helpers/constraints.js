@@ -1,0 +1,49 @@
+/**
+ * Function that will determine whether daytime is conflicting 
+ * @param {String} eDay - Existing Day 
+ * @param {String} nDay - New Day
+ * @param {String} eTime - Existing Time
+ * @param {String} nTime - New Time
+ * @returns 
+ */
+export function isDayTimeConflict(eDay, nDay, eTime, nTime) {
+    if(eDay === nDay) {
+        // Parse time into 'start, end'
+        const [eStart, eEnd] = eTime.split(' ').map(Number);
+        const [nStart, nEnd] = nTime.split(' ').map(Number);
+
+        if(nEnd > eStart && nStart < eEnd) {
+            return true;
+        }
+    }
+    return false;
+}
+
+export function hasScheduleConflict(schedule) {
+    for (let i = 0; i < schedule.length; i++) {
+        for (let j = i + 1; j < schedule.length; j++) {
+            const currentOption = schedule[i];
+            const nextOption = schedule[j];
+
+            for (let cClass of currentOption.option.classes) {
+                for (let cMisc of cClass.misc) {
+                    for (let nClass of nextOption.option.classes) {
+                        for (let nMisc of nClass.misc) {
+                            if (
+                                isDayTimeConflict(
+                                    cMisc.day,
+                                    nMisc.day,
+                                    cMisc.time,
+                                    nMisc.time
+                                )
+                            ) {
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return false;
+}
