@@ -151,7 +151,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             let dataset = items;
             console.log("Dataset: ", dataset);
             console.log("Pure backtracking result: ", backtrack_(dataset));
-            console.log("Backtracking with daytime conflict: ", backtrack(dataset));
+            console.log("Backtracking with daytime conflict + seats availability: ", backtrack(dataset));
 
             // Clear chrome storage
             chrome.storage.local.clear();
@@ -180,7 +180,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             return final;
         }
 
-        // Backtracking with daytime conflict contraint 
+        // Backtracking with daytime conflict, seats availability contraints 
         function backtrack(data, courses = Object.keys(data), current = [], final = []) {
             // Exit factor
             if (current.length === courses.length) {

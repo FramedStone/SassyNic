@@ -19,6 +19,25 @@ export function isDayTimeConflict(eDay, nDay, eTime, nTime) {
     return false;
 }
 
+/**
+ * Function that will check for seats availability
+ * @param {String} seats 
+ * @returns 
+ */
+export function isSeatsAvailable(seats) {
+    const [aSeat, tSeat] = seats.split(' ').map(Number);
+    if(aSeat == 0) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
+ * 
+ * @param {Object} schedule 
+ * @returns 
+ */
 export function hasScheduleConflict(schedule) {
     for (let i = 0; i < schedule.length; i++) {
         for (let j = i + 1; j < schedule.length; j++) {
@@ -26,10 +45,15 @@ export function hasScheduleConflict(schedule) {
             const nextOption = schedule[j];
 
             for (let cClass of currentOption.option.classes) {
+                // Check seats availability
+                if(!isSeatsAvailable(cClass.seats)) {
+                    return true;
+                }
                 for (let cMisc of cClass.misc) {
                     for (let nClass of nextOption.option.classes) {
                         for (let nMisc of nClass.misc) {
                             if (
+                                // Check daytime conflict
                                 isDayTimeConflict(
                                     cMisc.day,
                                     nMisc.day,
