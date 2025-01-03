@@ -149,9 +149,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         chrome.storage.local.get(null, function(items) {
             let dataset = items;
+            let pureComb = backtrack_(dataset);
+            let prunedComb = backtrack(dataset);
             console.log("Dataset: ", dataset);
-            console.log("Pure backtracking result: ", backtrack_(dataset));
-            console.log("Backtracking with daytime conflict + seats availability: ", backtrack(dataset));
+            console.log("Pure backtracking result: ", pureComb);
+            console.log("Backtracking with daytime conflict + seats availability: ", prunedComb);
+
+            // Passing pruned combination to 'result.html'
+            chrome.tabs.create({ url: chrome.runtime.getURL("./timetable/timetable.html") }, () => {
+                chrome.runtime.sendMessage({ action: "passDataset", dataset: pureComb }, () => {
+                    console.log("Pruned dataset sent to result.html");
+                });
+            });
 
             // Clear chrome storage
             chrome.storage.local.clear();

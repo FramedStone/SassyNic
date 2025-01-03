@@ -22,5 +22,11 @@
       ],
       "run_at": "document_idle"
     }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": ["./timetable/timetable.html", "./timetable/timetable.js"],
+      "matches": ["<all_urls>"]
+    }
   ]
 }
