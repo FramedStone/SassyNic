@@ -157,7 +157,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             // Passing pruned combination to 'result.html'
             chrome.tabs.create({ url: chrome.runtime.getURL("./timetable/timetable.html") }, () => {
-                chrome.runtime.sendMessage({ action: "passDataset", dataset: pureComb }, () => {
+                chrome.runtime.sendMessage({ action: "passDataset", dataset: prunedComb }, () => {
                     console.log("Pruned dataset sent to result.html");
                 });
             });
