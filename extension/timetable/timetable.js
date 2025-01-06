@@ -1,3 +1,6 @@
+console.log("timetable.js loaded");
+chrome.runtime.sendMessage({ action: "timetablejsInjected" });
+
 // Listen message from background.js
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "passDataset") {
@@ -7,4 +10,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             sendResponse({ status: "Pruned dataset received successfully from background.js and saved into local chrome storage" });
         });
     }
+    return true; // keep message port open for receiving message
 });
