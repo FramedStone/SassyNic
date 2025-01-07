@@ -104,33 +104,35 @@ function extractClassDetails() {
         const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit');
 
         // class
-        const classes = Array.from(classElements).map((el, index) => {
-            const classText = el.textContent.trim();
-            const seats = (seatsElements[index].innerText.trim()).split(' ').filter(char => !isNaN(parseInt(char))).join(' ');
-            const misc = [];
+        if(status === "Open" && !row.classList.contains('psc_disabled')) {
+            const classes = Array.from(classElements).map((el, index) => {
+                const classText = el.textContent.trim();
+                const seats = (seatsElements[index].innerText.trim()).split(' ').filter(char => !isNaN(parseInt(char))).join(' ');
+                const misc = [];
 
-            // Bundle misc details (day, time, instructor, room)
-            if (dayTimeElements[index]) {
-                const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
-                const roomSpans = roomElements[index].querySelectorAll('span');
-                const instructorSpans = instructorElements[index].querySelectorAll('span');
+                // Bundle misc details (day, time, instructor, room)
+                if (dayTimeElements[index]) {
+                    const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
+                    const roomSpans = roomElements[index].querySelectorAll('span');
+                    const instructorSpans = instructorElements[index].querySelectorAll('span');
 
-                daytimeSpans.forEach((span, index_) => {
-                    const [day, time] = parseDayAndTime(span.innerHTML.trim());
-                    const room = roomSpans[index_].innerText.trim();
-                    const instructor = instructorSpans[index_].innerText.trim();
-                    misc.push({ day, time, room, instructor });
-                });
-            }
+                    daytimeSpans.forEach((span, index_) => {
+                        const [day, time] = parseDayAndTime(span.innerHTML.trim());
+                        const room = roomSpans[index_].innerText.trim();
+                        const instructor = instructorSpans[index_].innerText.trim();
+                        misc.push({ day, time, room, instructor });
+                    });
+                }
 
-            return { classText, seats, misc };
-        });
+                return { classText, seats, misc };
+            });
 
-        class_.option = option;
-        class_.status = status;
-        class_.classes = classes;
-        
-        dataset.class.push(class_);
+            class_.option = option;
+            class_.status = status;
+            class_.classes = classes;
+            
+            dataset.class.push(class_);
+        }
     });
 
     return dataset;
