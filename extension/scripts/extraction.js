@@ -104,7 +104,7 @@ function extractClassDetails() {
         const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit');
 
         // class
-        if(status === "Open" && !row.classList.contains('psc_disabled')) {
+        if(status === "Open" && !row.classList.contains('psc_disabled')) { // pre extraction filters
             const classes = Array.from(classElements).map((el, index) => {
                 const classText = el.textContent.trim();
                 const seats = (seatsElements[index].innerText.trim()).split(' ').filter(char => !isNaN(parseInt(char))).join(' ');
