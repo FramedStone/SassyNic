@@ -5,7 +5,19 @@
     <title>Timetable Viewer</title>
 </head>
 <body>
+    <label for="class_closeness">Class Closeness:</label>
+    <input type="range" min="0" max="120" step="30" value="0" id="class_closeness" oninput="update_class_closeness_value(this.value)">
+    <span id="class_closeness_value">50</span>
 
     <script type="module" src="timetable.js" defer></script>
+    <script>
+    function update_class_closeness_value(value) {
+        document.getElementById("class_closeness_value").textContent = value;
+    }
+
+    // Set initial value when the page loads
+    document.getElementById("class_closeness_value").textContent = 
+        document.getElementById("class_closeness").value;
+    </script>
 </body>
 </html>
