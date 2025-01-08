@@ -1,8 +1,7 @@
 (async() => {
     // Import helper functions dynamically
     const src = chrome.runtime.getURL('../scripts/helpers/fitness.js');
-    const fitness = await import(src);
-    fitness.test();
+    const fitness = await import(src); // fitness.js object
 
     console.log("timetable.js loaded");
     chrome.runtime.sendMessage({ action: "timetablejsInjected" });
