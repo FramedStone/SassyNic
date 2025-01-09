@@ -3,21 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Timetable Viewer</title>
+    <link rel="stylesheet" href="timetable.css">
 </head>
 <body>
+    <!-- Sliders -->
     <label for="class_closeness">Class Closeness:</label>
-    <input type="range" min="0" max="120" step="30" value="0" id="class_closeness" oninput="update_class_closeness_value(this.value)">
+    <input type="range" min="0" max="120" step="30" value="0" id="class_closeness">
     <span id="class_closeness_value">50</span>
 
-    <script type="module" src="timetable.js" defer></script>
-    <script>
-    function update_class_closeness_value(value) {
-        document.getElementById("class_closeness_value").textContent = value;
-    }
+    <!-- Timtable table -->
+    <table id="timetable">
+        <!-- Days of week -->
+        <thead>
+            <th>Monday</th>
+            <th>Tuesday</th>
+            <th>Wednesday</th>
+            <th>Thursday</th>
+            <th>Friday</th>
+            <th>Saturday</th>
+            <th>Sunday</th>
+        </thead>
+        <!-- Dynamically updated in 'timetable.js' -->
+        <tbody>
+            <td>Test</td>
+        </tbody>
+    </table>
 
-    // Set initial value when the page loads
-    document.getElementById("class_closeness_value").textContent = 
-        document.getElementById("class_closeness").value;
-    </script>
+    <script type="module" src="timetable.js" defer></script>
+
 </body>
 </html>
