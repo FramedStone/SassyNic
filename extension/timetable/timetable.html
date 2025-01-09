@@ -12,22 +12,15 @@
     <span id="class_closeness_value">50</span>
 
     <!-- Timtable table -->
-    <table id="timetable">
-        <!-- Days of week -->
-        <thead>
-            <th>Monday</th>
-            <th>Tuesday</th>
-            <th>Wednesday</th>
-            <th>Thursday</th>
-            <th>Friday</th>
-            <th>Saturday</th>
-            <th>Sunday</th>
-        </thead>
-        <!-- Dynamically updated in 'timetable.js' -->
-        <tbody>
-            <td>Test</td>
-        </tbody>
-    </table>
+    <div class="frame-container" id="frameContainer">
+        <!-- Timetable data will be dynamically generated here as table format -->
+    </div>
+
+    <!-- Timetable navigation buttons -->
+    <div class="nav-buttons">
+        <button id="btnPrev" disabled>Previous</button>
+        <button id="btnNext">Next</button>
+    </div>
 
     <script type="module" src="timetable.js" defer></script>
 
