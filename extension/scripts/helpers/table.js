@@ -1,7 +1,27 @@
-export function getTable(timetableCombinations) {
+export function getTable(dataset) {
     let currentCombinationIndex = 0;
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
-    const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8 AM to 9 PM
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    function getTimeRange(timetableData) {
+        let earliestStart = 24 * 60; // Start with the latest possible time
+        let latestEnd = 0; // Start with the earliest possible time
+
+        timetableData.forEach(course => {
+            course.option.classes.forEach(classInfo => {
+                classInfo.misc.forEach(misc => {
+                    const [start, end] = misc.time.split(' ').map(Number);
+                    earliestStart = Math.min(earliestStart, start);
+                    latestEnd = Math.max(latestEnd, end);
+                });
+            });
+        });
+
+        // Round down to the nearest hour for start, and up for end
+        const startHour = Math.floor(earliestStart / 60);
+        const endHour = Math.ceil(latestEnd / 60);
+
+        return { startHour, endHour };
+    }
 
     function formatTime(time) {
         return `${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, '0')}`;
@@ -28,6 +48,24 @@ export function getTable(timetableCombinations) {
 
     function createTimetable() {
         const timetableDiv = document.getElementById('frameContainer_timetable');
+        // Clear existing content
+        timetableDiv.innerHTML = '';
+
+        const { startHour, endHour } = getTimeRange(dataset[currentCombinationIndex]);
+        const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => i + startHour);
+
+        // Add course options at the top
+        const optionsDiv = document.createElement('div');
+        const optionsList = document.createElement('ul');
+        dataset[currentCombinationIndex].forEach(course => {
+            const listItem = document.createElement('li');
+            listItem.textContent = `${course.title} - option ${course.option.option}`;
+            optionsList.appendChild(listItem);
+        });
+        optionsDiv.appendChild(optionsList);
+        timetableDiv.appendChild(optionsDiv);
+
+        // Create table
         const table = document.createElement('table');
         const thead = document.createElement('thead');
         const tbody = document.createElement('tbody');
@@ -43,19 +81,27 @@ export function getTable(timetableCombinations) {
             row.innerHTML = `<td>${formatTime(hour * 60)}</td>`;
 
             for (const day of days) {
-                const dayClasses = getClassesForDay(day, timetableCombinations[currentCombinationIndex]);
+                const dayClasses = getClassesForDay(day, dataset[currentCombinationIndex]);
                 const classForThisHour = dayClasses.find(c => c.startHour === hour);
 
                 if (classForThisHour) {
                     const cell = document.createElement('td');
                     cell.className = 'class-cell';
                     cell.setAttribute('rowspan', classForThisHour.duration);
+                    
+                    const classTextMatch = classForThisHour.classInfo.classText.match(/(LEC|LAB|TUT).*Class Sect\s+(\w+)/);
+                    const classType = classTextMatch ? classTextMatch[1] : '';
+                    const classSection = classTextMatch ? classTextMatch[2] : '';
+                    
                     cell.innerHTML = `
-                        <div>${classForThisHour.course.title}</div>
-                        <div>${classForThisHour.classInfo.classText}</div>
+                        <strong>${classForThisHour.course.title}</strong><br>
+                        <strong>${classForThisHour.course.code}</strong><br>
+                        ${classType} ${classSection}<br>
+                        ${classForThisHour.misc.room}<br>
+                        ${formatTime(classForThisHour.misc.time.split(' ')[0])} - ${formatTime(classForThisHour.misc.time.split(' ')[1])}<br>
+                        ${classForThisHour.misc.instructor}<br>
+                        Seats: ${classForThisHour.classInfo.seats.split(' ')[0]} of ${classForThisHour.classInfo.seats.split(' ')[1]}
                     `;
-                    // cell.addEventListener('mouseover', (e) => showTooltip(e, classForThisHour));
-                    // cell.addEventListener('mouseout', hideTooltip);
                     row.appendChild(cell);
                 } else {
                     const isPartOfPreviousClass = dayClasses.some(
@@ -72,45 +118,30 @@ export function getTable(timetableCombinations) {
 
         table.appendChild(thead);
         table.appendChild(tbody);
-        timetableDiv.innerHTML = '';
         timetableDiv.appendChild(table);
+
+        // Add timetable combination index
+        const indexDiv = document.createElement('div');
+        indexDiv.textContent = `${currentCombinationIndex + 1}/${dataset.length}`;
+        timetableDiv.appendChild(indexDiv);
     }
-
-    // function showTooltip(event, classData) {
-    //     const tooltip = document.getElementById('tooltip');
-    //     tooltip.innerHTML = `
-    //         <p><strong>Course:</strong> ${classData.course.title}</p>
-    //         <p><strong>Code:</strong> ${classData.course.code}</p>
-    //         <p><strong>Instructor:</strong> ${classData.misc.instructor}</p>
-    //         <p><strong>Room:</strong> ${classData.misc.room}</p>
-    //         <p><strong>Time:</strong> ${formatTime(classData.startHour * 60)} - ${formatTime((classData.startHour + classData.duration) * 60)}</p>
-    //     `;
-    //     tooltip.style.display = 'block';
-    //     tooltip.style.left = `${event.pageX + 10}px`;
-    //     tooltip.style.top = `${event.pageY + 10}px`;
-    // }
-
-    // function hideTooltip() {
-    //     const tooltip = document.getElementById('tooltip');
-    //     tooltip.style.display = 'none';
-    // }
 
     function navigate(direction) {
         currentCombinationIndex += direction;
         if (currentCombinationIndex < 0) {
             currentCombinationIndex = 0;
-        } else if (currentCombinationIndex >= timetableCombinations.length) {
-            currentCombinationIndex = timetableCombinations.length - 1;
+        } else if (currentCombinationIndex >= dataset.length) {
+            currentCombinationIndex = dataset.length - 1;
         }
         updateButtonStates();
         createTimetable();
     }
 
     function updateButtonStates() {
-        const prevBtn = document.getElementById('btnPrev');
-        const nextBtn = document.getElementById('btnNext');
-        prevBtn.disabled = currentCombinationIndex === 0;
-        nextBtn.disabled = currentCombinationIndex === timetableCombinations.length - 1;
+        const btnPrev = document.getElementById('btnPrev');
+        const btnNext = document.getElementById('btnNext');
+        btnPrev.disabled = currentCombinationIndex === 0;
+        btnNext.disabled = currentCombinationIndex === dataset.length - 1;
     }
 
     // Initialize the timetable

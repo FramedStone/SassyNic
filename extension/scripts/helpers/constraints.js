@@ -8,7 +8,7 @@
  */
 export function isDayTimeConflict(eDay, nDay, eTime, nTime) {
     if(eDay === nDay) {
-        if(eTime || nTime === "to be announced") return true;
+        if(eTime === "to be announced" || nTime === "to be announced") return true;
 
         // Parse time into 'start, end'
         const [eStart, eEnd] = eTime.split(' ').map(Number);

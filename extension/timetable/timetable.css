@@ -19,6 +19,7 @@ td {
     padding: 8px;
     height: 10px;
     word-wrap: break-word;
+    font-size: 12px;
 }
 
 .frame-container {
@@ -51,6 +52,7 @@ button:disabled {
 .frame {
     display: none;
 }
+
 .frame.active {
     display: block;
 }

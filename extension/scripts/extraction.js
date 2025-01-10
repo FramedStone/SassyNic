@@ -152,14 +152,15 @@ function parseDayAndTime(daytime) {
     const timeToMinutes = (timeStr) => {
         if(!timeStr) return "to be announced"; // checker for 'to be announced' timeslots
 
-        const isPM = timeStr.toUpperCase().includes('PM');
-        timeStr = timeStr.replace(/[AP]M/i, '').trim();
         
         // Split start and end times
         const [startTime, endTime] = timeStr.split(/\s*to\s*/i);
         
         // Convert individual times to minutes
         const convertSingleTime = (time) => {
+            const isPM = time.toUpperCase().includes('PM');
+            time = time.replace(/[AP]M/i, '').trim();
+
             let [hours, minutes] = time.split(':').map(Number);
             
             // Handle 12-hour PM conversion
