@@ -43,20 +43,11 @@ export function getTimeSliders() {
     timeStart.parentNode.insertBefore(startSlider, timeStart.nextSibling);
     timeEnd.parentNode.insertBefore(endSlider, timeEnd.nextSibling);
     
-    // Add display spans for slider values
-    const startDisplay = document.createElement('span');
-    const endDisplay = document.createElement('span');
-    startDisplay.id = 'time-start-display';
-    endDisplay.id = 'time-end-display';
-    startSlider.parentNode.insertBefore(startDisplay, startSlider.nextSibling);
-    endSlider.parentNode.insertBefore(endDisplay, endSlider.nextSibling);
-    
     // Set default values
     timeStart.value = '08:00';
     timeEnd.value = '18:00';
     startSlider.value = timeToMinutes(timeStart.value);
     endSlider.value = timeToMinutes(timeEnd.value);
-    updateDisplays();
     
     // Event listeners for time input changes
     timeStart.addEventListener('change', () => {
@@ -74,7 +65,6 @@ export function getTimeSliders() {
         // Update both time input and slider
         timeStart.value = minutesToTime(minutes);
         startSlider.value = minutes;
-        updateDisplays();
     });
     
     timeEnd.addEventListener('change', () => {
@@ -92,7 +82,6 @@ export function getTimeSliders() {
         // Update both time input and slider
         timeEnd.value = minutesToTime(minutes);
         endSlider.value = minutes;
-        updateDisplays();
     });
     
     // Event listeners for slider changes
@@ -106,7 +95,6 @@ export function getTimeSliders() {
         }
         
         timeStart.value = minutesToTime(startSlider.value);
-        updateDisplays();
     });
     
     endSlider.addEventListener('input', () => {
@@ -119,7 +107,6 @@ export function getTimeSliders() {
         }
         
         timeEnd.value = minutesToTime(endSlider.value);
-        updateDisplays();
     });
 
     // Add input event listeners to enforce min/max on direct input
@@ -142,9 +129,4 @@ export function getTimeSliders() {
             }
         }
     });
-    
-    function updateDisplays() {
-        startDisplay.textContent = timeStart.value;
-        endDisplay.textContent = timeEnd.value;
-    }
 }
