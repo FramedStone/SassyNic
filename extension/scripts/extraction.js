@@ -150,6 +150,8 @@ function parseDayAndTime(daytime) {
 
     // Convert time to "start end" format in minutes
     const timeToMinutes = (timeStr) => {
+        if(!timeStr) return "to be announced"; // checker for 'to be announced' timeslots
+
         const isPM = timeStr.toUpperCase().includes('PM');
         timeStr = timeStr.replace(/[AP]M/i, '').trim();
         
