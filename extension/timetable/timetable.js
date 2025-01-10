@@ -8,7 +8,6 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         // ---------------------- MESSAGE PASSING --------------------------------//
         // Listen message from background.js
         const getDataset = new Promise((resolve) => {
-
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if(message.action === "passDataset") {
                     dataset = message.dataset;
@@ -19,6 +18,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 return true; // keep message port open for receiving message
             });
         });
+        dataset = await getDataset; // load dataset
 
         // ---------------------- HTML DOM ELEMENTS ------------------------------//
         // ---------------------- DAYS OF WEEK------------------------------------//
@@ -32,7 +32,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const saturday = document.getElementById("saturday");
         const sunday = document.getElementById("sunday");
 
-        const weekdays = [monday, tuesday, wednesday, thursday, friday, saturday, sunday]; 
+        const weekdays = [monday, tuesday, wednesday, thursday, friday, saturday, sunday]; // group for concise
 
         // When "All Day" is clicked
         allday.addEventListener("click", () => {
@@ -75,6 +75,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         // Time
         filters.getTimeSliders();
+        filters.getInstructors(dataset);
 
         // Class closeness slider
         const slider = document.getElementById("class_closeness");
@@ -99,7 +100,6 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const src_table = chrome.runtime.getURL('../scripts/helpers/table.js');
         const table = await import(src_table);
 
-        dataset = await getDataset;
         table.getTable(dataset);
 
         // ------------------------- FITNESS FUNCTIONS ---------------------------//

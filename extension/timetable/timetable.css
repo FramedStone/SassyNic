@@ -131,6 +131,7 @@ button:disabled {
     border-radius: 5px;
     cursor: grab;
 }
+
 .dragging {
     opacity: 0.5;
     border: 2px solid #007bff;
