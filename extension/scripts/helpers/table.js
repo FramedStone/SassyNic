@@ -54,29 +54,6 @@ export function getTable(dataset) {
         const { startHour, endHour } = getTimeRange(dataset[currentCombinationIndex]);
         const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => i + startHour);
 
-        // // Add course options at the top with seats information
-        // const optionsDiv = document.createElement('div');
-        // const optionsList = document.createElement('ul');
-        // dataset[currentCombinationIndex].forEach(course => {
-        //     const listItem = document.createElement('li');
-        //     listItem.innerHTML = `<strong>${course.title} - option ${course.option.option}</strong>`;
-            
-        //     const classesList = document.createElement('ul');
-        //     course.option.classes.forEach(classInfo => {
-        //         const classTextMatch = classInfo.classText.match(/(LEC|LAB|TUT).*Class Sect\s+(\w+)/);
-        //         const classType = classTextMatch ? classTextMatch[1] : '';
-        //         const classSection = classTextMatch ? classTextMatch[2] : '';
-        //         const classItem = document.createElement('li');
-        //         classItem.textContent = `${classType} ${classSection} - Seats: ${classInfo.seats.split(' ')[0]} of ${classInfo.seats.split(' ')[1]}`;
-        //         classesList.appendChild(classItem);
-        //     });
-            
-        //     listItem.appendChild(classesList);
-        //     optionsList.appendChild(listItem);
-        // });
-        // optionsDiv.appendChild(optionsList);
-        // timetableDiv.appendChild(optionsDiv);
-
         // Create table
         const table = document.createElement('table');
         const thead = document.createElement('thead');
@@ -179,8 +156,8 @@ export function getTable(dataset) {
                         ${optionsHTML}
                     </div>
                     <div class="modal-footer">
-                        <button id="btnManualEnroll">Manual Enroll</button>
-                        <button id="btnAutoEnroll">Auto Enroll</button>
+                        <button id="btnManualEnroll">Manual Enroll (m)</button>
+                        <button id="btnAutoEnroll">Auto Enroll (a)</button>
                     </div>
                 </div>
             </div>`;
@@ -197,13 +174,29 @@ export function getTable(dataset) {
             modal.style.display = 'none';
         });
 
-        // Add event listeners for buttons
-        document.getElementById('btnManualEnroll').addEventListener('click', () => {
+        // buttons
+        const btnManualEnroll = document.getElementById('btnManualEnroll');
+        const btnAutoEnroll = document.getElementById('btnAutoEnroll');
+
+        // Manual Enroll
+        btnManualEnroll.addEventListener('click', () => {
             // Logic for manual enrollment 
         });
 
-        document.getElementById('btnAutoEnroll').addEventListener('click', () => {
+        // Auto Enroll
+        btnAutoEnroll.addEventListener('click', () => {
             // Logic for auto enrollment 
+        });
+
+        // Keyboard event listeners 
+        document.addEventListener('keydown', (event) => {
+            if(event.key === 'Escape' || event.key === 'Backspace') {
+                modal.style.display = 'none';
+            } else if(event.key === 'm') {
+                btnManualEnroll.click();
+            } else if(event.key === 'a') {
+                btnAutoEnroll.click();
+            }
         });
     }
 
@@ -215,4 +208,15 @@ export function getTable(dataset) {
     document.getElementById('btnPrev').addEventListener('click', () => navigate(-1));
     document.getElementById('btnNext').addEventListener('click', () => navigate(1));
     document.getElementById('btnEnroll').addEventListener('click', showEnrollmentOptions);
+
+    // Keyboard event listeners 
+    document.addEventListener('keydown', (event) => {
+        if(event.key === 'p' || event.key === 'ArrowLeft') {
+            navigate(-1);
+        } else if(event.key === 'n' || event.key === 'ArrowRight') {
+            navigate(1);
+        } else if(event.key === 'e' || event.key == 'Enter') {
+            showEnrollmentOptions();
+        }
+    });
 }
