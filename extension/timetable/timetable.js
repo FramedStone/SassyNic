@@ -69,6 +69,13 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         });
 
         // ---------------------- SLIDERS ------------------------------------//
+        // Filters 
+        const src_filters = chrome.runtime.getURL('../scripts/helpers/filters.js');
+        const filters = await import(src_filters);
+
+        // Time
+        filters.getTimeSliders();
+
         // Class closeness slider
         const slider = document.getElementById("class_closeness");
         const output = document.getElementById("class_closeness_value");
@@ -100,5 +107,4 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const fitness = await import(src_fitness); 
 
     });
-
 })();

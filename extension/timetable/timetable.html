@@ -11,6 +11,7 @@
         <!-- Days Of Week -->
         <div class="draggable-item daysofweek" draggable="true" id="daysofweek" rank="1">
             <span class="rank-display">1. </span>
+            <br>
             <label for="allday">All Day</label>
             <input type="checkbox" id="allday" checked/>
             <br>
@@ -32,9 +33,19 @@
             <input type="checkbox" id="sunday" disabled/>
             <br>
         </div>
+        <!-- Time -->
+        <div class="draggable-item time" draggable="true" id="time" rank="2">
+            <span class="rank-display">2.</span>
+            <br>
+            <label for="time-start">Start</label>
+            <input type="time" id="time-start"/>
+            <label for="time-end">End</label>
+            <input type="time" id="time-end"/>
+        </div>
         <!-- Sliders -->
-        <div class="draggable-item sliders" draggable="true" id="sliders" rank="2">
-            <span class="rank-display">2. </span>
+        <div class="draggable-item sliders" draggable="true" id="sliders" rank="3">
+            <span class="rank-display">3. </span>
+            <br>
             <label for="class_closeness">Class Closeness:</label>
             <br>
             <input type="range" min="0" max="120" step="30" value="0" id="class_closeness">
