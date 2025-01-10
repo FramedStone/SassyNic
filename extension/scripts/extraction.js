@@ -130,6 +130,7 @@ function extractClassDetails() {
             class_.option = option;
             class_.status = status;
             class_.classes = classes;
+            class_.fitness_score = 100; // fitness score 
             
             dataset.class.push(class_);
         // }
@@ -158,11 +159,7 @@ function parseDayAndTime(daytime) {
         
         // Convert individual times to minutes
         const convertSingleTime = (time) => {
-            let isAM = false, isPM = false;
-            if(time.toUpperCase().includes('PM')) isPM = true;
-            if(time.toUpperCase().includes('AM')) isAM = true;
-            
-            // Remove AM/PM from the string
+            const isPM = time.toUpperCase().includes('PM');
             time = time.replace(/[AP]M/i, '').trim();
 
             let [hours, minutes] = time.split(':').map(Number);
@@ -172,7 +169,7 @@ function parseDayAndTime(daytime) {
                 hours += 12;
             }
             // Handle midnight (12 AM)
-            if (isAM && hours === 12) {
+            if (!isPM && hours === 12) {
                 hours = 0;
             }
             
