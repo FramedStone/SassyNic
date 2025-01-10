@@ -158,7 +158,11 @@ function parseDayAndTime(daytime) {
         
         // Convert individual times to minutes
         const convertSingleTime = (time) => {
-            const isPM = time.toUpperCase().includes('PM');
+            let isAM = false, isPM = false;
+            if(time.toUpperCase().includes('PM')) isPM = true;
+            if(time.toUpperCase().includes('AM')) isAM = true;
+            
+            // Remove AM/PM from the string
             time = time.replace(/[AP]M/i, '').trim();
 
             let [hours, minutes] = time.split(':').map(Number);
@@ -168,7 +172,7 @@ function parseDayAndTime(daytime) {
                 hours += 12;
             }
             // Handle midnight (12 AM)
-            if (!isPM && hours === 12) {
+            if (isAM && hours === 12) {
                 hours = 0;
             }
             
