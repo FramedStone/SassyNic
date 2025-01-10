@@ -8,7 +8,27 @@ export function getDragDrop() {
 
     // Add drag event listeners to draggable items
     draggables.forEach(draggable => {
+        // Handle mousedown to determine if drag should start
+        draggable.addEventListener('mousedown', (e) => {
+            // Check if the click target is the slider or its value display
+            if (e.target.type === 'range' || e.target.id.includes('_value')) {
+                draggable.setAttribute('draggable', 'false');
+            } else {
+                draggable.setAttribute('draggable', 'true');
+            }
+        });
+
+        // Reset draggable attribute on mouseup
+        draggable.addEventListener('mouseup', () => {
+            draggable.setAttribute('draggable', 'true');
+        });
+
         draggable.addEventListener('dragstart', (e) => {
+            // Additional check to prevent drag if target is slider
+            if (e.target.type === 'range' || e.target.id.includes('_value')) {
+                e.preventDefault();
+                return;
+            }
             draggedItem = draggable;
             draggable.classList.add('dragging');
             e.dataTransfer.effectAllowed = "move";
