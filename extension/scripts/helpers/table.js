@@ -54,16 +54,28 @@ export function getTable(dataset) {
         const { startHour, endHour } = getTimeRange(dataset[currentCombinationIndex]);
         const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => i + startHour);
 
-        // Add course options at the top
-        const optionsDiv = document.createElement('div');
-        const optionsList = document.createElement('ul');
-        dataset[currentCombinationIndex].forEach(course => {
-            const listItem = document.createElement('li');
-            listItem.textContent = `${course.title} - option ${course.option.option}`;
-            optionsList.appendChild(listItem);
-        });
-        optionsDiv.appendChild(optionsList);
-        timetableDiv.appendChild(optionsDiv);
+        // // Add course options at the top with seats information
+        // const optionsDiv = document.createElement('div');
+        // const optionsList = document.createElement('ul');
+        // dataset[currentCombinationIndex].forEach(course => {
+        //     const listItem = document.createElement('li');
+        //     listItem.innerHTML = `<strong>${course.title} - option ${course.option.option}</strong>`;
+            
+        //     const classesList = document.createElement('ul');
+        //     course.option.classes.forEach(classInfo => {
+        //         const classTextMatch = classInfo.classText.match(/(LEC|LAB|TUT).*Class Sect\s+(\w+)/);
+        //         const classType = classTextMatch ? classTextMatch[1] : '';
+        //         const classSection = classTextMatch ? classTextMatch[2] : '';
+        //         const classItem = document.createElement('li');
+        //         classItem.textContent = `${classType} ${classSection} - Seats: ${classInfo.seats.split(' ')[0]} of ${classInfo.seats.split(' ')[1]}`;
+        //         classesList.appendChild(classItem);
+        //     });
+            
+        //     listItem.appendChild(classesList);
+        //     optionsList.appendChild(listItem);
+        // });
+        // optionsDiv.appendChild(optionsList);
+        // timetableDiv.appendChild(optionsDiv);
 
         // Create table
         const table = document.createElement('table');
@@ -99,8 +111,7 @@ export function getTable(dataset) {
                         ${classType} ${classSection}<br>
                         ${classForThisHour.misc.room}<br>
                         ${formatTime(classForThisHour.misc.time.split(' ')[0])} - ${formatTime(classForThisHour.misc.time.split(' ')[1])}<br>
-                        ${classForThisHour.misc.instructor}<br>
-                        Seats: ${classForThisHour.classInfo.seats.split(' ')[0]} of ${classForThisHour.classInfo.seats.split(' ')[1]}
+                        ${classForThisHour.misc.instructor}
                     `;
                     row.appendChild(cell);
                 } else {
@@ -144,6 +155,58 @@ export function getTable(dataset) {
         btnNext.disabled = currentCombinationIndex === dataset.length - 1;
     }
 
+    function showEnrollmentOptions() {
+        let optionsHTML = '';
+        dataset[currentCombinationIndex].forEach(course => {
+            optionsHTML += `<strong>${course.title} - option ${course.option.option}</strong><br>`;
+            course.option.classes.forEach(classInfo => {
+                const classTextMatch = classInfo.classText.match(/(LEC|LAB|TUT).*Class Sect\s+(\w+)/);
+                const classType = classTextMatch ? classTextMatch[1] : '';
+                const classSection = classTextMatch ? classTextMatch[2] : '';
+                optionsHTML += `<div style="padding-left: 20px;">${classType} ${classSection} - Seats: ${classInfo.seats.split(' ')[0]} of ${classInfo.seats.split(' ')[1]}</div>`;
+            });
+        });
+
+        // Create modal container
+        const modalHTML = `
+            <div id="customModal" class="modal">
+                <div class="modal-content">
+                    <span class="close">&times;</span>
+                    <div class="modal-header">
+                        <h2>Course Options</h2>
+                    </div>
+                    <div class="modal-body">
+                        ${optionsHTML}
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btnManualEnroll">Manual Enroll</button>
+                        <button id="btnAutoEnroll">Auto Enroll</button>
+                    </div>
+                </div>
+            </div>`;
+
+        // Append modal to body
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // Show modal
+        const modal = document.getElementById('customModal');
+        modal.style.display = 'block';
+
+        // Close modal
+        document.querySelector('.close').addEventListener('click', () => {
+            modal.style.display = 'none';
+        });
+
+        // Add event listeners for buttons
+        document.getElementById('btnManualEnroll').addEventListener('click', () => {
+            // Logic for manual enrollment 
+        });
+
+        document.getElementById('btnAutoEnroll').addEventListener('click', () => {
+            // Logic for auto enrollment 
+        });
+    }
+
     // Initialize the timetable
     createTimetable();
     updateButtonStates();
@@ -151,4 +214,5 @@ export function getTable(dataset) {
     // Add event listeners for navigation buttons
     document.getElementById('btnPrev').addEventListener('click', () => navigate(-1));
     document.getElementById('btnNext').addEventListener('click', () => navigate(1));
+    document.getElementById('btnEnroll').addEventListener('click', showEnrollmentOptions);
 }
