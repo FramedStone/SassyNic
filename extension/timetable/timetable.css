@@ -1,3 +1,4 @@
+/* Timetable table */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -111,4 +112,26 @@ button:disabled {
     color: grey;
     text-decoration: none;
     cursor: pointer;
+}
+
+/* Filters */
+.filters {
+    display: flex; /* Set display to flex */
+    align-items: flex-start; /* Align items at the top */
+    gap: 20px; /* Add space between daysofweek and sliders */
+}
+
+.daysofweek {
+    width: 200px; /* Set a fixed width for the daysofweek section */
+}
+
+.draggable-item {
+    padding: 10px;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
+    cursor: grab;
+}
+.dragging {
+    opacity: 0.5;
+    border: 2px solid #007bff;
 }

@@ -6,10 +6,41 @@
     <link rel="stylesheet" href="timetable.css">
 </head>
 <body>
-    <!-- Sliders -->
-    <label for="class_closeness">Class Closeness:</label>
-    <input type="range" min="0" max="120" step="30" value="0" id="class_closeness">
-    <span id="class_closeness_value">50</span>
+    <!-- Filters -->
+    <div class="filters" id="filters">
+        <!-- Days Of Week -->
+        <div class="draggable-item daysofweek" draggable="true" id="daysofweek" rank="1">
+            <span class="rank-display">1. </span>
+            <label for="allday">All Day</label>
+            <input type="checkbox" id="allday" checked/>
+            <br>
+            <label for="monday">Monday</label>
+            <input type="checkbox" id="monday" disabled/>
+            <label for="tuesday">Tuesday</label>
+            <input type="checkbox" id="tuesday" disabled/>
+            <br>
+            <label for="wednesday">Wednesday</label>
+            <input type="checkbox" id="wednesday" disabled/>
+            <label for="thursday">Thursday</label>
+            <input type="checkbox" id="thursday" disabled/>
+            <br>
+            <label for="friday">Friday</label>
+            <input type="checkbox" id="friday" disabled/>
+            <label for="saturday">Saturday</label>
+            <input type="checkbox" id="saturday" disabled/>
+            <label for="sunday">Sunday</label>
+            <input type="checkbox" id="sunday" disabled/>
+            <br>
+        </div>
+        <!-- Sliders -->
+        <div class="draggable-item sliders" draggable="true" id="sliders" rank="2">
+            <span class="rank-display">2. </span>
+            <label for="class_closeness">Class Closeness:</label>
+            <br>
+            <input type="range" min="0" max="120" step="30" value="0" id="class_closeness">
+            <span id="class_closeness_value">50</span>
+        </div>
+    </div>
 
     <!-- Timtable table -->
     <div class="frame-container" id="frameContainer_timetable">
