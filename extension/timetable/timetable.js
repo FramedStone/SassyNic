@@ -51,6 +51,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         // Observe filter's ranking changes
         observeRanks("draggable-item");
+        observeRanks("draggable-item-child");
 
         // Observer filter's elements value changes
         observeFiltersValues((result) => {
@@ -107,8 +108,13 @@ function observeRanks(className) {
         // If there are changes, log them grouped with separators
         if (changes.length > 0) {
             // console.log("--------------------------------------------------------------");
+            console.log("\nFILTERS");
             changes.forEach(({ element, newRank }) => {
-                console.log(`${element.className.replace("draggable-item ", "")} new rank: ${newRank}`);
+                console.log(
+                    element.className.replace(/draggable-item[-a-z]*/, "") + 
+                    (element.className.includes('draggable-item-child') ? ` new rank: ${newRank}, ${element.querySelector('input').value}` : ` new rank: ${newRank}`)
+                );
+
             });
             console.log("--------------------------------------------------------------");
 
