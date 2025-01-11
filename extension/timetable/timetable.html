@@ -9,37 +9,46 @@
     <!-- Filters -->
     <div class="filters" id="filters">
         <!-- Days Of Week -->
-        <div class="draggable-item daysofweek" draggable="true" id="daysofweek" rank="1">
-            <span class="rank-display">1. </span>
+        <div class="draggable-item daysofweek" id="daysofweek" data-rank="1">
+            <span class="rank-display">1. Day Filter</span>
             <br>
-            <input type="checkbox" id="allday" checked/>
-            <label for="allday">All Day</label>
-            <br>
-            <input type="checkbox" id="monday" disabled/>
-            <label for="monday">Monday</label>
-            <br>
-            <input type="checkbox" id="tuesday" disabled/>
-            <label for="tuesday">Tuesday</label>
-            <br>
-            <input type="checkbox" id="wednesday" disabled/>
-            <label for="wednesday">Wednesday</label>
-            <br>
-            <input type="checkbox" id="thursday" disabled/>
-            <label for="thursday">Thursday</label>
-            <br>
-            <input type="checkbox" id="friday" disabled/>
-            <label for="friday">Friday</label>
-            <br>
-            <input type="checkbox" id="saturday" disabled/>
-            <label for="saturday">Saturday</label>
-            <br>
-            <input type="checkbox" id="sunday" disabled/>
-            <label for="sunday">Sunday</label>
-            <br>
+            <div class="draggable-item-child" data-rank="1">
+                <input type="checkbox" id="allday" checked/>
+                <label for="allday">All Day</label>
+            </div>
+            <div class="draggable-item-child" data-rank="2">
+                <input type="checkbox" id="monday" disabled/>
+                <label for="monday">Monday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="3">
+                <input type="checkbox" id="tuesday" disabled/>
+                <label for="tuesday">Tuesday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="4">
+                <input type="checkbox" id="wednesday" disabled/>
+                <label for="wednesday">Wednesday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="5">
+                <input type="checkbox" id="thursday" disabled/>
+                <label for="thursday">Thursday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="6">
+                <input type="checkbox" id="friday" disabled/>
+                <label for="friday">Friday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="7">
+                <input type="checkbox" id="saturday" disabled/>
+                <label for="saturday">Saturday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="8">
+                <input type="checkbox" id="sunday" disabled/>
+                <label for="sunday">Sunday</label>
+            </div>
         </div>
+
         <!-- Time -->
-        <div class="draggable-item time" draggable="true" id="time" rank="2">
-            <span class="rank-display">2. </span>
+        <div class="draggable-item time" draggable="true" id="time" data-rank="2">
+            <span class="rank-display">2. Time Filter</span>
             <br>
             <label for="time-start">Start</label>
             <input type="time" id="time-start"/>
@@ -48,8 +57,8 @@
             <input type="time" id="time-end"/>
         </div>
         <!-- Closeness -->
-        <div class="draggable-item closeness" draggable="true" id="closeness" rank="3">
-            <span class="rank-display">3. </span>
+        <div class="draggable-item closeness" draggable="true" id="closeness" data-rank="3">
+            <span class="rank-display">3. Class Closeness Filter</span>
             <br>
             <label for="class_closeness">Class Closeness:</label>
             <br>
@@ -57,8 +66,8 @@
             <span id="class_closeness_value">50</span>
         </div>
         <!-- Instructor -->
-        <div class="draggable-item instructor" draggable="true" id="instructor" rank="4">
-            <span class="rank-display">4. </span>
+        <div class="draggable-item instructor" draggable="true" id="instructor" data-rank="4">
+            <span class="rank-display">4. Instructor Filter</span>
             <!-- Instructor list will be dynamically displayed here -->
         </div>
     </div>

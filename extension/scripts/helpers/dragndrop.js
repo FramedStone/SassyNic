@@ -10,11 +10,11 @@ export function getDragDrop() {
     draggables.forEach(draggable => {
         // Handle mousedown to determine if drag should start
         draggable.addEventListener('mousedown', (e) => {
-            // Check if the click target is the slider or its value display
-            if (e.target.type === 'range' || e.target.id.includes('_value')) {
-                draggable.setAttribute('draggable', 'false');
-            } else {
+            // Enable drag only if the click target is a span
+            if (e.target.tagName === 'SPAN') {
                 draggable.setAttribute('draggable', 'true');
+            } else {
+                draggable.setAttribute('draggable', 'false');
             }
         });
 
@@ -24,11 +24,7 @@ export function getDragDrop() {
         });
 
         draggable.addEventListener('dragstart', (e) => {
-            // Additional check to prevent drag if target is slider
-            if (e.target.type === 'range' || e.target.id.includes('_value')) {
-                e.preventDefault();
-                return;
-            }
+            if (!draggable.getAttribute('draggable')) return; // Prevent drag if draggable is false
             draggedItem = draggable;
             draggable.classList.add('dragging');
             e.dataTransfer.effectAllowed = "move";
@@ -77,8 +73,12 @@ export function getDragDrop() {
         const items = filters.querySelectorAll(".draggable-item");
         items.forEach((item, index) => {
             const rank = index + 1;
-            item.dataset.rank = rank; // Update the rank in the dataset
-            item.querySelector(".rank-display").textContent = `${rank}. `; // Update visible rank
+            // Extract original text inside the span
+            const originalText = item.querySelector('span').textContent.replace(/\d+\./, '').trim();
+            // Update the rank in the dataset
+            item.dataset.rank = rank;
+            // Update visible rank by concatenating rank + original text
+            item.querySelector(".rank-display").textContent = `${rank}. ${originalText}`; 
         });
     }
 }

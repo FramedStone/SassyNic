@@ -197,13 +197,10 @@ export function getClassCloseness() {
 
 // ---------------------- INSTRUCTORS -----------------------------//
 export function getInstructors(dataset) {
-    // Get the instructor container
     const instructorContainer = document.getElementById('instructor');
-    
-    // Create a Set to store unique instructors
     const uniqueInstructors = new Set();
-    
-    // Extract all instructors from the data with correct nesting
+
+    // Get each instructor from dataset
     dataset.forEach(course => {
         course.forEach(course_ => {
             course_.option.classes.forEach(classItem => {
@@ -215,42 +212,34 @@ export function getInstructors(dataset) {
             });
         });
     });
-    
-    // Clear existing content except the rank display
+
     const rankDisplay = instructorContainer.querySelector('.rank-display');
     instructorContainer.innerHTML = '';
     if (rankDisplay) {
         instructorContainer.appendChild(rankDisplay);
     }
-    
-    // Add a line break after rank display
+
     const initialBreak = document.createElement('br');
     instructorContainer.appendChild(initialBreak);
-    
-    // Sort instructors alphabetically
+
     const sortedInstructors = Array.from(uniqueInstructors).sort();
-    
-    // Create HTML elements for each instructor
-    sortedInstructors.forEach(instructor => {
-        // Create container for each instructor
+
+    sortedInstructors.forEach((instructor, index) => {
         const instructorDiv = document.createElement('div');
-        instructorDiv.className = 'instructor-item';
-        
-        // Create checkbox
+        instructorDiv.className = 'draggable-item-child';
+        instructorDiv.setAttribute("data-rank", index + 1); // data-rank
+
         const checkbox = document.createElement('input');
         checkbox.type = 'checkbox';
-        checkbox.id = `instructor_${instructor.replace(/[^a-zA-Z0-9]/g, '_')}`; // id = instructor string append with '_' for each spacing
+        checkbox.id = `instructor_${instructor.replace(/[^a-zA-Z0-9]/g, '_')}`;
         checkbox.value = instructor;
-        
-        // Create label
+
         const label = document.createElement('label');
         label.htmlFor = checkbox.id;
         label.textContent = instructor;
-        
-        // Add line break
+
         const lineBreak = document.createElement('br');
-        
-        // Append elements
+
         instructorDiv.appendChild(checkbox);
         instructorDiv.appendChild(label);
         instructorDiv.appendChild(lineBreak);

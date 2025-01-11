@@ -49,10 +49,12 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const src_fitness = chrome.runtime.getURL('../scripts/helpers/fitness.js');
         const fitness = await import(src_fitness); 
 
+        // Observe filter's ranking changes
         observeRanks("draggable-item", (element, newRank) => {
             console.log(element.className, "new rank: ", newRank); 
         });
-        // TODO: observer all filter's value changes too
+
+        // Observer filter's elements value changes
         observeFiltersValues((result) => {
             const elementId = result.element.id;
             

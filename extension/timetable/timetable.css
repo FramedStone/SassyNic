@@ -129,10 +129,13 @@ button:disabled {
     padding: 10px;
     border: 2px dashed #ccc;
     border-radius: 5px;
-    cursor: grab;
 }
 
 .dragging {
     opacity: 0.5;
     border: 2px solid #007bff;
+}
+
+.rank-display {
+    cursor: grab;
 }
