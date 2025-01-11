@@ -128,17 +128,17 @@ export function getDragDrop() {
     }
 
     // Function to update rankings dynamically for child items
-    function updateChildRanks(parent) {
-        const children = parent.querySelectorAll(".draggable-item-child");
-        children.forEach((child, index) => {
-            const newRank = index + 1;
-            const currentRank = parseInt(child.dataset.rank) || 0;
+function updateChildRanks(parent) {
+    const children = parent.querySelectorAll(".draggable-item-child");
+    children.forEach((child, index) => {
+        const newRank = index + 1;
+        const currentRank = parseInt(child.dataset.rank) || 0;
 
-            // Only update if the rank has changed
-            if (currentRank !== newRank) {
-                child.dataset.rank = newRank;
-            }
-        });
-    }
+        // Only update if the rank has changed
+        if (currentRank !== newRank) {
+            child.dataset.rank = newRank;
+        }
+    });
+}
 
 }
