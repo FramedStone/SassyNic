@@ -54,48 +54,43 @@ export function getDragDrop() {
     });
 
     // ---------------------- CHILD DIV ----------------------------//
-    const childContainers = document.querySelectorAll('.draggable-item');
+    const childContainers = document.querySelectorAll('.draggable-item-child');
 
-    childContainers.forEach(container => {
-        container.addEventListener('dragover', (e) => {
-            e.preventDefault();
-
-            const afterElement = getDragAfterElement(container, e.clientY, '.draggable-item-child');
-            const draggingChild = container.querySelector('.dragging-child');
-
-            if (afterElement == null) {
-                container.appendChild(draggingChild);
+    childContainers.forEach(child => {
+        child.addEventListener('mousedown', (e) => {
+            // Enable drag only if the click target is a label
+            if (e.target.tagName === 'LABEL') {
+                child.setAttribute('draggable', 'true');
             } else {
-                container.insertBefore(draggingChild, afterElement);
+                child.setAttribute('draggable', 'false');
             }
         });
 
-        container.querySelectorAll('.draggable-item-child').forEach(child => {
-            child.addEventListener('mousedown', (e) => {
-                // Enable drag only if the click target is a label
-                if (e.target.tagName === 'LABEL') {
-                    child.setAttribute('draggable', 'true');
+        child.addEventListener('dragstart', (e) => {
+            if (!child.getAttribute('draggable')) return;
+            draggedItem = child;
+            child.classList.add('dragging-child');
+            e.dataTransfer.effectAllowed = "move";
+        });
+
+        child.addEventListener('dragend', () => {
+            draggedItem = null;
+            child.classList.remove('dragging-child');
+            updateChildRanks(child.parentElement); // Update the rank for the parent container
+        });
+
+        child.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const draggingChild = document.querySelector('.dragging-child');
+            
+            if (draggingChild) {
+                const afterElement = getDragAfterElement(child.parentElement, e.clientY, '.draggable-item-child');
+                if (afterElement == null) {
+                    child.parentElement.appendChild(draggingChild);
                 } else {
-                    child.setAttribute('draggable', 'false');
+                    child.parentElement.insertBefore(draggingChild, afterElement);
                 }
-            });
-
-            child.addEventListener('mouseup', () => {
-                child.setAttribute('draggable', 'true');
-            });
-
-            child.addEventListener('dragstart', (e) => {
-                if (!child.getAttribute('draggable')) return;
-                draggedItem = child;
-                child.classList.add('dragging-child');
-                e.dataTransfer.effectAllowed = "move";
-            });
-
-            child.addEventListener('dragend', () => {
-                draggedItem = null;
-                child.classList.remove('dragging-child');
-                updateChildRanks(container);
-            });
+            }
         });
     });
 
