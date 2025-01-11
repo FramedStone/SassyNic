@@ -180,11 +180,11 @@ export function getTimeSliders() {
     });
 }
 
-// ---------------------- CLASS CLOSENESS ----------------------------//
-export function getClassCloseness() {
-    // Class closeness slider
-    const slider = document.getElementById("class_closeness");
-    const output = document.getElementById("class_closeness_value");
+// ---------------------- CLASS GAP ----------------------------//
+export function getClassGap() {
+    // Class gap slider
+    const slider = document.getElementById("class_gap");
+    const output = document.getElementById("class_gap_value");
 
     // Update the span value when the slider changes
     slider.addEventListener("input", (event) => {

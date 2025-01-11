@@ -28,7 +28,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         filters.getDaysOfWeek();                // Days of week 
         filters.getTimeSliders();               // Time
-        filters.getClassCloseness();            // Class Closeness
+        filters.getClassGap();                  // Class Gap
         filters.getInstructors(dataset);        // Instructors
 
 
