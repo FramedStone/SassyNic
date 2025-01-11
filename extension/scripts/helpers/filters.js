@@ -1,7 +1,7 @@
 // ---------------------- DAYS OF WEEK------------------------------//
 export function getDaysOfWeek() {
     // Days of week checkboxes
-    const allday = document.getElementById("allday");
+    const everyday = document.getElementById("everyday");
     const monday = document.getElementById("monday");
     const tuesday = document.getElementById("tuesday");
     const wednesday = document.getElementById("wednesday");
@@ -13,8 +13,8 @@ export function getDaysOfWeek() {
     const weekdays = [monday, tuesday, wednesday, thursday, friday, saturday, sunday]; // group for concise
 
     // When "All Day" is clicked
-    allday.addEventListener("click", () => {
-        if (allday.checked) {
+    everyday.addEventListener("click", () => {
+        if (everyday.checked) {
             weekdays.forEach(checkbox => {
                 checkbox.setAttribute("disabled", "true");
                 checkbox.checked = false;
@@ -34,14 +34,14 @@ export function getDaysOfWeek() {
 
             if (allChecked) {
                 // Enable "All Day" and uncheck all weekdays
-                allday.checked = true;
+                everyday.checked = true;
                 weekdays.forEach(checkbox => {
                     checkbox.setAttribute("disabled", "true");
                     checkbox.checked = false;
                 });
             } else {
                 // Uncheck "All Day" if not all weekdays are checked
-                allday.checked = false;
+                everyday.checked = false;
             }
         });
     });
