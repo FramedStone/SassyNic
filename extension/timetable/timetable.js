@@ -111,10 +111,9 @@ function observeRanks(className) {
             console.log("\nFILTERS");
             changes.forEach(({ element, newRank }) => {
                 console.log(
-                    element.className.replace(/draggable-item[-a-z]*/, "") + 
-                    (element.className.includes('draggable-item-child') ? ` new rank: ${newRank}, ${element.querySelector('input').value}` : ` new rank: ${newRank}`)
+                    element.className.includes('draggable-item-child') ? `new rank: ${newRank}, ${element.querySelector('input').value}` // draggable-item-child
+                    : ` new rank: ${newRank},${element.querySelector('span').textContent.replace(/[0-9]*./, "")}` // dragggable-item
                 );
-
             });
             console.log("--------------------------------------------------------------");
 
