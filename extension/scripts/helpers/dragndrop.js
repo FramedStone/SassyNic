@@ -72,6 +72,7 @@ export function getDragDrop() {
 
         container.querySelectorAll('.draggable-item-child').forEach(child => {
             child.addEventListener('mousedown', (e) => {
+                // Enable drag only if the click target is a label
                 if (e.target.tagName === 'LABEL') {
                     child.setAttribute('draggable', 'true');
                 } else {
@@ -105,7 +106,7 @@ export function getDragDrop() {
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
-            const offset = position - (selector === '.draggable-item' ? box.left : box.top);
+            const offset = position - (selector === '.draggable-item' ? box.right: box.bottom);
 
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
