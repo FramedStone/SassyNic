@@ -138,4 +138,6 @@ button:disabled {
 
 .rank-display {
     cursor: grab;
+    display: block;
+    width: 100%;
 }

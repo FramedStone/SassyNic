@@ -73,12 +73,17 @@ export function getDragDrop() {
         const items = filters.querySelectorAll(".draggable-item");
         items.forEach((item, index) => {
             const rank = index + 1;
-            // Extract original text inside the span
-            const originalText = item.querySelector('span').textContent.replace(/\d+\./, '').trim();
-            // Update the rank in the dataset
-            item.dataset.rank = rank;
-            // Update visible rank by concatenating rank + original text
-            item.querySelector(".rank-display").textContent = `${rank}. ${originalText}`; 
+            const currentRank = parseInt(item.dataset.rank) || 0;
+
+            // Only update if the rank has changed
+            if (currentRank !== rank) {
+                // Extract original text inside the span
+                const originalText = item.querySelector('span').textContent.replace(/\d+\./, '').trim();
+                // Update the rank in the dataset
+                item.dataset.rank = rank;
+                // Update visible rank by concatenating rank + original text
+                item.querySelector(".rank-display").textContent = `${rank}. ${originalText}`;
+            }
         });
     }
 }
