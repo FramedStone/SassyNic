@@ -1,3 +1,52 @@
+// ---------------------- DAYS OF WEEK------------------------------//
+export function getDaysOfWeek() {
+    // Days of week checkboxes
+    const allday = document.getElementById("allday");
+    const monday = document.getElementById("monday");
+    const tuesday = document.getElementById("tuesday");
+    const wednesday = document.getElementById("wednesday");
+    const thursday = document.getElementById("thursday");
+    const friday = document.getElementById("friday");
+    const saturday = document.getElementById("saturday");
+    const sunday = document.getElementById("sunday");
+
+    const weekdays = [monday, tuesday, wednesday, thursday, friday, saturday, sunday]; // group for concise
+
+    // When "All Day" is clicked
+    allday.addEventListener("click", () => {
+        if (allday.checked) {
+            weekdays.forEach(checkbox => {
+                checkbox.setAttribute("disabled", "true");
+                checkbox.checked = false;
+            });
+        } else {
+            weekdays.forEach(checkbox => {
+                checkbox.removeAttribute("disabled");
+            });
+        }
+    });
+
+    // When any weekday checkbox is clicked
+    weekdays.forEach(checkbox => {
+        checkbox.addEventListener("click", () => {
+            // Check if all weekdays are checked
+            const allChecked = weekdays.every(checkbox => checkbox.checked);
+
+            if (allChecked) {
+                // Enable "All Day" and uncheck all weekdays
+                allday.checked = true;
+                weekdays.forEach(checkbox => {
+                    checkbox.setAttribute("disabled", "true");
+                    checkbox.checked = false;
+                });
+            } else {
+                // Uncheck "All Day" if not all weekdays are checked
+                allday.checked = false;
+            }
+        });
+    });
+}
+
 // ---------------------- TIME ------------------------------------//
 // Convert time string (HH:mm) to minutes since midnight
 function timeToMinutes(timeStr) {
@@ -131,6 +180,22 @@ export function getTimeSliders() {
     });
 }
 
+// ---------------------- CLASS CLOSENESS ----------------------------//
+export function getClassCloseness() {
+    // Class closeness slider
+    const slider = document.getElementById("class_closeness");
+    const output = document.getElementById("class_closeness_value");
+
+    // Update the span value when the slider changes
+    slider.addEventListener("input", (event) => {
+        output.textContent = event.target.value;
+    });
+
+    // Set initial value when the page loads
+    output.textContent = slider.value;
+}
+
+// ---------------------- INSTRUCTORS -----------------------------//
 export function getInstructors(dataset) {
     // Get the instructor container
     const instructorContainer = document.getElementById('instructor');
