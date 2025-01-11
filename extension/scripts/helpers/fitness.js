@@ -2,8 +2,9 @@
  * TODO: 
  * 1. fitness score / reward calculation
  * 2. classes closeness
- * 3. break time closeness
- * 4. day filters
- * 5. time filters
- * 6. instructors filters
+ * 3. day filters
+ * 4. time filters
+ * 5. instructors filters
  */
+
+// export function getFitness(dataset, )
