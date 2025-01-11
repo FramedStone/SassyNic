@@ -50,9 +50,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const fitness = await import(src_fitness); 
 
         // Observe filter's ranking changes
-        observeRanks("draggable-item", (element, newRank) => {
-            console.log(element.className, "new rank: ", newRank); 
-        });
+        observeRanks("draggable-item");
 
         // Observer filter's elements value changes
         observeFiltersValues((result) => {
@@ -89,22 +87,33 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 /**
  * Function to observe 'data-rank' changes in filter's elements
  * @param {String} className - element's class name
- * @param {Object} callback - callback to receive 
  */
-function observeRanks(className, callback) {
-    const elements = document.querySelectorAll(`.${className}`); // observe all elements with 'draggable-item class'
+function observeRanks(className) {
+    const elements = document.querySelectorAll(`.${className}`); // Observe all elements with the given class
+    const changes = []; // To collect rank changes for grouped logging
 
     // MutationObserver object
     const observer = new MutationObserver((mutationList) => {
-        for(const mutation of mutationList) {
-            if(mutation.type === "attributes" && mutation.attributeName === "data-rank") {
+        for (const mutation of mutationList) {
+            if (mutation.type === "attributes" && mutation.attributeName === "data-rank") {
                 const target = mutation.target;
                 const newRank = target.getAttribute("data-rank");
 
-                if(callback && typeof callback === "function") {
-                    callback(target, newRank);
-                }
+                // Collect change for grouped output
+                changes.push({ element: target, newRank });
             }
+        }
+
+        // If there are changes, log them grouped with separators
+        if (changes.length > 0) {
+            // console.log("--------------------------------------------------------------");
+            changes.forEach(({ element, newRank }) => {
+                console.log(`${element.className.replace("draggable-item ", "")} new rank: ${newRank}`);
+            });
+            console.log("--------------------------------------------------------------");
+
+            // Clear changes after logging to avoid duplicate entries
+            changes.length = 0;
         }
     });
 
@@ -112,13 +121,13 @@ function observeRanks(className, callback) {
     elements.forEach((element) => {
         observer.observe(element, {
             attributes: true,
-            attributeFilter: ["data-rank"] // to only observer "data-rank"
+            attributeFilter: ["data-rank"] // Observe only "data-rank"
         });
     });
 
     console.log("--------------------------------------------------------------");
     console.log("Observer attached: 'data-rank'");
-    console.log("--------------------------------------------------------------");
+    // console.log("--------------------------------------------------------------");
 }
 
 /**

@@ -6,6 +6,7 @@ export function getDragDrop() {
     // Track the currently dragged element
     let draggedItem = null;
 
+    // ---------------------- PARENT DIV ----------------------------//
     // Add drag event listeners to draggable items
     draggables.forEach(draggable => {
         // Handle mousedown to determine if drag should start
@@ -52,13 +53,59 @@ export function getDragDrop() {
         }
     });
 
+    // ---------------------- CHILD DIV ----------------------------//
+    const childContainers = document.querySelectorAll('.draggable-item');
+
+    childContainers.forEach(container => {
+        container.addEventListener('dragover', (e) => {
+            e.preventDefault();
+
+            const afterElement = getDragAfterElement(container, e.clientY, '.draggable-item-child');
+            const draggingChild = container.querySelector('.dragging-child');
+
+            if (afterElement == null) {
+                container.appendChild(draggingChild);
+            } else {
+                container.insertBefore(draggingChild, afterElement);
+            }
+        });
+
+        container.querySelectorAll('.draggable-item-child').forEach(child => {
+            child.addEventListener('mousedown', (e) => {
+                if (e.target.tagName === 'LABEL') {
+                    child.setAttribute('draggable', 'true');
+                } else {
+                    child.setAttribute('draggable', 'false');
+                }
+            });
+
+            child.addEventListener('mouseup', () => {
+                child.setAttribute('draggable', 'true');
+            });
+
+            child.addEventListener('dragstart', (e) => {
+                if (!child.getAttribute('draggable')) return;
+                draggedItem = child;
+                child.classList.add('dragging-child');
+                e.dataTransfer.effectAllowed = "move";
+            });
+
+            child.addEventListener('dragend', () => {
+                draggedItem = null;
+                child.classList.remove('dragging-child');
+                updateChildRanks(container);
+            });
+        });
+    });
+
+    // ---------------------- UTILITY FUNCTIONS ----------------------------//
     // Function to determine where to insert the dragged item
-    function getDragAfterElement(container, x) {
-        const draggableElements = [...container.querySelectorAll('.draggable-item:not(.dragging)')];
+    function getDragAfterElement(container, position, selector = '.draggable-item') {
+        const draggableElements = [...container.querySelectorAll(`${selector}:not(.dragging):not(.dragging-child)`)];
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
-            const offset = x - box.left - box.width / 2;
+            const offset = position - (selector === '.draggable-item' ? box.left : box.top);
 
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
@@ -68,7 +115,7 @@ export function getDragDrop() {
         }, { offset: Number.NEGATIVE_INFINITY }).element;
     }
 
-    // Function to update rankings dynamically
+    // Function to update rankings dynamically for parent items
     function updateRanks() {
         const items = filters.querySelectorAll(".draggable-item");
         items.forEach((item, index) => {
@@ -77,13 +124,19 @@ export function getDragDrop() {
 
             // Only update if the rank has changed
             if (currentRank !== rank) {
-                // Extract original text inside the span
                 const originalText = item.querySelector('span').textContent.replace(/\d+\./, '').trim();
-                // Update the rank in the dataset
                 item.dataset.rank = rank;
-                // Update visible rank by concatenating rank + original text
                 item.querySelector(".rank-display").textContent = `${rank}. ${originalText}`;
             }
+        });
+    }
+
+    // Function to update rankings dynamically for child items
+    function updateChildRanks(parent) {
+        const children = parent.querySelectorAll(".draggable-item-child");
+        children.forEach((child, index) => {
+            const rank = index + 1;
+            child.dataset.rank = rank;
         });
     }
 }
