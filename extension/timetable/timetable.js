@@ -52,13 +52,40 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         observeRanks("draggable-item", (element, newRank) => {
             console.log(element.className, "new rank: ", newRank); 
         });
+        // TODO: observer all filter's value changes too
+        observeFiltersValues((result) => {
+            const elementId = result.element.id;
+            
+            if (result.type === 'checkbox') {
+                console.log("--------------------------------------------------------------");
+                console.log(`${result.element.id} is ${result.value}`);
+                console.log(result.element);
+                console.log("--------------------------------------------------------------");
+            }
+            else if (result.type === 'range') {
+                const valueDisplay = document.getElementById(`${elementId}_value`);
+                if (valueDisplay) {
+                    valueDisplay.textContent = result.percentage;
+                }
+                console.log("--------------------------------------------------------------");
+                console.log(`${elementId}: ${result.value} (${result.percentage}%)`);
+                console.log(result.element);
+                console.log("--------------------------------------------------------------");
+            }
+            else if (result.type === 'time') {
+                console.log("--------------------------------------------------------------");
+                console.log(`${elementId}: ${result.value}`);
+                console.log(result.element);
+                console.log("--------------------------------------------------------------");
+            }
+        });
 
     });
 })();
 
 // ------------------------- HELPER FUNCTIONS ---------------------------//
 /**
- * Function to observer 'data-rank' changes in filter's elements
+ * Function to observe 'data-rank' changes in filter's elements
  * @param {String} className - element's class name
  * @param {Object} callback - callback to receive 
  */
@@ -87,5 +114,157 @@ function observeRanks(className, callback) {
         });
     });
 
+    console.log("--------------------------------------------------------------");
     console.log("Observer attached: 'data-rank'");
+    console.log("--------------------------------------------------------------");
+}
+
+/**
+ * Function to observe 'value' changes in filter's elements
+ * @param {Object} callback 
+ * @returns {null} - cleanup function
+ */
+function observeFiltersValues(callback) {
+    const container = document.getElementById('filters');
+    if (!container) {
+        console.error("Element with id 'filters' not found.");
+        return;
+    }
+
+    // Store elements that already have listeners
+    const processedElements = new WeakSet();
+    let hasAttachments = false;
+
+    // Print divider line
+    const printDivider = () => {
+        console.log('--------------------------------------------------------------');
+    };
+
+    // Handle checkbox changes
+    const handleCheckboxes = () => {
+        const checkboxes = container.querySelectorAll('input[type="checkbox"]');
+        let newAttachments = 0;
+        
+        checkboxes.forEach(checkbox => {
+            if (!processedElements.has(checkbox)) {
+                const changeHandler = (event) => {
+                    callback({
+                        type: 'checkbox',
+                        value: event.target.checked ? 'checked' : 'unchecked',
+                        element: event.target
+                    });
+                };
+                
+                checkbox.addEventListener('change', changeHandler);
+                processedElements.add(checkbox);
+                newAttachments++;
+            }
+        });
+
+        if (newAttachments > 0) {
+            if (!hasAttachments) {
+                printDivider();
+                hasAttachments = true;
+            }
+            console.log('Observer attached: checkboxes');
+        }
+    };
+
+    // Handle time input changes
+    const handleTimeInputs = () => {
+        const timeInputs = container.querySelectorAll('input[type="time"]');
+        let newAttachments = 0;
+        
+        timeInputs.forEach(timeInput => {
+            if (!processedElements.has(timeInput)) {
+                const changeHandler = (event) => {
+                    callback({
+                        type: 'time',
+                        value: event.target.value,
+                        element: event.target
+                    });
+                };
+                
+                timeInput.addEventListener('change', changeHandler);
+                processedElements.add(timeInput);
+                newAttachments++;
+            }
+        });
+
+        if (newAttachments > 0) {
+            if (!hasAttachments) {
+                printDivider();
+                hasAttachments = true;
+            }
+            console.log('Observer attached: time inputs');
+        }
+    };
+
+    // Handle range slider changes
+    const handleRangeInputs = () => {
+        const rangeInputs = container.querySelectorAll('input[type="range"]');
+        let newAttachments = 0;
+        
+        rangeInputs.forEach(rangeInput => {
+            if (!processedElements.has(rangeInput)) {
+                const inputHandler = (event) => {
+                    const value = event.target.value;
+                    const max = parseFloat(event.target.max);
+                    const percentage = Math.round((value / max) * 100);
+                    
+                    callback({
+                        type: 'range',
+                        value: value,
+                        percentage: percentage,
+                        element: event.target
+                    });
+                };
+                
+                rangeInput.addEventListener('input', inputHandler);
+                processedElements.add(rangeInput);
+                newAttachments++;
+            }
+        });
+
+        if (newAttachments > 0) {
+            if (!hasAttachments) {
+                printDivider();
+                hasAttachments = true;
+            }
+            console.log('Observer attached: sliders');
+        }
+    };
+
+    // Initialize observers for all input types
+    handleCheckboxes();
+    handleTimeInputs();
+    handleRangeInputs();
+
+    // Print final divider if any attachments were made
+    if (hasAttachments) {
+        printDivider();
+    }
+
+    // Optional: Observe DOM changes to handle dynamically added elements
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length) {
+                handleCheckboxes();
+                handleTimeInputs();
+                handleRangeInputs();
+            }
+        });
+    });
+
+    // Start observing the container for added nodes
+    observer.observe(container, {
+        childList: true,
+        subtree: true
+    });
+
+    // Return cleanup function
+    return () => {
+        observer.disconnect();
+        processedElements.clear();
+    };
 }

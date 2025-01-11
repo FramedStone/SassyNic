@@ -7,4 +7,6 @@
  * 5. instructors filters
  */
 
+// export function setFitness
+
 // export function getFitness(dataset, )
