@@ -55,9 +55,16 @@
             <br>
             <label for="time-end">End</label>
             <input type="time" id="time-end"/>
-            <select>
-                <option>Everyday</option>
-                <option>haha</option>
+            <br><br>
+            <select id="time_daysofweek">
+                <option id="time_everyday">Everyday</option>
+                <option id="time_monday">Monday</option>
+                <option id="time_tuesday">Tuesday</option>
+                <option id="time_wednesday">Wednesday</option>
+                <option id="time_thursday">Thursday</option>
+                <option id="time_friday">Friday</option>
+                <option id="time_saturday">Saturday</option>
+                <option id="time_sunday">Sunday</option>
             </select>
         </div>
         <!-- Closeness -->
@@ -68,6 +75,17 @@
             <br>
             <input type="range" min="0" max="100" step="1" value="0" id="class_closeness">
             <span id="class_closeness_value">50</span>
+            <br><br>
+            <select id="closeness_daysofweek">
+                <option id="closeness_everyday">Everyday</option>
+                <option id="closeness_monday">Monday</option>
+                <option id="closeness_tuesday">Tuesday</option>
+                <option id="closeness_wednesday">Wednesday</option>
+                <option id="closeness_thursday">Thursday</option>
+                <option id="closeness_friday">Friday</option>
+                <option id="closeness_saturday">Saturday</option>
+                <option id="closeness_sunday">Sunday</option>
+            </select>
         </div>
         <!-- Instructor -->
         <div class="draggable-item instructor" id="instructor" data-rank="4">
