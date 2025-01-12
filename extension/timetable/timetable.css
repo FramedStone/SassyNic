@@ -136,6 +136,11 @@ td {
     border-radius: 5px;
 }
 
+.draggable-item-child:hover,
+.draggable-item-child label:hover {
+    cursor: grab;
+}
+
 .dragging {
     opacity: 0.5;
     border: 2px solid #007bff;

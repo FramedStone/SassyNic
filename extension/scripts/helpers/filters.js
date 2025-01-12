@@ -62,14 +62,15 @@ function minutesToTime(minutes) {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
 
-export function getTimeSliders() {
+export function getTimeSliders(dataset) {
     const timeStart = document.getElementById('time-start');
     const timeEnd = document.getElementById('time-end');
     const startSlider = document.createElement('input');
     const endSlider = document.createElement('input');
 
-    const MIN_TIME = 480;  // 08:00 (8 * 60)
-    const MAX_TIME = 1320; // 22:00 (22 * 60)
+    // const MIN_TIME = 480;  // 08:00 (8 * 60)
+    // const MAX_TIME = 1320; // 22:00 (22 * 60)
+    const [MIN_TIME, MAX_TIME] = [getTimeInfo(dataset).earliest, getTimeInfo(dataset).latest];
     const INTERVAL = 30; // minutes
     
     // Create and initialize start time slider
@@ -93,8 +94,8 @@ export function getTimeSliders() {
     timeEnd.parentNode.insertBefore(endSlider, timeEnd.nextSibling);
     
     // Set default values
-    timeStart.value = '08:00';
-    timeEnd.value = '18:00';
+    timeStart.value = (MIN_TIME / 60).toString().padStart(2, '0') + ":00";
+    timeEnd.value = (MAX_TIME/ 60).toString().padStart(2, '0') + ":00";
     startSlider.value = timeToMinutes(timeStart.value);
     endSlider.value = timeToMinutes(timeEnd.value);
     
@@ -178,13 +179,94 @@ export function getTimeSliders() {
             }
         }
     });
+
+    console.log("--------------------------------------------------------------");
+    console.log("Earliest time among all dataset (minutes): ", getTimeInfo(dataset).earliest);
+    console.log("Latest time among all dataset (minutes): ", getTimeInfo(dataset).latest);
+}
+
+/**
+ * Function that will return necessary details for filters (time and class gap)
+ * @param {Object} dataset 
+ * @returns {Number, Number, Object} earliest time, latest time, datasetByDay - day[{minGap, maxGap}]
+ */
+function getTimeInfo(dataset) {
+    let minGap, maxGap;
+    let earliest = Infinity, latest = -Infinity;
+
+    // Map to group unique classes by day using a Set
+    const datasetByDay = {};
+
+    // Each set
+    dataset.forEach(set => {
+        // Each courses
+        set.forEach(courses => {
+            // Each classes
+            courses.option.classes.forEach(class_ => {
+                // Each classes's details
+                class_.misc.forEach(misc_ => {
+                    const [start, end] = misc_.time.split(" ").map(Number);
+                    const day = misc_.day;
+
+                    // Track earliest and latest time
+                    earliest = Math.min(earliest, start);
+                    latest = Math.max(latest, end);
+
+                    // Initialize the Set for the day if not exists
+                    if (!datasetByDay[day]) {
+                        datasetByDay[day] = new Set();
+                    }
+
+                    // Add time as a unique interval
+                    datasetByDay[day].add(misc_.time);
+                });
+            });
+        });
+    });
+
+    // Convert the Set back to an array of intervals
+    Object.keys(datasetByDay).forEach(day => {
+        const dayClasses = Array.from(datasetByDay[day]).map(interval => {
+            const [start, end] = interval.split(" ").map(Number);
+            return { start, end };
+        });
+
+        // If more than 1 class within the day, calculate the gap
+        if (dayClasses.length > 1) {
+            // Sort by start time
+            dayClasses.sort((a, b) => a.start - b.start);
+
+            // Find smallest end and largest start
+            let smallestEnd = Math.min(...dayClasses.map(interval => interval.end));
+            let largestStart = Math.max(...dayClasses.map(interval => interval.start));
+
+            // If there's no gap, minGap should be 0
+            minGap = largestStart - smallestEnd == 0 ? 0 : 1;
+            maxGap = ((latest - earliest) - (largestStart - smallestEnd)) / 30;
+
+            // Save only day, minGap, and maxGap
+            datasetByDay[day] = { minGap: minGap, maxGap: maxGap };
+        }
+    });
+
+    
+    return {
+        earliest: earliest,
+        latest: latest,
+        datasetByDay: datasetByDay
+    };
 }
 
 // ---------------------- CLASS GAP ----------------------------//
-export function getClassGap() {
+export function getClassGap(dataset) {
     // Class gap slider
     const slider = document.getElementById("class_gap");
     const output = document.getElementById("class_gap_value");
+
+    slider.max = getTimeInfo(dataset).classDurationTotal;
+
+    console.log("Smallest and Largest gap (in 30-minute intervals):");
+    console.log(getTimeInfo(dataset).datasetByDay);
 
     // Update the span value when the slider changes
     slider.addEventListener("input", (event) => {

@@ -27,8 +27,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const filters = await import(src_filters);
 
         filters.getDaysOfWeek();                // Days of week 
-        filters.getTimeSliders();               // Time
-        filters.getClassGap();                  // Class Gap
+        filters.getTimeSliders(dataset);        // Time
+        filters.getClassGap(dataset);           // Class Gap
         filters.getInstructors(dataset);        // Instructors
 
 
