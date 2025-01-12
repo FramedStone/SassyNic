@@ -130,7 +130,6 @@ function extractClassDetails() {
             class_.option = option;
             class_.status = status;
             class_.classes = classes;
-            class_.fitness_score = 100; // fitness score 
             
             dataset.class.push(class_);
         // }
