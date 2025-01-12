@@ -87,7 +87,7 @@ export function getTable(dataset) {
                         <strong>${classForThisHour.course.code}</strong><br>
                         ${classType} ${classSection}<br>
                         ${classForThisHour.misc.room}<br>
-                        ${formatTime(classForThisHour.misc.time.split(' ')[0])} - ${formatTime(classForThisHour.misc.time.split(' ')[1])}<br>
+                        <strong>${formatTime(classForThisHour.misc.time.split(' ')[0])} - ${formatTime(classForThisHour.misc.time.split(' ')[1])}</strong><br>
                         ${classForThisHour.misc.instructor}
                     `;
                     row.appendChild(cell);

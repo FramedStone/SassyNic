@@ -66,7 +66,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             else if (result.type === 'range') {
                 const valueDisplay = document.getElementById(`${elementId}_value`);
                 if (valueDisplay) {
-                    valueDisplay.textContent = result.percentage;
+                    valueDisplay.textContent = result.value;
                 }
                 console.log("--------------------------------------------------------------");
                 console.log(`${elementId}: ${result.value} (${result.percentage}%)`);
@@ -74,6 +74,12 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log("--------------------------------------------------------------");
             }
             else if (result.type === 'time') {
+                console.log("--------------------------------------------------------------");
+                console.log(`${elementId}: ${result.value}`);
+                console.log(result.element);
+                console.log("--------------------------------------------------------------");
+            }
+            else if (result.type === 'select') {
                 console.log("--------------------------------------------------------------");
                 console.log(`${elementId}: ${result.value}`);
                 console.log(result.element);
@@ -251,10 +257,43 @@ function observeFiltersValues(callback) {
         }
     };
 
+    // Handle select option changes
+    const handleSelectOptions = () => {
+        const selects = container.querySelectorAll('select');
+        let newAttachments = 0;
+
+        selects.forEach(select => {
+            if (!processedElements.has(select)) {
+                const changeHandler = (event) => {
+                    const selectedOption = event.target.options[event.target.selectedIndex];
+                    callback({
+                        type: 'select',
+                        value: selectedOption.value,
+                        text: selectedOption.text,
+                        element: event.target
+                    });
+                };
+
+                select.addEventListener('change', changeHandler);
+                processedElements.add(select);
+                newAttachments++;
+            }
+        });
+
+        if (newAttachments > 0) {
+            if (!hasAttachments) {
+                printDivider();
+                hasAttachments = true;
+            }
+            console.log('Observer attached: select elements');
+        }
+    };
+
     // Initialize observers for all input types
     handleCheckboxes();
     handleTimeInputs();
     handleRangeInputs();
+    handleSelectOptions();
 
     // Print final divider if any attachments were made
     if (hasAttachments) {
@@ -268,6 +307,7 @@ function observeFiltersValues(callback) {
                 handleCheckboxes();
                 handleTimeInputs();
                 handleRangeInputs();
+                handleSelectOptions();
             }
         });
     });
