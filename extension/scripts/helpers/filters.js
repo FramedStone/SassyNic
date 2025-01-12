@@ -192,7 +192,7 @@ export function getTimeSliders(dataset) {
 /**
  * Function that will return necessary details for filters (time and class gap)
  * @param {Object} dataset 
- * @returns {Number, Number, Object} earliest time, latest time, datasetByDay - day[{minGap, maxGap}]
+ * @returns {Number, Number, Number, Number, Object} earliest time, latest time, min gap(everday), max gap(everyday), datasetByDay - day[{minGap, maxGap}]
  */
 function getTimeInfo(dataset) {
     let minGap, maxGap;
@@ -245,18 +245,19 @@ function getTimeInfo(dataset) {
             let largestStart = Math.max(...dayClasses.map(interval => interval.start));
 
             // If there's no gap, minGap should be 0
-            minGap = largestStart - smallestEnd == 0 ? 0 : 1;
-            maxGap = ((latest - earliest) - (largestStart - smallestEnd)) / 30;
+            minGap = largestStart - smallestEnd == 0 ? 0 : 30;
+            maxGap = ((latest - earliest) - (largestStart - smallestEnd));
 
             // Save only day, minGap, and maxGap
             datasetByDay[day] = { minGap: minGap, maxGap: maxGap };
         }
     });
-
     
     return {
         earliest: earliest,
         latest: latest,
+        minGap: Math.min(...Object.values(datasetByDay).map(dayData => dayData.minGap)), // Assign back to minGap based on overall minGap
+        maxGap: Math.max(...Object.values(datasetByDay).map(dayData => dayData.maxGap)), // Assign back to maxGap based on overall maxGap
         datasetByDay: datasetByDay
     };
 }
@@ -267,10 +268,14 @@ export function getClassGap(dataset) {
     const slider = document.getElementById("class_gap");
     const output = document.getElementById("class_gap_value");
 
-    slider.max = getTimeInfo(dataset).classDurationTotal;
+    const timeInfo = getTimeInfo(dataset);
+
+    // initial slider value (Everyday)
+    slider.min = timeInfo.minGap;
+    slider.max = timeInfo.maxGap;
 
     console.log("Smallest and Largest gap (in 30-minute intervals):");
-    console.log(getTimeInfo(dataset).datasetByDay);
+    console.log(timeInfo.datasetByDay);
 
     // Update the span value when the slider changes
     slider.addEventListener("input", (event) => {
@@ -279,6 +284,18 @@ export function getClassGap(dataset) {
 
     // Set initial value when the page loads
     output.textContent = slider.value;
+
+    // Update slider min and max based on selected day
+    document.getElementById("gap_daysofweek").addEventListener("change", (event) => {
+        const selectedDay = event.target.value;
+        const dayData = timeInfo.datasetByDay[selectedDay];
+
+        if (dayData) {
+            slider.min = dayData.minGap;
+            slider.max = dayData.maxGap;
+            output.textContent = slider.value;
+        }
+    });
 }
 
 // ---------------------- INSTRUCTORS -----------------------------//
