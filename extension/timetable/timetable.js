@@ -225,7 +225,10 @@ function observeFiltersValues(callback) {
         const deleteButton = document.createElement('button');
         deleteButton.innerText = 'x';
         deleteButton.className = 'delete-button';
-        deleteButton.addEventListener('click', () => removeSpanAndBr(span));
+        deleteButton.addEventListener('click', () => {
+            removeSpanAndBr(span)
+            delete spansBySelection[selection];
+        });
 
         span.innerHTML = `<strong>${selection}</strong><br>${details} `;
         span.appendChild(deleteButton);
@@ -432,15 +435,38 @@ function observeFiltersValues(callback) {
                         if (parentDiv.classList.contains('time')) {
                             const startSlider = parentDiv.querySelector('#time-start-slider');
                             const endSlider = parentDiv.querySelector('#time-end-slider');
+
                             if (startSlider && endSlider) {
-                                const details = `Start: ${minutesToTime(parseInt(startSlider.value))} End: ${minutesToTime(parseInt(endSlider.value))}`;
-                                createOrUpdateSpan(parentDiv, selectedOption.text, details);
+                                let details;
+                                const spansBySelection = spansMap.get(parentDiv);
+                                if (spansBySelection && spansBySelection[selectedOption.text]) {
+                                    details = spansBySelection[selectedOption.text].details;
+                                } else {
+                                    details = `Start: ${minutesToTime(parseInt(startSlider.value))} End: ${minutesToTime(parseInt(endSlider.value))}`;
+                                    createOrUpdateSpan(parentDiv, selectedOption.text, details);
+                                }
+
+                                if (details) {  // Check if details exist
+                                    startSlider.value = timeToMinutes(details.split('End: ')[0].split('Start: ')[1].trim());
+                                    endSlider.value = timeToMinutes(details.split('End: ')[1].trim());
+                                }
                             }
                         } else if (parentDiv.classList.contains('gap')) {
                             const gapSlider = parentDiv.querySelector('#class_gap');
+
                             if (gapSlider) {
-                                const details = `Gap: ${gapSlider.value} minutes`;
-                                createOrUpdateSpan(parentDiv, selectedOption.text, details);
+                                let details;
+                                const spansBySelection = spansMap.get(parentDiv);
+                                if (spansBySelection && spansBySelection[selectedOption.text]) {
+                                    details = spansBySelection[selectedOption.text].details;
+                                } else {
+                                    details = `Gap: ${gapSlider.value} minutes`;
+                                    createOrUpdateSpan(parentDiv, selectedOption.text, details);
+                                }
+
+                                if (details) {  // Check if details exist
+                                    gapSlider.value = parseInt(details.split('Gap: ')[1].trim().split(' ')[0]);
+                                }
                             }
                         }
                     }
