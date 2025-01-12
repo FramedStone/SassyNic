@@ -155,11 +155,45 @@ function observeFiltersValues(callback) {
 
     // Store elements that already have listeners
     const processedElements = new WeakSet();
+    const spansMap = new WeakMap(); // Track spans by parent div and selection
     let hasAttachments = false;
 
     // Print divider line
     const printDivider = () => {
         console.log('--------------------------------------------------------------');
+    };
+
+    // Time conversion utilities
+    const timeToMinutes = (time) => {
+        const [hours, minutes] = time.split(':').map(Number);
+        return hours * 60 + minutes;
+    };
+
+    const minutesToTime = (minutes) => {
+        const hours = Math.floor(minutes / 60);
+        return `${hours.toString().padStart(2, '0')}:00`;
+    };
+
+    // Span creation and update utility
+    const createOrUpdateSpan = (parentDiv, selection, details) => {
+        let span;
+        if (!spansMap.has(parentDiv)) {
+            spansMap.set(parentDiv, {});
+        }
+
+        const spansBySelection = spansMap.get(parentDiv);
+
+        if (spansBySelection[selection]) {
+            span = spansBySelection[selection];
+        } else {
+            span = document.createElement('span');
+            span.className = 'details-display';
+            parentDiv.appendChild(document.createElement('br'));
+            parentDiv.appendChild(span);
+            spansBySelection[selection] = span;
+        }
+
+        span.textContent = `${selection}\n${details.join('\n')}`;
     };
 
     // Handle checkbox changes
@@ -222,29 +256,69 @@ function observeFiltersValues(callback) {
         }
     };
 
-    // Handle range slider changes
+    // Handle range slider changes with time display functionality
     const handleRangeInputs = () => {
-        const rangeInputs = container.querySelectorAll('input[type="range"]');
+        const timeDivs = container.querySelectorAll('div[show-details="true"]');
         let newAttachments = 0;
-        
-        rangeInputs.forEach(rangeInput => {
-            if (!processedElements.has(rangeInput)) {
-                const inputHandler = (event) => {
-                    const value = event.target.value;
-                    const max = parseFloat(event.target.max);
-                    const percentage = Math.round((value / max) * 100);
-                    
-                    callback({
-                        type: 'range',
-                        value: value,
-                        percentage: percentage,
-                        element: event.target
-                    });
+
+        timeDivs.forEach(timeDiv => {
+            const timeStart = timeDiv.querySelector('#time-start');
+            const timeEnd = timeDiv.querySelector('#time-end');
+            const startSlider = timeDiv.querySelector('#time-start-slider');
+            const endSlider = timeDiv.querySelector('#time-end-slider');
+            const selectElement = timeDiv.querySelector('select');
+
+            if (timeStart && timeEnd && startSlider && endSlider && selectElement) {
+                const updateDetails = () => {
+                    const selection = selectElement.options[selectElement.selectedIndex].text;
+                    const details = [
+                        `Start: ${minutesToTime(parseInt(startSlider.value))}`,
+                        `End: ${minutesToTime(parseInt(endSlider.value))}`,
+                    ];
+                    createOrUpdateSpan(timeDiv, selection, details);
                 };
-                
-                rangeInput.addEventListener('input', inputHandler);
-                processedElements.add(rangeInput);
-                newAttachments++;
+
+                if (!processedElements.has(startSlider)) {
+                    startSlider.addEventListener('input', () => {
+                        const startMinutes = parseInt(startSlider.value);
+                        const endMinutes = parseInt(endSlider.value);
+
+                        if (startMinutes > endMinutes) {
+                            startSlider.value = endMinutes;
+                        }
+                        timeStart.value = minutesToTime(startSlider.value);
+                        updateDetails();
+                        callback({
+                            type: 'range',
+                            value: startSlider.value,
+                            percentage: Math.round((startSlider.value / startSlider.max) * 100),
+                            element: startSlider
+                        });
+                    });
+                    processedElements.add(startSlider);
+                    newAttachments++;
+                }
+
+                if (!processedElements.has(endSlider)) {
+                    endSlider.addEventListener('input', () => {
+                        const startMinutes = parseInt(startSlider.value);
+                        const endMinutes = parseInt(endSlider.value);
+
+                        if (endMinutes < startMinutes) {
+                            endSlider.value = startMinutes;
+                        }
+                        timeEnd.value = minutesToTime(endSlider.value);
+                        updateDetails();
+                        callback({
+                            type: 'range',
+                            value: endSlider.value,
+                            percentage: Math.round((endSlider.value / endSlider.max) * 100),
+                            element: endSlider
+                        });
+                    });
+                    processedElements.add(endSlider);
+                    newAttachments++;
+                }
             }
         });
 
@@ -272,6 +346,20 @@ function observeFiltersValues(callback) {
                         text: selectedOption.text,
                         element: event.target
                     });
+
+                    // Update details if this is part of a time div
+                    const timeDiv = event.target.closest('div[show-details="true"]');
+                    if (timeDiv) {
+                        const startSlider = timeDiv.querySelector('#time-start-slider');
+                        const endSlider = timeDiv.querySelector('#time-end-slider');
+                        if (startSlider && endSlider) {
+                            const details = [
+                                `Start: ${minutesToTime(parseInt(startSlider.value))}`,
+                                `End: ${minutesToTime(parseInt(endSlider.value))}`,
+                            ];
+                            createOrUpdateSpan(timeDiv, selectedOption.text, details);
+                        }
+                    }
                 };
 
                 select.addEventListener('change', changeHandler);
@@ -322,5 +410,6 @@ function observeFiltersValues(callback) {
     return () => {
         observer.disconnect();
         processedElements.clear();
+        spansMap.clear();
     };
 }
