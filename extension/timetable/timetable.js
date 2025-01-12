@@ -174,6 +174,17 @@ function observeFiltersValues(callback) {
         return `${hours.toString().padStart(2, '0')}:00`;
     };
 
+    // Helper function to remove a span and its associated BR element
+    const removeSpanAndBr = (span) => {
+        if (span && span.parentNode) {
+            // Remove the BR element before the span if it exists
+            if (span.previousElementSibling && span.previousElementSibling.tagName === 'BR') {
+                span.previousElementSibling.remove();
+            }
+            span.remove();
+        }
+    };
+
     // Span creation and update utility
     const createOrUpdateSpan = (parentDiv, selection, details) => {
         let span;
@@ -182,6 +193,23 @@ function observeFiltersValues(callback) {
         }
 
         const spansBySelection = spansMap.get(parentDiv);
+
+        // If selection is "Everyday", remove all other spans
+        if (selection === "Everyday") {
+            // Remove all existing spans
+            Object.entries(spansBySelection).forEach(([key, existingSpan]) => {
+                if (key !== "Everyday") {
+                    removeSpanAndBr(existingSpan);
+                    delete spansBySelection[key];
+                }
+            });
+        } else {
+            // If selection is not "Everyday", remove the "Everyday" span if it exists
+            if (spansBySelection["Everyday"]) {
+                removeSpanAndBr(spansBySelection["Everyday"]);
+                delete spansBySelection["Everyday"];
+            }
+        }
 
         if (spansBySelection[selection]) {
             span = spansBySelection[selection];
