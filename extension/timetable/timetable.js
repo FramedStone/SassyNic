@@ -114,7 +114,7 @@ function observeRanks(className) {
         // If there are changes, log them grouped with separators
         if (changes.length > 0) {
             // console.log("--------------------------------------------------------------");
-            console.log("\nFILTERS");
+            console.log("\nDRAG AND DROP");
             changes.forEach(({ element, newRank }) => {
                 console.log(
                     element.className.includes('draggable-item-child') ? `new rank: ${newRank}, ${element.querySelector('label').textContent}` // draggable-item-child
@@ -221,8 +221,16 @@ function observeFiltersValues(callback) {
             spansBySelection[selection] = span;
         }
 
-        span.innerHTML = `<strong>${selection}</strong><br>${details}`;
+        // Create delete button
+        const deleteButton = document.createElement('button');
+        deleteButton.innerText = 'x';
+        deleteButton.className = 'delete-button';
+        deleteButton.addEventListener('click', () => removeSpanAndBr(span));
+
+        span.innerHTML = `<strong>${selection}</strong><br>${details} `;
+        span.appendChild(deleteButton);
     };
+
 
     // Handle checkbox changes
     const handleCheckboxes = () => {

@@ -36,7 +36,7 @@ td {
     gap: 10px;
 }
 
-button {
+.nav-buttons button {
     padding: 10px 20px;
     background-color: #007bff;
     color: white;
@@ -45,7 +45,7 @@ button {
     cursor: pointer;
 }
 
-button:disabled {
+.nav-buttons button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
 }
