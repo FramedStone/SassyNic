@@ -58,7 +58,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             const elementId = result.element.id;
             
             if (result.type === 'checkbox') {
-                console.log("--------------------------------------------------------------");
+                // console.log("--------------------------------------------------------------");
                 console.log(`${result.element.id} is ${result.value}`);
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
@@ -68,19 +68,19 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 if (valueDisplay) {
                     valueDisplay.textContent = result.value;
                 }
-                console.log("--------------------------------------------------------------");
+                // console.log("--------------------------------------------------------------");
                 console.log(`${elementId}: ${result.value} (${result.percentage}%)`);
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
             }
             else if (result.type === 'time') {
-                console.log("--------------------------------------------------------------");
+                // console.log("--------------------------------------------------------------");
                 console.log(`${elementId}: ${result.value}`);
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
             }
             else if (result.type === 'select') {
-                console.log("--------------------------------------------------------------");
+                // console.log("--------------------------------------------------------------");
                 console.log(`${elementId}: ${result.value}`);
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
@@ -221,7 +221,7 @@ function observeFiltersValues(callback) {
             spansBySelection[selection] = span;
         }
 
-        span.textContent = `${selection}\n${details.join('\n')}`;
+        span.innerHTML = `<strong>${selection}</strong><br>${details}`;
     };
 
     // Handle checkbox changes
@@ -285,8 +285,8 @@ function observeFiltersValues(callback) {
     };
 
     // Handle range slider changes with time display functionality
-    const handleRangeInputs = () => {
-        const timeDivs = container.querySelectorAll('div[show-details="true"]');
+    const handleTimeRangeInputs = () => {
+        const timeDivs = container.querySelectorAll('div.time[show-details="true"]');
         let newAttachments = 0;
 
         timeDivs.forEach(timeDiv => {
@@ -299,50 +299,45 @@ function observeFiltersValues(callback) {
             if (timeStart && timeEnd && startSlider && endSlider && selectElement) {
                 const updateDetails = () => {
                     const selection = selectElement.options[selectElement.selectedIndex].text;
-                    const details = [
-                        `Start: ${minutesToTime(parseInt(startSlider.value))}`,
-                        `End: ${minutesToTime(parseInt(endSlider.value))}`,
-                    ];
+                    const details = `Start: ${minutesToTime(parseInt(startSlider.value))} End: ${minutesToTime(parseInt(endSlider.value))}`;
                     createOrUpdateSpan(timeDiv, selection, details);
                 };
 
                 if (!processedElements.has(startSlider)) {
+                    let timeout;
                     startSlider.addEventListener('input', () => {
-                        const startMinutes = parseInt(startSlider.value);
-                        const endMinutes = parseInt(endSlider.value);
+                        clearTimeout(timeout);  // Clear any pending timeout
+                        timeout = setTimeout(() => {
+                            timeStart.value = minutesToTime(parseInt(startSlider.value));
+                            updateDetails();
 
-                        if (startMinutes > endMinutes) {
-                            startSlider.value = endMinutes;
-                        }
-                        timeStart.value = minutesToTime(startSlider.value);
-                        updateDetails();
-                        callback({
-                            type: 'range',
-                            value: startSlider.value,
-                            percentage: Math.round((startSlider.value / startSlider.max) * 100),
-                            element: startSlider
-                        });
+                            callback({
+                                type: 'range',
+                                value: startSlider.value,
+                                percentage: Math.round((startSlider.value / startSlider.max) * 100),
+                                element: startSlider
+                            });
+                        }, 300);  // Delay of 300ms
                     });
                     processedElements.add(startSlider);
                     newAttachments++;
                 }
 
                 if (!processedElements.has(endSlider)) {
+                    let timeout;
                     endSlider.addEventListener('input', () => {
-                        const startMinutes = parseInt(startSlider.value);
-                        const endMinutes = parseInt(endSlider.value);
+                        clearTimeout(timeout);  // Clear any pending timeout
+                        timeout = setTimeout(() => {
+                            timeEnd.value = minutesToTime(parseInt(endSlider.value));
+                            updateDetails();
 
-                        if (endMinutes < startMinutes) {
-                            endSlider.value = startMinutes;
-                        }
-                        timeEnd.value = minutesToTime(endSlider.value);
-                        updateDetails();
-                        callback({
-                            type: 'range',
-                            value: endSlider.value,
-                            percentage: Math.round((endSlider.value / endSlider.max) * 100),
-                            element: endSlider
-                        });
+                            callback({
+                                type: 'range',
+                                value: endSlider.value,
+                                percentage: Math.round((endSlider.value / endSlider.max) * 100),
+                                element: endSlider
+                            });
+                        }, 300);  // Delay of 300ms
                     });
                     processedElements.add(endSlider);
                     newAttachments++;
@@ -355,7 +350,55 @@ function observeFiltersValues(callback) {
                 printDivider();
                 hasAttachments = true;
             }
-            console.log('Observer attached: sliders');
+            console.log('Observer attached: time sliders');
+        }
+    };
+
+    // Handle gap slider changes
+    const handleGapRangeInputs = () => {
+        const gapDivs = container.querySelectorAll('div.gap[show-details="true"]');
+        let newAttachments = 0;
+
+        gapDivs.forEach(gapDiv => {
+            const gapSlider = gapDiv.querySelector('#class_gap');
+            const gapValue = gapDiv.querySelector('#class_gap_value');
+            const selectElement = gapDiv.querySelector('select');
+
+            if (gapSlider && gapValue && selectElement) {
+                const updateDetails = () => {
+                    const selection = selectElement.options[selectElement.selectedIndex].text;
+                    const details = `Gap: ${gapSlider.value} minutes`;
+                    createOrUpdateSpan(gapDiv, selection, details);
+                };
+
+                if (!processedElements.has(gapSlider)) {
+                    let timeout;
+                    gapSlider.addEventListener('input', () => {
+                        clearTimeout(timeout);  // Clear any pending timeout
+                        timeout = setTimeout(() => {
+                            gapValue.textContent = gapSlider.value;
+                            updateDetails();
+
+                            callback({
+                                type: 'range',
+                                value: gapSlider.value,
+                                percentage: Math.round((gapSlider.value / gapSlider.max) * 100),
+                                element: gapSlider
+                            });
+                        }, 300);  // Delay of 300ms
+                    });
+                    processedElements.add(gapSlider);
+                    newAttachments++;
+                }
+            }
+        });
+
+        if (newAttachments > 0) {
+            if (!hasAttachments) {
+                printDivider();
+                hasAttachments = true;
+            }
+            console.log('Observer attached: gap sliders');
         }
     };
 
@@ -375,17 +418,22 @@ function observeFiltersValues(callback) {
                         element: event.target
                     });
 
-                    // Update details if this is part of a time div
-                    const timeDiv = event.target.closest('div[show-details="true"]');
-                    if (timeDiv) {
-                        const startSlider = timeDiv.querySelector('#time-start-slider');
-                        const endSlider = timeDiv.querySelector('#time-end-slider');
-                        if (startSlider && endSlider) {
-                            const details = [
-                                `Start: ${minutesToTime(parseInt(startSlider.value))}`,
-                                `End: ${minutesToTime(parseInt(endSlider.value))}`,
-                            ];
-                            createOrUpdateSpan(timeDiv, selectedOption.text, details);
+                    // Update details based on parent div type
+                    const parentDiv = event.target.closest('div[show-details="true"]');
+                    if (parentDiv) {
+                        if (parentDiv.classList.contains('time')) {
+                            const startSlider = parentDiv.querySelector('#time-start-slider');
+                            const endSlider = parentDiv.querySelector('#time-end-slider');
+                            if (startSlider && endSlider) {
+                                const details = `Start: ${minutesToTime(parseInt(startSlider.value))} End: ${minutesToTime(parseInt(endSlider.value))}`;
+                                createOrUpdateSpan(parentDiv, selectedOption.text, details);
+                            }
+                        } else if (parentDiv.classList.contains('gap')) {
+                            const gapSlider = parentDiv.querySelector('#class_gap');
+                            if (gapSlider) {
+                                const details = `Gap: ${gapSlider.value} minutes`;
+                                createOrUpdateSpan(parentDiv, selectedOption.text, details);
+                            }
                         }
                     }
                 };
@@ -408,7 +456,8 @@ function observeFiltersValues(callback) {
     // Initialize observers for all input types
     handleCheckboxes();
     handleTimeInputs();
-    handleRangeInputs();
+    handleTimeRangeInputs();
+    handleGapRangeInputs();
     handleSelectOptions();
 
     // Print final divider if any attachments were made
@@ -422,7 +471,8 @@ function observeFiltersValues(callback) {
             if (mutation.addedNodes.length) {
                 handleCheckboxes();
                 handleTimeInputs();
-                handleRangeInputs();
+                handleTimeRangeInputs();
+                handleGapRangeInputs();
                 handleSelectOptions();
             }
         });
