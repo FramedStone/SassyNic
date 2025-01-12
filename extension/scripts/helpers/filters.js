@@ -62,6 +62,10 @@ function minutesToTime(minutes) {
     return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
 }
 
+/**
+ * Function that will display sliders for the time filter 
+ * @param {Object} dataset 
+ */
 export function getTimeSliders(dataset) {
     const timeStart = document.getElementById('time-start');
     const timeEnd = document.getElementById('time-end');
@@ -278,6 +282,10 @@ export function getClassGap(dataset) {
 }
 
 // ---------------------- INSTRUCTORS -----------------------------//
+/**
+ * Function that will display all the instructors from the dataset with checkboxes beside 
+ * @param {Object} dataset 
+ */
 export function getInstructors(dataset) {
     const instructorContainer = document.getElementById('instructor');
     const uniqueInstructors = new Set();
