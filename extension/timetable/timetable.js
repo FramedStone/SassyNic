@@ -68,6 +68,17 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         dragndrop.getDragDrop();
 
+        // ---------------------- TIMETABLE TABLE ---------------------------------//
+        // Timetable table
+        const src_table = chrome.runtime.getURL('../scripts/helpers/table.js');
+        const table = await import(src_table);
+
+        table.getTable(dataset);
+
+        // ------------------------- FITNESS FUNCTIONS ---------------------------//
+        const src_fitness = chrome.runtime.getURL('../scripts/helpers/fitness.js');
+        const fitness = await import(src_fitness); 
+
         // ---------------------- MUTATION OBSERVERS --------------------------------//
         // Observe ranks for child elements
         observeRanks("draggable-item-child", (changes) => {
@@ -115,19 +126,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
             }
-        }, dragndrop); // pass dragndrop object to track newly created span(s)
-
-        // ---------------------- TIMETABLE TABLE ---------------------------------//
-        // Timetable table
-        const src_table = chrome.runtime.getURL('../scripts/helpers/table.js');
-        const table = await import(src_table);
-
-        table.getTable(dataset);
-
-        // ------------------------- FITNESS FUNCTIONS ---------------------------//
-        const src_fitness = chrome.runtime.getURL('../scripts/helpers/fitness.js');
-        const fitness = await import(src_fitness); 
-
+        }, dragndrop, fitness); // pass dragndrop object to track newly created span(s), and fitness for real time updates
     });
 })();
 
@@ -176,9 +175,11 @@ function observeRanks(className, callback) {
 /**
  * Function to observe 'value' changes in filter's elements
  * @param {Object} callback 
+ * @param {Object} dragndrop 
+ * @param {Object} fitness 
  * @returns {null} - cleanup function
  */
-function observeFiltersValues(callback, dragndrop) {
+function observeFiltersValues(callback, dragndrop, fitness) {
     const container = document.getElementById('filters');
     if (!container) {
         console.error("Element with id 'filters' not found.");
@@ -262,7 +263,19 @@ function observeFiltersValues(callback, dragndrop) {
             parentDiv.appendChild(childDiv);
             spansBySelection[selection] = childDiv;
 
-            dragndrop.getDragDrop();
+            dragndrop.getDragDrop(); // track new child elements
+            observeRanks("draggable-item-child", (changes) => {
+                console.log("--------------------------------------------------------------");
+
+                changes.forEach(({ element, newRank }) => {
+                    console.log(
+                        `new rank: ${newRank}, ${element.querySelector('span').textContent.replace('x', '')}`
+                    );
+                });
+
+                fitness.setFilterWeight();
+                // console.log("--------------------------------------------------------------");
+            });
         }
     };
 
