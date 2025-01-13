@@ -59,7 +59,7 @@ export function getDragDrop() {
     });
 
     // ---------------------- CHILD DIV ----------------------------//
-    const childContainers = document.querySelectorAll('.draggable-item-child');
+    const childContainers = document.querySelectorAll('.draggable-item:not([hidden]) .draggable-item-child');
 
     childContainers.forEach(child => {
         child.addEventListener('mousedown', (e) => {
