@@ -7,13 +7,17 @@
  * 5. instructors filters
  */
 
+export function setFilterWeight(filters) {
+    filters.forEach(filter => {
+        console.log(filter.id, filter.getAttribute("data-rank"));
+    })
+}
+
 // export function setFitnessScore
 
 // export function getFitnessScore(dataset, )
 
 // function setMaxFitness()
-
-// function setFilterWeight()
 
 // function compareData(dataset, callback)
 

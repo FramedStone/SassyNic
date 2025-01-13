@@ -31,42 +31,20 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         filters.getClassGap(dataset);           // Class Gap
         filters.getInstructors(dataset);        // Instructors
 
-        // Filters selection
-        const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');
-        filters_selection.forEach(filter => {
-            filter.addEventListener('change', () => {
-                if(!filter.checked) {
-                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).setAttribute('hidden', 'true');
-                    dragndrop.getDragDrop(); // update filter's rank
-                }
-                if(filter.checked) {
-                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).removeAttribute('hidden');
-                    dragndrop.getDragDrop(); // udpate filter's rank
-                }
-            });
-        });
-
-
-        // ---------------------- DRAG AND DROP -----------------------------------//
-        const src_dragndrop = chrome.runtime.getURL('../scripts/helpers/dragndrop.js');
-        const dragndrop = await import(src_dragndrop);
-
-        dragndrop.getDragDrop();
-
-        // ---------------------- TIMETABLE TABLE ---------------------------------//
-        // Timetable table
-        const src_table = chrome.runtime.getURL('../scripts/helpers/table.js');
-        const table = await import(src_table);
-
-        table.getTable(dataset);
-
-        // ------------------------- FITNESS FUNCTIONS ---------------------------//
-        const src_fitness = chrome.runtime.getURL('../scripts/helpers/fitness.js');
-        const fitness = await import(src_fitness); 
-
         // Observe filter's ranking changes
-        observeRanks("draggable-item");
-        observeRanks("draggable-item-child");
+        observeRanks("draggable-item", (changes) => {
+            console.log("--------------------------------------------------------------");
+
+            changes.forEach(({ element, newRank }) => {
+                console.log(
+                    element.className.includes('draggable-item-child')
+                        ? `new rank: ${newRank}, ${element.querySelector('label').textContent}` // For child items
+                        : `new rank: ${newRank}, ${element.querySelector('span').textContent.replace(/[0-9]*./, "").trim()}` // For parent items
+                );
+            });
+
+            // console.log("--------------------------------------------------------------");
+        });
 
         // Observer filter's elements value changes
         observeFiltersValues((result) => {
@@ -102,6 +80,45 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             }
         });
 
+        // ---------------------- DRAG AND DROP -----------------------------------//
+        const src_dragndrop = chrome.runtime.getURL('../scripts/helpers/dragndrop.js');
+        const dragndrop = await import(src_dragndrop);
+
+        dragndrop.getDragDrop();
+
+        // ---------------------- TIMETABLE TABLE ---------------------------------//
+        // Timetable table
+        const src_table = chrome.runtime.getURL('../scripts/helpers/table.js');
+        const table = await import(src_table);
+
+        table.getTable(dataset);
+
+        // ------------------------- FITNESS FUNCTIONS ---------------------------//
+        const src_fitness = chrome.runtime.getURL('../scripts/helpers/fitness.js');
+        const fitness = await import(src_fitness); 
+
+        // Filters selection
+        const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');
+        filters_selection.forEach(filter => {
+            filter.addEventListener('change', () => {
+                if(!filter.checked) {
+                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).setAttribute('hidden', 'true');
+                    dragndrop.getDragDrop(); // update filter's rank
+                }
+                if(filter.checked) {
+                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).removeAttribute('hidden');
+                    dragndrop.getDragDrop(); // udpate filter's rank
+
+                    // ------------------------- UPDATE TABLE BASED ON FITNESS SCORE ---------------------------//
+                    // Setup filter's weight
+                    const filters_final = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+                    console.log("Total Filters to be sent into 'fitness.js': ", filters_final.length);
+                    fitness.setFilterWeight(filters_final)
+                }
+            });
+        });
+
+
     });
 })();
 
@@ -110,51 +127,43 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
  * Function to observe 'data-rank' changes in filter's elements
  * @param {String} className - element's class name
  */
-function observeRanks(className) {
-    const elements = document.querySelectorAll(`.${className}`); // Observe all elements with the given class
-    const changes = []; // To collect rank changes for grouped logging
+function observeRanks(className, callback) {
+    const elements = document.querySelectorAll(`.${className}`); // Select elements with the given class
 
-    // MutationObserver object
+    // MutationObserver to monitor attribute changes
     const observer = new MutationObserver((mutationList) => {
-        for (const mutation of mutationList) {
+        const changes = []; // Accumulate changes for grouped output
+
+        mutationList.forEach((mutation) => {
             if (mutation.type === "attributes" && mutation.attributeName === "data-rank") {
                 const target = mutation.target;
                 const newRank = target.getAttribute("data-rank");
 
-                // Collect change for grouped output
-                changes.push({ element: target, newRank });
+                // Collect structured results for the callback
+                changes.push({
+                    element: target,
+                    newRank,
+                });
             }
-        }
+        });
 
-        // If there are changes, log them grouped with separators
-        if (changes.length > 0) {
-            // console.log("--------------------------------------------------------------");
-            console.log("\nDRAG AND DROP");
-            changes.forEach(({ element, newRank }) => {
-                console.log(
-                    element.className.includes('draggable-item-child') ? `new rank: ${newRank}, ${element.querySelector('label').textContent}` // draggable-item-child
-                    : ` new rank: ${newRank},${element.querySelector('span').textContent.replace(/[0-9]*./, "")}` // dragggable-item
-                );
-            });
-            console.log("--------------------------------------------------------------");
-
-            // Clear changes after logging to avoid duplicate entries
-            changes.length = 0;
+        // Trigger the callback with accumulated changes if there are any
+        if (changes.length > 0 && typeof callback === "function") {
+            callback(changes);
         }
     });
 
-    // Start observing for rank attribute changes
+    // Start observing the elements for 'data-rank' attribute changes
     elements.forEach((element) => {
         observer.observe(element, {
             attributes: true,
-            attributeFilter: ["data-rank"] // Observe only "data-rank"
+            attributeFilter: ["data-rank"], // Observe only "data-rank"
         });
     });
 
-    console.log("--------------------------------------------------------------");
-    console.log("Observer attached: 'data-rank'");
-    // console.log("--------------------------------------------------------------");
+    console.log(`Observer attached to elements with class '${className}' for 'data-rank' changes.`);
 }
+
 
 /**
  * Function to observe 'value' changes in filter's elements
