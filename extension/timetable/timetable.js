@@ -43,23 +43,14 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                     document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).removeAttribute('hidden');
                     dragndrop.getDragDrop(); // udpate filter's rank
 
-                    fitness.setFilterWeight();
+                    const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+                    const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+
+                    fitness.getFitnessScore(dataset, filters, children, (result) => {
+                        console.log(result);
+                    });
                 }
             });
-        });
-
-        // Observe ranks for parent elements
-        observeRanks("draggable-item", (changes) => {
-            console.log("--------------------------------------------------------------");
-
-            changes.forEach(({ element, newRank }) => {
-                console.log(
-                    `new rank: ${newRank}, ${element.querySelector('span').textContent.replace(/[0-9]*./, "").trim()}`
-                );
-                fitness.setFilterWeight(); // recalculate filter's weight 
-            });
-
-            // console.log("--------------------------------------------------------------");
         });
 
         // ---------------------- DRAG AND DROP -----------------------------------//
@@ -80,6 +71,25 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const fitness = await import(src_fitness); 
 
         // ---------------------- MUTATION OBSERVERS --------------------------------//
+        // Observe ranks for parent elements
+        observeRanks("draggable-item", (changes) => {
+            console.log("--------------------------------------------------------------");
+
+            changes.forEach(({ element, newRank }) => {
+                console.log(
+                    `new rank: ${newRank}, ${element.querySelector('span').textContent.replace(/[0-9]*./, "").trim()}`
+                );
+            });
+
+            const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+            const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+            fitness.getFitnessScore(dataset, filters, children, (result) => {
+                console.log(result);
+            });
+
+            // console.log("--------------------------------------------------------------");
+        });
+
         // Observe ranks for child elements
         observeRanks("draggable-item-child", (changes) => {
             console.log("--------------------------------------------------------------");
@@ -88,7 +98,12 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log(
                     `new rank: ${newRank}, ${element.querySelector('label').textContent}`
                 );
-                fitness.setFilterWeight(); // recalculate filter's weight
+            });
+
+            const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+            const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+            fitness.getFitnessScore(dataset, filters, children, (result) => {
+                console.log(result);
             });
 
             // console.log("--------------------------------------------------------------");
@@ -273,7 +288,6 @@ function observeFiltersValues(callback, dragndrop, fitness) {
                     );
                 });
 
-                fitness.setFilterWeight();
                 // console.log("--------------------------------------------------------------");
             });
         }
