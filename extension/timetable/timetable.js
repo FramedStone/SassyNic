@@ -31,16 +31,53 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         filters.getClassGap(dataset);           // Class Gap
         filters.getInstructors(dataset);        // Instructors
 
-        // Observe filter's ranking changes
+        // Filters selection
+        const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');
+        filters_selection.forEach(filter => {
+            filter.addEventListener('change', () => {
+                if(!filter.checked) {
+                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).setAttribute('hidden', 'true');
+                    dragndrop.getDragDrop(); // update filter's rank
+                }
+                if(filter.checked) {
+                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).removeAttribute('hidden');
+                    dragndrop.getDragDrop(); // udpate filter's rank
+
+                    fitness.setFilterWeight();
+                }
+            });
+        });
+
+        // Observe ranks for parent elements
         observeRanks("draggable-item", (changes) => {
             console.log("--------------------------------------------------------------");
 
             changes.forEach(({ element, newRank }) => {
                 console.log(
-                    element.className.includes('draggable-item-child')
-                        ? `new rank: ${newRank}, ${element.querySelector('label').textContent}` // For child items
-                        : `new rank: ${newRank}, ${element.querySelector('span').textContent.replace(/[0-9]*./, "").trim()}` // For parent items
+                    `new rank: ${newRank}, ${element.querySelector('span').textContent.replace(/[0-9]*./, "").trim()}`
                 );
+                fitness.setFilterWeight(); // recalculate filter's weight 
+            });
+
+            // console.log("--------------------------------------------------------------");
+        });
+
+        // ---------------------- DRAG AND DROP -----------------------------------//
+        const src_dragndrop = chrome.runtime.getURL('../scripts/helpers/dragndrop.js');
+        const dragndrop = await import(src_dragndrop);
+
+        dragndrop.getDragDrop();
+
+        // ---------------------- MUTATION OBSERVERS --------------------------------//
+        // Observe ranks for child elements
+        observeRanks("draggable-item-child", (changes) => {
+            console.log("--------------------------------------------------------------");
+
+            changes.forEach(({ element, newRank }) => {
+                console.log(
+                    `new rank: ${newRank}, ${element.querySelector('label').textContent}`
+                );
+                fitness.setFilterWeight(); // recalculate filter's weight
             });
 
             // console.log("--------------------------------------------------------------");
@@ -78,13 +115,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
             }
-        });
-
-        // ---------------------- DRAG AND DROP -----------------------------------//
-        const src_dragndrop = chrome.runtime.getURL('../scripts/helpers/dragndrop.js');
-        const dragndrop = await import(src_dragndrop);
-
-        dragndrop.getDragDrop();
+        }, dragndrop); // pass dragndrop object to track newly created span(s)
 
         // ---------------------- TIMETABLE TABLE ---------------------------------//
         // Timetable table
@@ -96,28 +127,6 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         // ------------------------- FITNESS FUNCTIONS ---------------------------//
         const src_fitness = chrome.runtime.getURL('../scripts/helpers/fitness.js');
         const fitness = await import(src_fitness); 
-
-        // Filters selection
-        const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');
-        filters_selection.forEach(filter => {
-            filter.addEventListener('change', () => {
-                if(!filter.checked) {
-                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).setAttribute('hidden', 'true');
-                    dragndrop.getDragDrop(); // update filter's rank
-                }
-                if(filter.checked) {
-                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).removeAttribute('hidden');
-                    dragndrop.getDragDrop(); // udpate filter's rank
-
-                    // ------------------------- UPDATE TABLE BASED ON FITNESS SCORE ---------------------------//
-                    // Setup filter's weight
-                    const filters_final = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
-                    console.log("Total Filters to be sent into 'fitness.js': ", filters_final.length);
-                    fitness.setFilterWeight(filters_final)
-                }
-            });
-        });
-
 
     });
 })();
@@ -164,13 +173,12 @@ function observeRanks(className, callback) {
     console.log(`Observer attached to elements with class '${className}' for 'data-rank' changes.`);
 }
 
-
 /**
  * Function to observe 'value' changes in filter's elements
  * @param {Object} callback 
  * @returns {null} - cleanup function
  */
-function observeFiltersValues(callback) {
+function observeFiltersValues(callback, dragndrop) {
     const container = document.getElementById('filters');
     if (!container) {
         console.error("Element with id 'filters' not found.");
@@ -198,66 +206,65 @@ function observeFiltersValues(callback) {
         return `${hours.toString().padStart(2, '0')}:00`;
     };
 
-    // Helper function to remove a span and its associated BR element
-    const removeSpanAndBr = (span) => {
-        if (span && span.parentNode) {
-            // Remove the BR element before the span if it exists
-            if (span.previousElementSibling && span.previousElementSibling.tagName === 'BR') {
-                span.previousElementSibling.remove();
-            }
-            span.remove();
+    // Updated helper function to remove a child div and its associated content
+    const removeChildDiv = (childDiv) => {
+        if (childDiv && childDiv.parentNode) {
+            childDiv.remove();
         }
     };
 
-    // Span creation and update utility
+    // Updated span creation and update utility
     const createOrUpdateSpan = (parentDiv, selection, details) => {
-        let span;
+        let childDiv;
         if (!spansMap.has(parentDiv)) {
             spansMap.set(parentDiv, {});
         }
 
         const spansBySelection = spansMap.get(parentDiv);
 
-        // If selection is "Everyday", remove all other spans
+        // If selection is "Everyday", remove all other child divs
         if (selection === "Everyday") {
-            // Remove all existing spans
-            Object.entries(spansBySelection).forEach(([key, existingSpan]) => {
+            Object.entries(spansBySelection).forEach(([key, existingChildDiv]) => {
                 if (key !== "Everyday") {
-                    removeSpanAndBr(existingSpan);
+                    removeChildDiv(existingChildDiv);
                     delete spansBySelection[key];
                 }
             });
         } else {
-            // If selection is not "Everyday", remove the "Everyday" span if it exists
             if (spansBySelection["Everyday"]) {
-                removeSpanAndBr(spansBySelection["Everyday"]);
+                removeChildDiv(spansBySelection["Everyday"]);
                 delete spansBySelection["Everyday"];
             }
         }
 
         if (spansBySelection[selection]) {
-            span = spansBySelection[selection];
+            childDiv = spansBySelection[selection];
         } else {
-            span = document.createElement('span');
+            childDiv = document.createElement('div');
+            childDiv.className = 'draggable-item-child';
+            childDiv.setAttribute('data-rank', Object.keys(spansBySelection).length + 1);
+
+            const span = document.createElement('span');
             span.className = 'details-display';
-            parentDiv.appendChild(document.createElement('br'));
-            parentDiv.appendChild(span);
-            spansBySelection[selection] = span;
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = 'x';
+            deleteButton.className = 'delete-button';
+            deleteButton.addEventListener('click', () => {
+                removeChildDiv(childDiv);
+                delete spansBySelection[selection];
+            });
+
+            span.innerHTML = `<strong>${selection}</strong><br>${details} `;
+            span.appendChild(deleteButton);
+
+            childDiv.appendChild(span);
+            parentDiv.appendChild(childDiv);
+            spansBySelection[selection] = childDiv;
+
+            dragndrop.getDragDrop();
         }
-
-        // Create delete button
-        const deleteButton = document.createElement('button');
-        deleteButton.innerText = 'x';
-        deleteButton.className = 'delete-button';
-        deleteButton.addEventListener('click', () => {
-            removeSpanAndBr(span)
-            delete spansBySelection[selection];
-        });
-
-        span.innerHTML = `<strong>${selection}</strong><br>${details} `;
-        span.appendChild(deleteButton);
     };
-
 
     // Handle checkbox changes
     const handleCheckboxes = () => {
@@ -319,7 +326,7 @@ function observeFiltersValues(callback) {
         }
     };
 
-    // Handle range slider changes with time display functionality
+    // Handle time range slider changes
     const handleTimeRangeInputs = () => {
         const timeDivs = container.querySelectorAll('div.time[show-details="true"]');
         let newAttachments = 0;
@@ -341,7 +348,7 @@ function observeFiltersValues(callback) {
                 if (!processedElements.has(startSlider)) {
                     let timeout;
                     startSlider.addEventListener('input', () => {
-                        clearTimeout(timeout);  // Clear any pending timeout
+                        clearTimeout(timeout);
                         timeout = setTimeout(() => {
                             timeStart.value = minutesToTime(parseInt(startSlider.value));
                             updateDetails();
@@ -352,7 +359,7 @@ function observeFiltersValues(callback) {
                                 percentage: Math.round((startSlider.value / startSlider.max) * 100),
                                 element: startSlider
                             });
-                        }, 300);  // Delay of 300ms
+                        }, 300);
                     });
                     processedElements.add(startSlider);
                     newAttachments++;
@@ -361,7 +368,7 @@ function observeFiltersValues(callback) {
                 if (!processedElements.has(endSlider)) {
                     let timeout;
                     endSlider.addEventListener('input', () => {
-                        clearTimeout(timeout);  // Clear any pending timeout
+                        clearTimeout(timeout);
                         timeout = setTimeout(() => {
                             timeEnd.value = minutesToTime(parseInt(endSlider.value));
                             updateDetails();
@@ -372,7 +379,7 @@ function observeFiltersValues(callback) {
                                 percentage: Math.round((endSlider.value / endSlider.max) * 100),
                                 element: endSlider
                             });
-                        }, 300);  // Delay of 300ms
+                        }, 300);
                     });
                     processedElements.add(endSlider);
                     newAttachments++;
@@ -409,7 +416,7 @@ function observeFiltersValues(callback) {
                 if (!processedElements.has(gapSlider)) {
                     let timeout;
                     gapSlider.addEventListener('input', () => {
-                        clearTimeout(timeout);  // Clear any pending timeout
+                        clearTimeout(timeout);
                         timeout = setTimeout(() => {
                             gapValue.textContent = gapSlider.value;
                             updateDetails();
@@ -420,7 +427,7 @@ function observeFiltersValues(callback) {
                                 percentage: Math.round((gapSlider.value / gapSlider.max) * 100),
                                 element: gapSlider
                             });
-                        }, 300);  // Delay of 300ms
+                        }, 300);
                     });
                     processedElements.add(gapSlider);
                     newAttachments++;
@@ -453,7 +460,6 @@ function observeFiltersValues(callback) {
                         element: event.target
                     });
 
-                    // Update details based on parent div type
                     const parentDiv = event.target.closest('div[show-details="true"]');
                     if (parentDiv) {
                         if (parentDiv.classList.contains('time')) {
@@ -470,27 +476,15 @@ function observeFiltersValues(callback) {
                                     createOrUpdateSpan(parentDiv, selectedOption.text, details);
                                 }
 
-                                if (details) {  // Check if details exist
-                                    startSlider.value = timeToMinutes(details.split('End: ')[0].split('Start: ')[1].trim());
-                                    endSlider.value = timeToMinutes(details.split('End: ')[1].trim());
+                                if (details) {
+                                    createOrUpdateSpan(parentDiv, selectedOption.text, details);
                                 }
                             }
                         } else if (parentDiv.classList.contains('gap')) {
                             const gapSlider = parentDiv.querySelector('#class_gap');
-
                             if (gapSlider) {
-                                let details;
-                                const spansBySelection = spansMap.get(parentDiv);
-                                if (spansBySelection && spansBySelection[selectedOption.text]) {
-                                    details = spansBySelection[selectedOption.text].details;
-                                } else {
-                                    details = `Gap: ${gapSlider.value} minutes`;
-                                    createOrUpdateSpan(parentDiv, selectedOption.text, details);
-                                }
-
-                                if (details) {  // Check if details exist
-                                    gapSlider.value = parseInt(details.split('Gap: ')[1].trim().split(' ')[0]);
-                                }
+                                const details = `Gap: ${gapSlider.value} minutes`;
+                                createOrUpdateSpan(parentDiv, selectedOption.text, details);
                             }
                         }
                     }
@@ -507,45 +501,14 @@ function observeFiltersValues(callback) {
                 printDivider();
                 hasAttachments = true;
             }
-            console.log('Observer attached: select elements');
+            console.log('Observer attached: selects');
         }
     };
 
-    // Initialize observers for all input types
     handleCheckboxes();
     handleTimeInputs();
     handleTimeRangeInputs();
     handleGapRangeInputs();
     handleSelectOptions();
-
-    // Print final divider if any attachments were made
-    if (hasAttachments) {
-        printDivider();
-    }
-
-    // Optional: Observe DOM changes to handle dynamically added elements
-    const observer = new MutationObserver((mutations) => {
-        mutations.forEach((mutation) => {
-            if (mutation.addedNodes.length) {
-                handleCheckboxes();
-                handleTimeInputs();
-                handleTimeRangeInputs();
-                handleGapRangeInputs();
-                handleSelectOptions();
-            }
-        });
-    });
-
-    // Start observing the container for added nodes
-    observer.observe(container, {
-        childList: true,
-        subtree: true
-    });
-
-    // Return cleanup function
-    return () => {
-        observer.disconnect();
-        processedElements.clear();
-        spansMap.clear();
-    };
 }
+

@@ -11,8 +11,8 @@ export function getDragDrop() {
     draggables.forEach(draggable => {
         // Handle mousedown to determine if drag should start
         draggable.addEventListener('mousedown', (e) => {
-            // Enable drag only if the click target is a span
-            if (e.target.tagName === 'SPAN') {
+            // Ensure drag starts only if the click target is a SPAN inside .draggable-item
+            if (e.target.tagName === 'SPAN' && draggable.contains(e.target)) {
                 draggable.setAttribute('draggable', 'true');
             } else {
                 draggable.setAttribute('draggable', 'false');
@@ -63,8 +63,8 @@ export function getDragDrop() {
 
     childContainers.forEach(child => {
         child.addEventListener('mousedown', (e) => {
-            // Enable drag only if the click target is a label
-            if (e.target.tagName === 'LABEL') {
+            // Enable drag only if the click target is a LABEL or SPAN
+            if (e.target.tagName === 'LABEL' || e.target.tagName === 'SPAN') {
                 child.setAttribute('draggable', 'true');
             } else {
                 child.setAttribute('draggable', 'false');
@@ -106,7 +106,7 @@ export function getDragDrop() {
 
         return draggableElements.reduce((closest, child) => {
             const box = child.getBoundingClientRect();
-            const offset = position - (selector === '.draggable-item' ? box.right: box.bottom);
+            const offset = position - (selector === '.draggable-item' ? box.right : box.bottom);
 
             if (offset < 0 && offset > closest.offset) {
                 return { offset: offset, element: child };
@@ -147,3 +147,4 @@ export function getDragDrop() {
     }
     updateRanks();
 }
+

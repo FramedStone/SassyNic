@@ -7,7 +7,10 @@
  * 5. instructors filters
  */
 
-export function setFilterWeight(filters) {
+export function setFilterWeight() {
+    const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+    console.log("Total Filters that have been sent into 'fitness.js': ", filters.length);
+    
     filters.forEach(filter => {
         console.log(filter.id, filter.getAttribute("data-rank"));
     })
