@@ -46,7 +46,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                     const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
                     const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
 
-                    fitness.getFitnessScore(dataset, filters, children, (result) => {
+                    fitness.getSortedDataset(dataset, filters, children, (result) => {
                         console.log(result);
                     });
                 }
@@ -83,8 +83,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getFitnessScore(dataset, filters, children, (result) => {
-                console.log(result);
+            fitness.getSortedDataset(dataset, filters, children, (dataset) => {
+                table.getTable(dataset);
             });
 
             // console.log("--------------------------------------------------------------");
@@ -102,7 +102,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getFitnessScore(dataset, filters, children, (result) => {
+            fitness.getSortedDataset(dataset, filters, children, (result) => {
                 console.log(result);
             });
 
@@ -118,6 +118,13 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log(`${result.element.id} is ${result.value}`);
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
+
+                const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+                const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+                fitness.getSortedDataset(dataset, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset);
+                });
             }
             else if (result.type === 'range') {
                 const valueDisplay = document.getElementById(`${elementId}_value`);
