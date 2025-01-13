@@ -1,7 +1,7 @@
 export function getDragDrop() {
     // Get parent container and all draggable items
     const filters = document.getElementById('filters');
-    const draggables = document.querySelectorAll('.draggable-item');
+    const draggables = document.querySelectorAll('.draggable-item:not([hidden])');
 
     // Track the currently dragged element
     let draggedItem = null;
@@ -41,6 +41,11 @@ export function getDragDrop() {
     // Add dragover and drop events to the parent container
     filters.addEventListener('dragover', (e) => {
         e.preventDefault();
+
+        // Ensure draggedItem is a valid Node
+        if (!draggedItem || !(draggedItem instanceof Node)) {
+            return;
+        }
 
         // Get the closest element to the current mouse position
         const afterElement = getDragAfterElement(filters, e.clientX);
@@ -113,7 +118,7 @@ export function getDragDrop() {
 
     // Function to update rankings dynamically for parent items
     function updateRanks() {
-        const items = filters.querySelectorAll(".draggable-item");
+        const items = filters.querySelectorAll(".draggable-item:not([hidden])");
         items.forEach((item, index) => {
             const rank = index + 1;
             const currentRank = parseInt(item.dataset.rank) || 0;
@@ -128,17 +133,17 @@ export function getDragDrop() {
     }
 
     // Function to update rankings dynamically for child items
-function updateChildRanks(parent) {
-    const children = parent.querySelectorAll(".draggable-item-child");
-    children.forEach((child, index) => {
-        const newRank = index + 1;
-        const currentRank = parseInt(child.dataset.rank) || 0;
+    function updateChildRanks(parent) {
+        const children = parent.querySelectorAll(".draggable-item-child");
+        children.forEach((child, index) => {
+            const newRank = index + 1;
+            const currentRank = parseInt(child.dataset.rank) || 0;
 
-        // Only update if the rank has changed
-        if (currentRank !== newRank) {
-            child.dataset.rank = newRank;
-        }
-    });
-}
-
+            // Only update if the rank has changed
+            if (currentRank !== newRank) {
+                child.dataset.rank = newRank;
+            }
+        });
+    }
+    updateRanks();
 }

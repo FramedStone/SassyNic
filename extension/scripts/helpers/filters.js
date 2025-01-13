@@ -270,7 +270,7 @@ export function getClassGap(dataset) {
 
     const timeInfo = getTimeInfo(dataset);
 
-    // initial slider value (Everyday)
+    // Assign slider min and max value
     slider.min = timeInfo.minGap;
     slider.max = timeInfo.maxGap;
 
@@ -284,18 +284,6 @@ export function getClassGap(dataset) {
 
     // Set initial value when the page loads
     output.textContent = slider.value;
-
-    // Update slider min and max based on selected day
-    document.getElementById("gap_daysofweek").addEventListener("change", (event) => {
-        const selectedDay = event.target.value;
-        const dayData = timeInfo.datasetByDay[selectedDay];
-
-        if (dayData) {
-            slider.min = dayData.minGap;
-            slider.max = dayData.maxGap;
-            output.textContent = slider.value;
-        }
-    });
 }
 
 // ---------------------- INSTRUCTORS -----------------------------//

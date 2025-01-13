@@ -8,8 +8,22 @@
 <body>
     <!-- Filters -->
     <div class="filters" id="filters">
+        <div class="selection" id="selection">
+            <label for="filter_daysofweek">Day Filter</label>
+            <input type="checkbox" id="filter_daysofweek"/>
+            <br>
+            <label for="filter_daysofweek">Time Filter</label>
+            <input type="checkbox" id="filter_time"/>
+            <br>
+            <label for="filter_daysofweek">Class Gap Filter</label>
+            <input type="checkbox" id="filter_gap"/>
+            <br>
+            <label for="filter_daysofweek">Instructor Filter</label>
+            <input type="checkbox" id="filter_instructor"/>
+            <br>
+        </div>
         <!-- Days Of Week -->
-        <div class="draggable-item daysofweek" id="daysofweek" data-rank="1" show-details="false">
+        <div class="draggable-item daysofweek" id="daysofweek" data-rank="1" show-details="false" hidden>
             <span class="rank-display">1. Day Filter</span>
             <br>
             <div class="draggable-item-child" data-rank="1">
@@ -47,7 +61,7 @@
         </div>
 
         <!-- Time -->
-        <div class="draggable-item time" id="time" data-rank="2" show-details="true">
+        <div class="draggable-item time" id="time" data-rank="2" show-details="true" hidden>
             <span class="rank-display">2. Time Filter</span>
             <br>
             <label for="time-start">Start</label>
@@ -68,7 +82,7 @@
             </select>
         </div>
         <!-- Class Gap -->
-        <div class="draggable-item gap" id="gap" data-rank="3" show-details="true">
+        <div class="draggable-item gap" id="gap" data-rank="3" show-details="true" hidden>
             <span class="rank-display">3. Class Gap Filter</span>
             <br>
             <label for="class_gap">Class Gap (30 minutes interval):</label>
@@ -88,7 +102,7 @@
             </select>
         </div>
         <!-- Instructor -->
-        <div class="draggable-item instructor" id="instructor" data-rank="4" show-details="false">
+        <div class="draggable-item instructor" id="instructor" data-rank="4" show-details="false" hidden>
             <span class="rank-display">4. Instructor Filter</span>
             <!-- Instructor list will be dynamically displayed here -->
         </div>

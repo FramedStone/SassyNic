@@ -31,6 +31,21 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         filters.getClassGap(dataset);           // Class Gap
         filters.getInstructors(dataset);        // Instructors
 
+        // Filters selection
+        const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');
+        filters_selection.forEach(filter => {
+            filter.addEventListener('change', () => {
+                if(!filter.checked) {
+                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).setAttribute('hidden', 'true');
+                    dragndrop.getDragDrop(); // update filter's rank
+                }
+                if(filter.checked) {
+                    document.querySelector(`div.filters .${filter.id.replace('filter_', '')}`).removeAttribute('hidden');
+                    dragndrop.getDragDrop(); // udpate filter's rank
+                }
+            });
+        });
+
 
         // ---------------------- DRAG AND DROP -----------------------------------//
         const src_dragndrop = chrome.runtime.getURL('../scripts/helpers/dragndrop.js');
