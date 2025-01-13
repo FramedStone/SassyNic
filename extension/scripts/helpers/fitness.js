@@ -7,6 +7,20 @@
  * 5. instructors filters
  */
 
-// export function setFitness
+// export function setFitnessScore
 
-// export function getFitness(dataset, )
+// export function getFitnessScore(dataset, )
+
+// function setMaxFitness()
+
+// function setFilterWeight()
+
+// function compareData(dataset, callback)
+
+// function getPenaltyDayFilter()
+// function getPenaltyTimeFilter()
+// function getPenaltyClassGapFilter()
+// funciton getPenaltyInstructorFilter()
+
+// function getRawFitness()
+// function getFinalFitness()
