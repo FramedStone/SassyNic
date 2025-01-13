@@ -150,34 +150,41 @@ function parseDayAndTime(daytime) {
 
     // Convert time to "start end" format in minutes
     const timeToMinutes = (timeStr) => {
-        if(!timeStr) return "to be announced"; // checker for 'to be announced' timeslots
+        if (!timeStr) return "to be announced"; // Checker for 'to be announced' timeslots
 
-        
         // Split start and end times
         const [startTime, endTime] = timeStr.split(/\s*to\s*/i);
-        
+
         // Convert individual times to minutes
         const convertSingleTime = (time) => {
             const isPM = time.toUpperCase().includes('PM');
+            const isAMPM = /[AP]M/i.test(time); // Check if time uses AM/PM format
             time = time.replace(/[AP]M/i, '').trim();
 
             let [hours, minutes] = time.split(':').map(Number);
-            
-            // Handle 12-hour PM conversion
-            if (isPM && hours !== 12) {
-                hours += 12;
+
+            if (isAMPM) {
+                // Handle 12-hour PM conversion
+                if (isPM && hours !== 12) {
+                    hours += 12;
+                }
+                // Handle midnight (12 AM)
+                if (!isPM && hours === 12) {
+                    hours = 0;
+                }
+            } else {
+                // For 24-hour format, do nothing special
+                if (hours === 24) {
+                    hours = 0; // Handle edge case for 24:00 as midnight
+                }
             }
-            // Handle midnight (12 AM)
-            if (!isPM && hours === 12) {
-                hours = 0;
-            }
-            
+
             return hours * 60 + (minutes || 0);
         };
-        
+
         const startMinutes = convertSingleTime(startTime);
         const endMinutes = convertSingleTime(endTime);
-        
+
         return `${startMinutes} ${endMinutes}`;
     };
 
