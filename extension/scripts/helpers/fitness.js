@@ -77,11 +77,12 @@ function setFitnessScore(dataset, callback) {
 
 // ------------------------- FITNESS SCORE FUNCTIONS ---------------------//
 function getDayScore(set) {
-    // Extract user-selected days and their ranks (weights) from the DOM
+    // Extract user-selected days and determine if "Everyday" is checked
     const childrenChecked = document.querySelectorAll(
         'div.draggable-item[id="daysofweek"] div.draggable-item-child input[type="checkbox"]:checked'
     );
 
+    const allDays = ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"];
     const selectedDays = [];
     let everydaySelected = false;
 
@@ -92,59 +93,34 @@ function getDayScore(set) {
         if (dayId === "everyday") {
             everydaySelected = true;
         } else {
-            selectedDays.push({ day: dayId.toLowerCase(), weight: 1 / rank }); // Higher rank = lower weight
+            selectedDays.push({ day: dayId.toLowerCase(), rank });
         }
     });
 
-    // Normalize weights if "Everyday" is not selected
-    if (!everydaySelected) {
-        const totalWeight = selectedDays.reduce((sum, item) => sum + item.weight, 0);
-        selectedDays.forEach((item) => (item.weight /= totalWeight));
+    // If "Everyday" is selected, calculate weights for all days
+    let weights = {};
+    if (everydaySelected) {
+        const ranks = allDays.map((day) => {
+            const element = document.querySelector(`div.draggable-item-child input[id="${day}"]`);
+            return {
+                day,
+                rank: element ? parseInt(element.parentElement.getAttribute("data-rank")) : Infinity,
+            };
+        });
+        const totalRank = ranks.reduce((sum, { rank }) => sum + (1 / rank), 0);
+        weights = ranks.reduce((acc, { day, rank }) => {
+            acc[day] = rank > 0 ? (1 / rank) / totalRank : 0; // Normalize weights
+            return acc;
+        }, {});
+    } else {
+        // Calculate weights for selected days
+        const totalRank = selectedDays.reduce((sum, item) => sum + (1 / item.rank), 0);
+        selectedDays.forEach(({ day, rank }) => {
+            weights[day] = (1 / rank) / totalRank;
+        });
     }
 
-    // Helper function to calculate penalty
-    function calculatePenalty(timetableDays) {
-        let penalty = 0;
-
-        if (everydaySelected) {
-            // Penalty for not covering all days
-            const coveredDays = new Set(timetableDays).size;
-            const totalDays = 7; // Monday to Sunday
-            penalty = (totalDays - coveredDays) / totalDays;
-        } else {
-            // Penalty for violating user preferences
-            selectedDays.forEach((pref) => {
-                if (timetableDays.includes(pref.day)) {
-                    penalty += pref.weight; // Penalty increases based on weight
-                }
-            });
-        }
-
-        return penalty;
-    }
-
-    // Helper function to calculate objective
-    function calculateObjective(timetableDays) {
-        let score = 0;
-
-        if (everydaySelected) {
-            // Reward timetables that cover all days
-            const coveredDays = new Set(timetableDays).size;
-            const totalDays = 7; // Monday to Sunday
-            score = coveredDays / totalDays;
-        } else {
-            // Reward timetables that avoid classes on user-preferred days
-            selectedDays.forEach((pref) => {
-                if (!timetableDays.includes(pref.day)) {
-                    score += pref.weight; // Reward increases based on weight
-                }
-            });
-        }
-
-        return score;
-    }
-
-    // Process the dataset to get days of scheduled classes
+    // Calculate the fitness score based on the timetable
     const timetableDays = [];
     set.forEach((course) => {
         course.option.classes.forEach((classItem) => {
@@ -154,15 +130,35 @@ function getDayScore(set) {
         });
     });
 
-    // Calculate penalty and objective
-    const penalty = calculatePenalty(timetableDays);
-    const objective = calculateObjective(timetableDays);
+    // Calculate objective and penalty
+    const coveredDays = new Set(timetableDays);
+    let objective = 0;
+    let penalty = 0;
+
+    if (everydaySelected) {
+        // Reward all covered days based on their weights
+        allDays.forEach((day) => {
+            if (coveredDays.has(day)) {
+                objective += weights[day];
+            } else {
+                penalty += weights[day]; // Penalize missing days
+            }
+        });
+    } else {
+        // Reward for avoiding selected days
+        selectedDays.forEach(({ day }) => {
+            if (!coveredDays.has(day)) {
+                objective += weights[day];
+            } else {
+                penalty += weights[day];
+            }
+        });
+    }
 
     // Final fitness score
     const fitnessScore = objective * (1 - penalty);
     return fitnessScore;
 }
-
 
 // ------------------------- HELPER FUNCTIONS ---------------------------//
 function summation(n) {
