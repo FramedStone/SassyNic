@@ -84,6 +84,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
             fitness.getSortedDataset(dataset, filters, children, (dataset) => {
+                console.log(dataset);
                 table.getTable(dataset);
             });
 
@@ -102,8 +103,9 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result) => {
-                console.log(result);
+            fitness.getSortedDataset(dataset, filters, children, (dataset) => {
+                console.log(dataset);
+                table.getTable(dataset);
             });
 
             // console.log("--------------------------------------------------------------");
@@ -119,12 +121,6 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
 
-                const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
-                const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-                fitness.getSortedDataset(dataset, filters, children, (result) => {
-                    console.log(result);
-                    table.getTable(dataset);
-                });
             }
             else if (result.type === 'range') {
                 const valueDisplay = document.getElementById(`${elementId}_value`);
@@ -148,7 +144,14 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                 console.log(result.element);
                 console.log("--------------------------------------------------------------");
             }
-        }, dragndrop, fitness); // pass dragndrop object to track newly created span(s), and fitness for real time updates
+
+            const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+            const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+            fitness.getSortedDataset(dataset, filters, children, (result) => {
+                console.log(result);
+                table.getTable(dataset);
+            });
+        }, dragndrop, fitness, table, dataset); // pass dragndrop object to track newly created span(s), and fitness for real time updates
     });
 })();
 
@@ -201,7 +204,7 @@ function observeRanks(className, callback) {
  * @param {Object} fitness 
  * @returns {null} - cleanup function
  */
-function observeFiltersValues(callback, dragndrop, fitness) {
+function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
     const container = document.getElementById('filters');
     if (!container) {
         console.error("Element with id 'filters' not found.");
