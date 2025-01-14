@@ -15,7 +15,7 @@ export function getSortedDataset(dataset, filters, children, callback) {
         });
     });
 
-    getRawFitness(dataset, (dataset_) => {
+    setFitnessScore(dataset, (dataset_) => {
         dataset = dataset_;
     });
     callback(dataset);
@@ -35,14 +35,6 @@ function setFilterWeight(filters, children, callback) {
         filter.setAttribute("weight", normalised_weight);
         maxFitness += parseFloat(normalised_weight);
     });
-
-    if(children.length > 0) {
-        children.forEach((child, index) => {
-            let normalised_weight = ((children.length - index)/summation(children.length)); // normalised weight (descending order due to priority order)
-
-            child.setAttribute("weight", normalised_weight); 
-        });
-    }
 
     console.log("Filters: ", filters.length);
     console.log("Children: ", children.length);
@@ -66,14 +58,14 @@ function setMaxFitness(dataset, maxFitness, callback) {
     callback(dataset);
 }
 
-function getRawFitness(dataset, callback) {
+function setFitnessScore(dataset, callback) {
     dataset.forEach(set => {
         // Calcualte fitness for enabled filters
         const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
         filters.forEach(filter => {
             switch(filter.id) {
                 case "daysofweek":
-                    set.fitness = parseFloat(getObjectiveDayFilter(set)) * filter.getAttribute("weight") * getRestrictionDayFilter(set);
+                    set.fitness = getDayScore(set);
                     break;
             }
         });
@@ -82,80 +74,95 @@ function getRawFitness(dataset, callback) {
     callback(dataset.sort((a, b) => b.fitness - a.fitness));
 
 }
-// function getFinalFitness()
-// function setFitnessScore()
 
-// ------------------------- OBJECTIVES FUNCTIONS ----------------------------//
-function getObjectiveDayFilter(set) { 
-    const children = document.querySelectorAll('div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+// ------------------------- FITNESS SCORE FUNCTIONS ---------------------//
+function getDayScore(set) {
+    // Extract user-selected days and their ranks (weights) from the DOM
+    const childrenChecked = document.querySelectorAll(
+        'div.draggable-item[id="daysofweek"] div.draggable-item-child input[type="checkbox"]:checked'
+    );
 
-    let score = 0;
-    let child_weight = [];
-    let uniqueDay = new Set(); // to prevent multiple reward 
+    const selectedDays = [];
+    let everydaySelected = false;
 
-    // Setup weight
-    children.forEach(child => {
-        let checkbox = child.children[0];
-        let day = child.children[1];
+    childrenChecked.forEach((child) => {
+        const rank = parseInt(child.parentElement.getAttribute("data-rank"));
+        const dayId = child.id;
 
-        if(!checkbox.checked) 
-            child_weight.push({day: day.textContent, weight: child.getAttribute("weight")});
-
+        if (dayId === "everyday") {
+            everydaySelected = true;
+        } else {
+            selectedDays.push({ day: dayId.toLowerCase(), weight: 1 / rank }); // Higher rank = lower weight
+        }
     });
 
-    // Compare and find valid set
-    set.forEach(courses => {
-        courses.option.classes.forEach(class_ => {
-            class_.misc.forEach(details => {
-                if(!uniqueDay.has(details.day) && child_weight.find(d => d.day === details.day)) {
-                    uniqueDay.add(details.day);
-                    let weight = child_weight.find(d => d.day === details.day).weight;
+    // Normalize weights if "Everyday" is not selected
+    if (!everydaySelected) {
+        const totalWeight = selectedDays.reduce((sum, item) => sum + item.weight, 0);
+        selectedDays.forEach((item) => (item.weight /= totalWeight));
+    }
 
-                    score += parseFloat(weight);
+    // Helper function to calculate penalty
+    function calculatePenalty(timetableDays) {
+        let penalty = 0;
+
+        if (everydaySelected) {
+            // Penalty for not covering all days
+            const coveredDays = new Set(timetableDays).size;
+            const totalDays = 7; // Monday to Sunday
+            penalty = (totalDays - coveredDays) / totalDays;
+        } else {
+            // Penalty for violating user preferences
+            selectedDays.forEach((pref) => {
+                if (timetableDays.includes(pref.day)) {
+                    penalty += pref.weight; // Penalty increases based on weight
                 }
             });
-        });
-    });
+        }
 
-    return score;
-}
-// function getObjectiveTimeFilter()
-// function getObjectiveClassGapFilter()
-// funciton getObjectiveInstructorFilter()
+        return penalty;
+    }
 
-// ------------------------- RESTRICTIONS FUNCTIONS ----------------------//
-function getRestrictionDayFilter(set) { 
-    const children = document.querySelectorAll('div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
+    // Helper function to calculate objective
+    function calculateObjective(timetableDays) {
+        let score = 0;
 
-    let valid = 1;
-    let child_weight = [];
-    let uniqueDay = new Set(); 
+        if (everydaySelected) {
+            // Reward timetables that cover all days
+            const coveredDays = new Set(timetableDays).size;
+            const totalDays = 7; // Monday to Sunday
+            score = coveredDays / totalDays;
+        } else {
+            // Reward timetables that avoid classes on user-preferred days
+            selectedDays.forEach((pref) => {
+                if (!timetableDays.includes(pref.day)) {
+                    score += pref.weight; // Reward increases based on weight
+                }
+            });
+        }
 
-    // Setup weight
-    children.forEach(child => {
-        let checkbox = child.children[0];
-        let day = child.children[1];
+        return score;
+    }
 
-        if(checkbox.checked) 
-            child_weight.push({day: day.textContent, weight: child.getAttribute("weight")});
-
-    });
-
-    // Compare and find invalid set
-    set.forEach(courses => {
-        courses.option.classes.forEach(class_ => {
-            class_.misc.forEach(details => {
-                if(!uniqueDay.has(details.day) && child_weight.find(d => d.day === details.day)) {
-                    uniqueDay.add(details.day);
-
-                    valid--;
-                } 
+    // Process the dataset to get days of scheduled classes
+    const timetableDays = [];
+    set.forEach((course) => {
+        course.option.classes.forEach((classItem) => {
+            classItem.misc.forEach((details) => {
+                timetableDays.push(details.day.toLowerCase());
             });
         });
     });
 
-    return(valid === 1 ? 1 : 0);
+    // Calculate penalty and objective
+    const penalty = calculatePenalty(timetableDays);
+    const objective = calculateObjective(timetableDays);
+
+    // Final fitness score
+    const fitnessScore = objective * (1 - penalty);
+    return fitnessScore;
 }
+
 
 // ------------------------- HELPER FUNCTIONS ---------------------------//
 function summation(n) {
