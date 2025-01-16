@@ -8,6 +8,8 @@
  */
 
 export function getSortedDataset(dataset, filters, children, callback) {
+    let isUpdated = false;
+
     // Setup each filter's weight
     setFilterWeight(filters, children, (maxFitness) => {
         setMaxFitness(dataset, parseFloat(maxFitness), (dataset_) => {
@@ -15,10 +17,11 @@ export function getSortedDataset(dataset, filters, children, callback) {
         });
     });
 
-    setFitnessScore(dataset, (dataset_) => {
+    setFitnessScore(dataset, (dataset_, isUpdated_) => {
         dataset = dataset_;
+        isUpdated = isUpdated_;
     });
-    callback(dataset);
+    callback(dataset, isUpdated);
 }
 
 /**
@@ -59,6 +62,9 @@ function setMaxFitness(dataset, maxFitness, callback) {
 }
 
 function setFitnessScore(dataset, callback) {
+    // Create a shallow copy of dataset to determine if there's any order changes (for details displaying purpose)
+    const originalDataset = [...dataset];
+
     const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
 
     dataset.forEach(set => {
@@ -80,7 +86,10 @@ function setFitnessScore(dataset, callback) {
         });
     });
 
-    callback(dataset.sort((a, b) => b.fitness - a.fitness));
+    dataset.sort((a, b) => b.fitness - a.fitness);
+    const isUpdated = originalDataset.some((item, index) => item !== dataset[index]); // check if any indexes has been changed
+
+    callback(dataset, isUpdated);
 }
 
 // ------------------------- FITNESS SCORE FUNCTIONS ---------------------//
