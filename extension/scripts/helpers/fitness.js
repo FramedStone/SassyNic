@@ -59,20 +59,28 @@ function setMaxFitness(dataset, maxFitness, callback) {
 }
 
 function setFitnessScore(dataset, callback) {
+    const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+
     dataset.forEach(set => {
-        // Calcualte fitness for enabled filters
-        const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
+        let day = 0, time = 0, classGap = 0, instructor = 0;
+
+        // Calculate each filter's fitness 
         filters.forEach(filter => {
             switch(filter.id) {
                 case "daysofweek":
-                    set.fitness = getDayScore(set);
+                    day = getDayScore(set) * filter.getAttribute("weight");  
+                    break;
+                case "instructor":
+                    instructor = getInstructorScore(set) * filter.getAttribute("weight");
                     break;
             }
+
+            // Assign back to current set
+            set.fitness = day + time + classGap + instructor;
         });
     });
 
     callback(dataset.sort((a, b) => b.fitness - a.fitness));
-
 }
 
 // ------------------------- FITNESS SCORE FUNCTIONS ---------------------//
@@ -152,6 +160,58 @@ function getDayScore(set) {
             } else {
                 penalty += weights[day];
             }
+        });
+    }
+
+    // Final fitness score
+    const fitnessScore = objective * (1 - penalty);
+    return fitnessScore;
+}
+
+function getTimeScore(set) {
+    // span (day, start, end)
+}
+
+function getClassGapScore(set) {
+
+}
+
+function getInstructorScore(set) {
+    const childrenChecked = document.querySelectorAll(
+        'div.draggable-item[id="instructor"] div.draggable-item-child input[type="checkbox"]:checked'
+    );
+    const selectedInstructor = [];
+    let uniqueInstructor = new Set(); // to prevent over rewarding / penalty
+
+    // Setup weights
+    childrenChecked.forEach((child, index) => {
+        const instructor = child.value; 
+
+        selectedInstructor.push({instructor: instructor, weight: (childrenChecked.length - index) / summation(childrenChecked.length)}); // Higher ranking = higher weight
+    });
+
+    let objective = 0, penalty = 0;
+    // penalty 
+    set.forEach(courses => {
+        courses.option.classes.forEach(class_ => {
+            class_.misc.forEach(details => {
+                if(!uniqueInstructor.has(details.instructor) && selectedInstructor.some(instructor => instructor.instructor === details.instructor)) {
+                    uniqueInstructor.add(details.instructor); 
+
+                    let weight = selectedInstructor.find(instructor => instructor.instructor === details.instructor).weight;
+                    penalty += weight;
+
+                    let index = selectedInstructor.findIndex(instructor => instructor.instructor === details.instructor);
+                    selectedInstructor.splice(index, 1)[0];
+                }
+            });
+        });
+    });
+
+    // objective / reward 
+    if(selectedInstructor.length > 0) {
+        selectedInstructor.forEach(instructor => {
+            objective += instructor.weight;
         });
     }
 
