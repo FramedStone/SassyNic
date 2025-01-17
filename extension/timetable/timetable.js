@@ -278,14 +278,23 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
                 }
             });
         } else {
+            // If selecting a specific day, remove "Everyday" if it exists
             if (spansBySelection["Everyday"]) {
                 removeChildDiv(spansBySelection["Everyday"]);
                 delete spansBySelection["Everyday"];
             }
         }
 
+        // Update or create the span for the current selection
         if (spansBySelection[selection]) {
             childDiv = spansBySelection[selection];
+            const span = childDiv.querySelector('span.details-display');
+            if (span) {
+                const strong = span.querySelector('strong');
+                const button = span.querySelector('button');
+                span.innerHTML = `<strong>${selection}</strong><br>${details} `;
+                span.appendChild(button);
+            }
         } else {
             childDiv = document.createElement('div');
             childDiv.className = 'draggable-item-child';
@@ -318,8 +327,6 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
                         `new rank: ${newRank}, ${element.querySelector('span').textContent.replace('x', '')}`
                     );
                 });
-
-                // console.log("--------------------------------------------------------------");
             });
         }
     };
@@ -399,18 +406,22 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
             if (timeStart && timeEnd && startSlider && endSlider && selectElement) {
                 const updateDetails = () => {
                     const selection = selectElement.options[selectElement.selectedIndex].text;
-                    const details = `Start: ${minutesToTime(parseInt(startSlider.value))} End: ${minutesToTime(parseInt(endSlider.value))}`;
+                    const startTime = minutesToTime(parseInt(startSlider.value));
+                    const endTime = minutesToTime(parseInt(endSlider.value));
+                    const details = `Start: ${startTime} End: ${endTime}`;
                     createOrUpdateSpan(timeDiv, selection, details);
                 };
 
                 if (!processedElements.has(startSlider)) {
                     let timeout;
                     startSlider.addEventListener('input', () => {
+                        // Update display immediately
+                        timeStart.value = minutesToTime(parseInt(startSlider.value));
+                        updateDetails();  // Update span immediately
+
+                        // Delay only the callback
                         clearTimeout(timeout);
                         timeout = setTimeout(() => {
-                            timeStart.value = minutesToTime(parseInt(startSlider.value));
-                            updateDetails();
-
                             callback({
                                 type: 'range',
                                 value: startSlider.value,
@@ -426,11 +437,13 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
                 if (!processedElements.has(endSlider)) {
                     let timeout;
                     endSlider.addEventListener('input', () => {
+                        // Update display immediately
+                        timeEnd.value = minutesToTime(parseInt(endSlider.value));
+                        updateDetails();  // Update span immediately
+
+                        // Delay only the callback
                         clearTimeout(timeout);
                         timeout = setTimeout(() => {
-                            timeEnd.value = minutesToTime(parseInt(endSlider.value));
-                            updateDetails();
-
                             callback({
                                 type: 'range',
                                 value: endSlider.value,
@@ -474,11 +487,13 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
                 if (!processedElements.has(gapSlider)) {
                     let timeout;
                     gapSlider.addEventListener('input', () => {
+                        // Update display immediately
+                        gapValue.textContent = gapSlider.value;
+                        updateDetails();  // Update span immediately
+
+                        // Delay only the callback
                         clearTimeout(timeout);
                         timeout = setTimeout(() => {
-                            gapValue.textContent = gapSlider.value;
-                            updateDetails();
-
                             callback({
                                 type: 'range',
                                 value: gapSlider.value,
@@ -525,18 +540,10 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
                             const endSlider = parentDiv.querySelector('#time-end-slider');
 
                             if (startSlider && endSlider) {
-                                let details;
-                                const spansBySelection = spansMap.get(parentDiv);
-                                if (spansBySelection && spansBySelection[selectedOption.text]) {
-                                    details = spansBySelection[selectedOption.text].details;
-                                } else {
-                                    details = `Start: ${minutesToTime(parseInt(startSlider.value))} End: ${minutesToTime(parseInt(endSlider.value))}`;
-                                    createOrUpdateSpan(parentDiv, selectedOption.text, details);
-                                }
-
-                                if (details) {
-                                    createOrUpdateSpan(parentDiv, selectedOption.text, details);
-                                }
+                                const startTime = minutesToTime(parseInt(startSlider.value));
+                                const endTime = minutesToTime(parseInt(endSlider.value));
+                                const details = `Start: ${startTime} End: ${endTime}`;
+                                createOrUpdateSpan(parentDiv, selectedOption.text, details);
                             }
                         } else if (parentDiv.classList.contains('gap')) {
                             const gapSlider = parentDiv.querySelector('#class_gap');

@@ -79,6 +79,10 @@ function setFitnessScore(dataset, callback) {
                 case "instructor":
                     instructor = getInstructorScore(set) * filter.getAttribute("weight");
                     break;
+                case "time":
+                    time = getTimeScore(set) * filter.getAttribute("weight");
+                    break;
+                    
             }
 
             // Assign back to current set
@@ -178,8 +182,108 @@ function getDayScore(set) {
 }
 
 function getTimeScore(set) {
-    // span (day, start, end)
+    const dayWeights = {
+        Monday: 7,
+        Tuesday: 6,
+        Wednesday: 5,
+        Thursday: 4,
+        Friday: 3,
+        Saturday: 2,
+        Sunday: 1,
+    };
+
+    let selectedDays = [];
+    let includeEveryday = false;
+
+    // Parse user preferences from span.details-display
+    const childrenSpan = document.querySelectorAll(
+        'div.draggable-item[id="time"] div.draggable-item-child span.details-display'
+    );
+
+    // Parse each span into user preferences for each day
+    childrenSpan.forEach((span, index) => {
+        let [, day, time] = span.textContent.match(/^(.*?)(Start:.*)$/) || [];
+
+        if (day.trim() === "Everyday") {
+            includeEveryday = true;
+            return; // Skip further processing for "Everyday"
+        }
+
+        let [, start, end] = time.split(/Start: | End: |\s[^ ]*$/);
+        start = parseTime(start);
+        end = parseTime(end);
+
+        // Assign weight based on user ranking
+        const weight = (childrenSpan.length - index) / summation(childrenSpan.length); // Higher ranking = higher weight
+
+        selectedDays.push({
+            day: day.trim(),
+            weight,
+            earliest: start,
+            latest: end,
+        });
+    });
+
+    // Handle "Everyday" case
+    if (includeEveryday) {
+        const daysOfWeek = Object.keys(dayWeights);
+        const totalWeight = Object.values(dayWeights).reduce((a, b) => a + b, 0); // Normalize weights
+
+        selectedDays = daysOfWeek.map((day) => ({
+            day,
+            weight: dayWeights[day] / totalWeight, // Use normalized dayWeights
+            earliest: selectedDays[0]?.earliest || 480, // Default 08:00 if no preferences given
+            latest: selectedDays[0]?.latest || 1020,   // Default 17:00 if no preferences given
+        }));
+    }
+
+    // Group dataset by day
+    const newSet = groupByDay(set);
+
+    // Remap 'newSet' to find the earliest and latest times for each day
+    Object.keys(newSet).forEach((day) => {
+        const times = newSet[day];
+        const earliest = Math.min(...times.map((t) => t.start));
+        const latest = Math.max(...times.map((t) => t.end));
+
+        // Update 'newSet' with the remapped structure
+        newSet[day] = { earliest, latest };
+    });
+
+    // Initialize objective and penalty scores
+    let objective = 0,
+        penalty = 0;
+
+    // Calculate the objective and penalty for each selected day
+    selectedDays.forEach(({ day, weight, earliest: preferredEarliest, latest: preferredLatest }) => {
+        if (!newSet[day]) {
+            // If the day has no classes, reward with its weight
+            objective += weight;
+            return;
+        }
+
+        const actualEarliest = newSet[day].earliest;
+        const actualLatest = newSet[day].latest;
+
+        // Calculate deviations
+        const deltaEarly = Math.max(0, preferredEarliest - actualEarliest);
+        const deltaLate = Math.max(0, actualLatest - preferredLatest);
+        const deltaMax = preferredLatest - preferredEarliest;
+
+        if (deltaEarly > 0 || deltaLate > 0) {
+            // Penalty only if the time window is violated
+            penalty += weight * (deltaEarly / deltaMax + deltaLate / deltaMax);
+        } else {
+            // Reward if the classes fall within the preferred time window
+            objective += weight;
+        }
+    });
+
+    // Final fitness score
+    const fitnessScore = objective * (1 - penalty);
+    return fitnessScore;
 }
+
 
 function getClassGapScore(set) {
 
@@ -230,7 +334,58 @@ function getInstructorScore(set) {
 }
 
 // ------------------------- HELPER FUNCTIONS ---------------------------//
+/**
+ * Function that will return summation of 'n' 
+ * @param {Number} n  - positive natural number
+ * @returns {Number} - summation of 'n'
+ */
 function summation(n) {
     if(n < 1) return 0; // No natural numbers to sum
     return (n * (n+1)) / 2;
+}
+
+/**
+ * Helper function to convert 24 hours time format into minutes format 
+ * @param {String} time - time in 24 hours format
+ * @returns {Integer} -time in minutes
+ */
+function parseTime(time) {
+    let [hour, minute] = time.split(":");
+    if(hour ===24) // edge case (24:00)
+        hour = 0;
+
+    return parseInt(hour) * 60 + (parseInt(minute) || 0);
+}
+
+/**
+ * Function that will return the set regrouped by by with sorted time
+ * @param {Object} set - set's object
+ * @returns {Object} - set regrouped by day and sorted by time
+ */
+function groupByDay(set) {
+    const newSet = {};
+
+    // Each courses
+    set.forEach(courses => {
+        // Each classes
+        courses.option.classes.forEach(class_ => {
+            // Each class details
+            class_.misc.forEach(details => {
+                const day = details.day;
+                const [start, end] = details.time.split(" ").map(Number); // ex: time: 480 540
+
+                if(!newSet[day])
+                    newSet[day] = [];
+
+                newSet[day].push({ start: start, end: end });
+            });
+        });
+    });
+
+    // Sort times for each day
+    Object.keys(newSet).forEach(day => {
+        newSet[day].sort((a, b) => a.start - b.start);
+    });
+
+    return newSet;
 }
