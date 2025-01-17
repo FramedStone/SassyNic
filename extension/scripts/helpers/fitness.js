@@ -206,7 +206,14 @@ function getTimeScore(set) {
 
         if (day.trim() === "Everyday") {
             includeEveryday = true;
-            return; // Skip further processing for "Everyday"
+            const [, start, end] = time.split(/Start: | End: |\s[^ ]*$/);
+            selectedDays.push({
+                day: "Everyday",
+                weight: 1, // Placeholder, replaced later for individual days
+                earliest: parseTime(start),
+                latest: parseTime(end),
+            });
+            return;
         }
 
         let [, start, end] = time.split(/Start: | End: |\s[^ ]*$/);
@@ -227,13 +234,13 @@ function getTimeScore(set) {
     // Handle "Everyday" case
     if (includeEveryday) {
         const daysOfWeek = Object.keys(dayWeights);
-        const totalWeight = Object.values(dayWeights).reduce((a, b) => a + b, 0); // Normalize weights
+        const totalWeight = Object.values(dayWeights).reduce((a, b) => a + b, 0);
 
         selectedDays = daysOfWeek.map((day) => ({
             day,
             weight: dayWeights[day] / totalWeight, // Use normalized dayWeights
-            earliest: selectedDays[0]?.earliest || 480, // Default 08:00 if no preferences given
-            latest: selectedDays[0]?.latest || 1020,   // Default 17:00 if no preferences given
+            earliest: selectedDays[0].earliest, // From "Everyday"
+            latest: selectedDays[0].latest,    // From "Everyday"
         }));
     }
 
@@ -283,6 +290,7 @@ function getTimeScore(set) {
     const fitnessScore = objective * (1 - penalty);
     return fitnessScore;
 }
+
 
 
 function getClassGapScore(set) {
