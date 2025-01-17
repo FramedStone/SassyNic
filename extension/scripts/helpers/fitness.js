@@ -1,12 +1,3 @@
-/**
- * TODO: 
- * 1. fitness score / reward calculation
- * 2. classes gap
- * 3. day filters
- * 4. time filters
- * 5. instructors filters
- */
-
 export function getSortedDataset(dataset, filters, children, callback) {
     let isUpdated = false;
 
@@ -61,6 +52,11 @@ function setMaxFitness(dataset, maxFitness, callback) {
     callback(dataset);
 }
 
+/**
+ * Function to get summation of filters final fitness score 
+ * @param {Object} dataset 
+ * @param {*} callback 
+ */
 function setFitnessScore(dataset, callback) {
     // Create a shallow copy of dataset to determine if there's any order changes (for details displaying purpose)
     const originalDataset = [...dataset];
@@ -290,8 +286,6 @@ function getTimeScore(set) {
     const fitnessScore = objective * (1 - penalty);
     return fitnessScore;
 }
-
-
 
 function getClassGapScore(set) {
 
