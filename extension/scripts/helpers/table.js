@@ -181,16 +181,19 @@ export function getTable(dataset) {
         // Manual Enroll
         btnManualEnroll.addEventListener('click', () => {
             // Play 'Welcome to Gryffindor' soundboard
+            const bgm = document.getElementById('backgroundAudio');
             const soundboard = document.getElementById('manual-enroll');
             soundboard.play();
-    
+            bgm.pause();
         });
 
         // Auto Enroll
         btnAutoEnroll.addEventListener('click', () => {
             // Play 'Avada Kedavra' soundboard
+            const bgm = document.getElementById('backgroundAudio');
             const soundboard = document.getElementById('auto-enroll');
             soundboard.play();
+            bgm.pause();
         });
 
         // Keyboard event listeners 

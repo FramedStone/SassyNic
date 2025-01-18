@@ -49,7 +49,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                             completeIntro();
                         }
                     }, 1000); // Wait for fade out before changing text
-                }, 3500); // Show each text for 4 seconds
+                }, 3500); // Show each text for 3.5 seconds
             }
         }
 
