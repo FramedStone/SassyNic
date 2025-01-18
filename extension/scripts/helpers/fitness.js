@@ -78,7 +78,9 @@ function setFitnessScore(dataset, callback) {
                 case "time":
                     time = getTimeScore(set) * filter.getAttribute("weight");
                     break;
-                    
+                case "gap":
+                    classGap = getClassGapScore(set) * filter.getAttribute("weight");
+                    break;
             }
 
             // Assign back to current set
@@ -288,7 +290,59 @@ function getTimeScore(set) {
 }
 
 function getClassGapScore(set) {
+    // Parse user preferences from span.details-display
+    const childrenSpan = document.querySelectorAll(
+        'div.draggable-item[id="time"] div.draggable-item-child span.details-display'
+    );
 
+    let selectedDays = [];
+    // Extract user preferences for each day
+    childrenSpan.forEach((span) => {
+        const [, day, gapText] = span.textContent.match(/^(.*?)(Gap:.*)$/) || [];
+        if (!day || !gapText) return;
+
+        const gap = parseInt(gapText.replace("Gap:", "").trim());
+        selectedDays.push({ day: day.trim(), gap });
+    });
+
+    // Group dataset by day
+    const newSet = groupByDay(set);
+
+    let objective = 0,
+        penalty = 0;
+
+    selectedDays.forEach(({ day, gap: minimumGap }) => {
+        const classes = newSet[day];
+        if (!classes || classes.length <= 1) {
+            // No gaps if fewer than 2 classes; no penalty or reward
+            return;
+        }
+
+        // Calculate gaps between classes
+        const classTimes = classes
+            .map((cls) => cls.start)
+            .sort((a, b) => a - b);
+
+        const gaps = [];
+        for (let i = 1; i < classTimes.length; i++) {
+            gaps.push(classTimes[i] - classTimes[i - 1]);
+        }
+
+        // Calculate penalties and rewards for gaps
+        gaps.forEach((gap) => {
+            if (gap >= minimumGap) {
+                // Reward for meeting or exceeding the gap
+                objective += (gap - minimumGap) / minimumGap;
+            } else {
+                // Penalty for not meeting the gap
+                penalty += (minimumGap - gap) / minimumGap;
+            }
+        });
+    });
+
+    // Final fitness score
+    const fitnessScore = objective - penalty;
+    return fitnessScore;
 }
 
 function getInstructorScore(set) {

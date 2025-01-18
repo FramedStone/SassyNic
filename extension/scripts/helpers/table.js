@@ -180,12 +180,17 @@ export function getTable(dataset) {
 
         // Manual Enroll
         btnManualEnroll.addEventListener('click', () => {
-            // Logic for manual enrollment 
+            // Play 'Welcome to Gryffindor' soundboard
+            const soundboard = document.getElementById('manual-enroll');
+            soundboard.play();
+    
         });
 
         // Auto Enroll
         btnAutoEnroll.addEventListener('click', () => {
-            // Logic for auto enrollment 
+            // Play 'Avada Kedavra' soundboard
+            const soundboard = document.getElementById('auto-enroll');
+            soundboard.play();
         });
 
         // Keyboard event listeners 

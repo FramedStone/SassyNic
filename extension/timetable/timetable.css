@@ -1,4 +1,54 @@
-/* Timetable table */
+/* Reset and base styles */
+* {
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
+}
+
+html,
+body {
+    max-width: 100vw;
+    overflow-x: hidden;
+}
+
+/* Intro animation styles */
+.main {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 1s ease;
+}
+
+.main.intro {
+    background-color: #000;
+    color: #fff;
+}
+
+.main:not(.intro) {
+    background-color: #fff;
+    color: #000;
+}
+
+.animated-text {
+    font-size: 2rem;
+    text-align: center;
+    max-width: 800px;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    font-family: Arial, sans-serif;
+}
+
+.show {
+    opacity: 1;
+}
+
+.hide {
+    opacity: 0;
+}
+
+/* Timetable styles */
 table {
     width: 100%;
     border-collapse: collapse;
@@ -58,16 +108,16 @@ td {
     display: block;
 }
 
-/* Enrollment */
+/* Modal styles */
 .modal {
     display: none; 
     position: fixed; 
     z-index: 1; 
-    left: 0; top: 0; 
+    left: 0;
+    top: 0; 
     width: 100%; 
     height: 100%; 
     overflow: auto; 
-    background-color: rgb(0,0,0); 
     background-color: rgba(0,0,0,0.4); 
     padding-top: 60px;
 }
@@ -114,15 +164,15 @@ td {
     cursor: pointer;
 }
 
-/* Filters */
+/* Filter styles */
 .filters {
-    display: flex; /* Set display to flex */
-    align-items: flex-start; /* Align items at the top */
-    gap: 20px; /* Add space between daysofweek and sliders */
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
 }
 
 .daysofweek {
-    width: 200px; /* Set a fixed width for the daysofweek section */
+    width: 200px;
 }
 
 .draggable-item {

@@ -3,10 +3,69 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
 (async() => {
     document.addEventListener("DOMContentLoaded", async() => {
-        let dataset;
+        // ---------------------- WEBPAGE INTRO -----------------------------------//
+        const texts = [
+            "It's about damn time",
+            "New Trimester has come, once again.....",
+            "Remember all those hard times on trying to find your perfect timetable?",
+            "All those struggles you and your fellow friends had, trying to avoid certain days to not have classes",
+            "Some of you found it, Some of you failed",
+            "Ones got mad, Ones cried, and Ones accepted the faith",
+            "Don't worry, this time around everything will be changed",
+            "Welcome to the Magical World",
+            "SassyNic"
+        ];
+
+        let currentTextIndex = 0;
+        const mainElement = document.querySelector('.main');
+        const animatedTextElement = document.getElementById('animated-text');
+        const contentElement = document.getElementById('content');
+
+        // Add intro class initially
+        mainElement.classList.add('intro'); 
+
+        function showNextText() {
+            if (currentTextIndex < texts.length) {
+                // Show current text
+                animatedTextElement.textContent = texts[currentTextIndex];
+                animatedTextElement.classList.add('show');
+                animatedTextElement.classList.remove('hide');
+
+                // Schedule next text
+                setTimeout(() => {
+                    animatedTextElement.classList.remove('show');
+                    animatedTextElement.classList.add('hide');
+
+                    setTimeout(() => {
+                        currentTextIndex++;
+                        if (currentTextIndex < texts.length && currentTextIndex !== texts.length - 1) {
+                            showNextText();
+                        } else if (currentTextIndex === texts.length - 1) {
+                            showNextText();
+                            // Play audio during last text
+                            const audio = document.getElementById('backgroundAudio');
+                            audio.play().catch(error => console.log('Audio playback failed', error));
+                        } else {
+                            completeIntro();
+                        }
+                    }, 1000); // Wait for fade out before changing text
+                }, 3500); // Show each text for 4 seconds
+            }
+        }
+
+        function completeIntro() {
+            mainElement.classList.remove('intro'); // background color transition back to white
+            animatedTextElement.style.display = 'none';
+            contentElement.style.display = 'block';
+                        
+        } 
+
+        showNextText();
 
         // ---------------------- MESSAGE PASSING --------------------------------//
         // Listen message from background.js
+        let dataset;
+
         const getDataset = new Promise((resolve) => {
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if(message.action === "passDataset") {

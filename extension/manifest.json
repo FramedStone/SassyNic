@@ -25,7 +25,7 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["./timetable/timetable.html", "./timetable/timetable.js", "./helpers/fitness.js"],
+      "resources": ["./timetable/timetable.html", "./timetable/timetable.js"],
       "matches": ["<all_urls>"]
     }
   ]
