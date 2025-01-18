@@ -17,7 +17,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
                 chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset });
             } else {
-                alert("Extraction Completed!");
+                alert("Extraction Completed!\nConstructing details onto a new tab...\n(Note: this can take up to 1 minute)");
                 chrome.runtime.sendMessage({ action: "extractionCompleted" });
             }
         });
