@@ -340,7 +340,7 @@ function getClassGapScore(set) {
 
     let totalFitnessScore = 0;
 
-    selectedDays.forEach(({ day, gap: minimumGap }) => {
+    selectedDays.forEach(({ day, gap: preferredGap }) => {
         const classes = newSet[day];
         const dayWeight = dayWeights[day] || 0; // Default weight = 0 if not in priorities
 
@@ -364,28 +364,20 @@ function getClassGapScore(set) {
             gaps.push(classTimes[i] - classTimes[i - 1]);
         }
 
-        // Calculate penalties and rewards for gaps
-        let dayObjective = 0;
+        // Calculate penalties for deviations from preferred gap
         let dayPenalty = 0;
 
-        gaps.forEach((gap) => {
-            if (gap >= minimumGap) {
-                // Reward for meeting or exceeding the gap
-                dayObjective += (gap / minimumGap) * dayWeight;
-            } else {
-                // Penalty for not meeting the gap
-                dayPenalty += ((minimumGap - gap) / minimumGap) * dayWeight;
-            }
+        gaps.forEach((actualGap) => {
+            const deviation = Math.abs(actualGap - preferredGap);
+            dayPenalty += (deviation / preferredGap) * dayWeight;
         });
 
-        // Add day's contribution to total fitness score
-        totalFitnessScore += dayObjective - dayPenalty;
+        // Subtract penalties from the total fitness score
+        totalFitnessScore -= dayPenalty;
     });
 
-    console.log(totalFitnessScore);
     return totalFitnessScore;
 }
-
 
 function getInstructorScore(set) {
     const childrenChecked = document.querySelectorAll(
