@@ -290,31 +290,67 @@ function getTimeScore(set) {
 }
 
 function getClassGapScore(set) {
-    // Parse user preferences from span.details-display
+    // Define day priorities (Monday = highest, Sunday = lowest)
+    const priorities = {
+        Monday: 7,
+        Tuesday: 6,
+        Wednesday: 5,
+        Thursday: 4,
+        Friday: 3,
+        Saturday: 2,
+        Sunday: 1,
+    };
+
+    // Calculate total priority for normalization
+    const totalPriority = Object.values(priorities).reduce((sum, value) => sum + value, 0);
+
+    // Normalize day weights
+    const dayWeights = {};
+    Object.keys(priorities).forEach((day) => {
+        dayWeights[day] = priorities[day] / totalPriority;
+    });
+
+    // Parse user preferences from the DOM (assumes user prefers "Everyday")
     const childrenSpan = document.querySelectorAll(
-        'div.draggable-item[id="time"] div.draggable-item-child span.details-display'
+        'div.draggable-item[id="gap"] div.draggable-item-child span.details-display'
     );
 
     let selectedDays = [];
-    // Extract user preferences for each day
     childrenSpan.forEach((span) => {
-        const [, day, gapText] = span.textContent.match(/^(.*?)(Gap:.*)$/) || [];
-        if (!day || !gapText) return;
-
-        const gap = parseInt(gapText.replace("Gap:", "").trim());
-        selectedDays.push({ day: day.trim(), gap });
+        const text = span.textContent.trim();
+        if (text.includes("Everyday")) {
+            // Apply "Everyday" to all days with the same gap
+            const gap = parseInt(text.match(/Gap:\s*(\d+)\s*minutes/i)?.[1]);
+            if (gap) {
+                Object.keys(priorities).forEach((day) => {
+                    selectedDays.push({ day, gap });
+                });
+            }
+        } else {
+            const [, day, gapText] = text.match(/^(.*?)(Gap:.*)$/) || [];
+            if (day && gapText) {
+                const gap = parseInt(gapText.replace("Gap:", "").trim());
+                selectedDays.push({ day: day.trim(), gap });
+            }
+        }
     });
 
     // Group dataset by day
     const newSet = groupByDay(set);
 
-    let objective = 0,
-        penalty = 0;
+    let totalFitnessScore = 0;
 
     selectedDays.forEach(({ day, gap: minimumGap }) => {
         const classes = newSet[day];
-        if (!classes || classes.length <= 1) {
-            // No gaps if fewer than 2 classes; no penalty or reward
+        const dayWeight = dayWeights[day] || 0; // Default weight = 0 if not in priorities
+
+        if (!classes || classes.length === 0) {
+            return; // No classes on this day; skip
+        }
+
+        if (classes.length === 1) {
+            // Reward single class days with day weight
+            totalFitnessScore += dayWeight;
             return;
         }
 
@@ -329,21 +365,27 @@ function getClassGapScore(set) {
         }
 
         // Calculate penalties and rewards for gaps
+        let dayObjective = 0;
+        let dayPenalty = 0;
+
         gaps.forEach((gap) => {
             if (gap >= minimumGap) {
                 // Reward for meeting or exceeding the gap
-                objective += (gap - minimumGap) / minimumGap;
+                dayObjective += (gap / minimumGap) * dayWeight;
             } else {
                 // Penalty for not meeting the gap
-                penalty += (minimumGap - gap) / minimumGap;
+                dayPenalty += ((minimumGap - gap) / minimumGap) * dayWeight;
             }
         });
+
+        // Add day's contribution to total fitness score
+        totalFitnessScore += dayObjective - dayPenalty;
     });
 
-    // Final fitness score
-    const fitnessScore = objective - penalty;
-    return fitnessScore;
+    console.log(totalFitnessScore);
+    return totalFitnessScore;
 }
+
 
 function getInstructorScore(set) {
     const childrenChecked = document.querySelectorAll(
