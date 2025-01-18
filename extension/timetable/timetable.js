@@ -21,6 +21,28 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const animatedTextElement = document.getElementById('animated-text');
         const contentElement = document.getElementById('content');
 
+        // Dynamically apply reset styles
+        function applyResetStyles() {
+            const style = document.createElement('style');
+            style.id = 'resetStyles';
+            style.textContent = `
+                * {
+                    box-sizing: border-box;
+                    padding: 0;
+                    margin: 0;
+                }
+            `;
+            document.head.appendChild(style);
+        }
+
+        // Remove reset styles
+        function removeResetStyles() {
+            const resetStyles = document.getElementById('resetStyles');
+            if (resetStyles) {
+                resetStyles.remove();
+            }
+        }
+
         // Add intro class initially
         mainElement.classList.add('intro'); 
 
@@ -57,10 +79,15 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             mainElement.classList.remove('intro'); // background color transition back to white
             animatedTextElement.style.display = 'none';
             contentElement.style.display = 'block';
-                        
+
+            // Remove reset styles
+            removeResetStyles();
         } 
 
+        // Apply reset styles and start text animation
+        applyResetStyles();
         showNextText();
+
 
         // ---------------------- MESSAGE PASSING --------------------------------//
         // Listen message from background.js
