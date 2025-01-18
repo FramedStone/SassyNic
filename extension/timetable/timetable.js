@@ -83,11 +83,23 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             // Remove reset styles and apply padding
             removeResetStylesAndSetPadding();
+
+            // Remove the skip button
+            const skipButton = document.getElementById('skipButton');
+            if (skipButton) {
+                skipButton.remove();
+            }
         } 
 
         // Apply reset styles and start text animation
         applyResetStyles();
         showNextText();
+
+        // Skip Button Event Listener
+        const skipButton = document.getElementById('skipButton');
+        skipButton.addEventListener('click', () => {
+            completeIntro(); // Skip to the end of the animation
+        });
 
         // ---------------------- MESSAGE PASSING --------------------------------//
         // Listen message from background.js
