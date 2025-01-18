@@ -16,6 +16,33 @@
     background-color: #0056b3;
 }
 
+/* Mute button styles */
+#muteButton {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#muteButton:before {
+    content: '\1F50A'; /* Unicode character for unmute icon (🔊) */
+    font-size: 16px;
+    margin-right: 5px;
+}
+
+#muteButton.muted:before {
+    content: '\1F507'; /* Unicode character for mute icon (🔇) */
+}
+
+
 /* Reset and base styles */
 * {
     box-sizing: border-box;

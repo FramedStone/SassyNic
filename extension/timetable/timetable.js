@@ -89,6 +89,21 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             if (skipButton) {
                 skipButton.remove();
             }
+
+            // Show mute button after intro is complete
+            const muteButton = document.getElementById('muteButton');
+            muteButton.style.display = 'block';
+
+            const audio = document.getElementById('backgroundAudio');
+            muteButton.addEventListener('click', () => {
+                if (audio.muted) {
+                    audio.muted = false;
+                    muteButton.classList.remove('muted');
+                } else {
+                    audio.muted = true;
+                    muteButton.classList.add('muted');
+                }
+            });
         } 
 
         // Apply reset styles and start text animation
@@ -99,6 +114,9 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const skipButton = document.getElementById('skipButton');
         skipButton.addEventListener('click', () => {
             completeIntro(); // Skip to the end of the animation
+            // Play bgm 
+            const audio = document.getElementById('backgroundAudio');
+            audio.play().catch(error => console.log('Audio playback failed', error));
         });
 
         // ---------------------- MESSAGE PASSING --------------------------------//
