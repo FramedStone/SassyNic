@@ -6,7 +6,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         // ---------------------- WEBPAGE INTRO -----------------------------------//
         const texts = [
             "It's about damn time",
-            "New Trimester has come, once again.....",
+            "Once again, the new Trimester has come...",
             "Remember all those hard times on trying to find your perfect timetable?",
             "All those struggles you and your fellow friends had, trying to avoid certain days to not have classes",
             "Some of you found it, Some of you failed",
