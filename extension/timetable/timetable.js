@@ -35,12 +35,13 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             document.head.appendChild(style);
         }
 
-        // Remove reset styles
-        function removeResetStyles() {
+        // Remove reset styles and apply padding
+        function removeResetStylesAndSetPadding() {
             const resetStyles = document.getElementById('resetStyles');
             if (resetStyles) {
                 resetStyles.remove();
             }
+            document.body.style.padding = '10px'; // Apply 10px padding after animation
         }
 
         // Add intro class initially
@@ -80,14 +81,13 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             animatedTextElement.style.display = 'none';
             contentElement.style.display = 'block';
 
-            // Remove reset styles
-            removeResetStyles();
+            // Remove reset styles and apply padding
+            removeResetStylesAndSetPadding();
         } 
 
         // Apply reset styles and start text animation
         applyResetStyles();
         showNextText();
-
 
         // ---------------------- MESSAGE PASSING --------------------------------//
         // Listen message from background.js

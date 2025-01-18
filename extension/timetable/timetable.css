@@ -201,3 +201,7 @@ td {
     display: block;
     width: 100%;
 }
+
+.delete-button {
+    padding: 1px 5px;
+}
