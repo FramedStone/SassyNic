@@ -156,8 +156,8 @@ export function getTable(dataset) {
                         ${optionsHTML}
                     </div>
                     <div class="modal-footer">
-                        <button id="btnManualEnroll">Manual Enroll (m)</button>
-                        <button id="btnAutoEnroll">Auto Enroll (a)</button>
+                        <button id="btnManualEnroll" disabled>Manual Enroll (m)</button>
+                        <button id="btnAutoEnroll" disabled>Auto Enroll (a)</button>
                     </div>
                 </div>
             </div>`;
