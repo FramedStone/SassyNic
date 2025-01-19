@@ -692,4 +692,3 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
     handleGapRangeInputs();
     handleSelectOptions();
 }
-
