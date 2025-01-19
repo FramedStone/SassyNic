@@ -14,7 +14,7 @@ Fixes #<issue_number> (if applicable)
 <!-- 
 Please use this format link issue numbers: Fixes #123
 -->
-## Screenshots/Recordings Link In Sharepoint
+## Screenshots/Recordings Link (if applicable)
 <!-- Visual changes require screenshots -->
 
 ## How to Test
