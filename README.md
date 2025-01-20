@@ -5,7 +5,7 @@
     <br>
   </h1>
   <h3>
-    Checkout <a href="https://github.com/FramedStone/SassyNic/wiki">Wiki</a> and <a href="https://github.com/users/FramedStone/projects/2">SassyNic Future Roadmap</a> for more detailed information and future implementation!
+    Checkout <a href="https://github.com/FramedStone/SassyNic/wiki">Wiki</a> and <a href="https://github.com/users/FramedStone/projects/2">SassyNic Future Roadmap</a> for more detailed information!
   </h3>
 
   [![License](https://img.shields.io/github/license/FramedStone/SassyNic)](https://github.com/FramedStone/SassyNic/blob/main/LICENSE)
