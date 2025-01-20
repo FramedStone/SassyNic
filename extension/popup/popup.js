@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded', function() {
          // send message to background.js to start extraction 
          chrome.runtime.sendMessage({ action: "startExtraction" });
       } else {
-         chrome.tabs.create({ url: "../tutorial-videos/index.html" });
+         chrome.tabs.create({ url: "./extension/tutorial-videos/index.html" });
       }
    });
 });
