@@ -73,6 +73,11 @@ Timetable enroll button: `'e' or 'Enter' key`
 ### Is SassyNic safe?
 - `Yes` and `No`, kindly check out [Privacy Policy](https://github.com/FramedStone/SassyNic/blob/main/PRIVACY_POLICY.md) section `4. Security`.
 
+### Are the generated timetables accurate?
+- `Yes` and `Maybe No`.
+- `Yes`: because it's proven by `Algorithms` using `Mathematical Formula`.
+- `Maybe No`: because `SassyNic` highly relies on [CliC MMU](https://clic.mmu.edu.my/)'s data accuracy, any slight changes to the data especially its `HTML` structure can potentially affect the data accuracy that `SassyNic` is going to display, hence please use at your own risk.
+
 ### Can I use this extension for other universities?
 - `No`, it's currently only for `MMU` students. But I would love to integrate with other universities if the website has similar logics.
 
