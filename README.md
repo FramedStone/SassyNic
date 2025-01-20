@@ -7,6 +7,9 @@
   <h3>
     Checkout <a href="https://github.com/FramedStone/SassyNic/wiki">Wiki</a> and <a href="https://github.com/users/FramedStone/projects/2">SassyNic Future Roadmap</a> for more detailed information and future implementation!
   </h3>
+
+  [![License](https://img.shields.io/github/license/FramedStone/SassyNic)](https://github.com/FramedStone/SassyNic/blob/main/LICENSE)
+  [![GitHub release](https://img.shields.io/github/v/release/FramedStone/SassyNic)](https://github.com/FramedStone/SassyNic/releases)
 </div>
 
 https://github.com/user-attachments/assets/b7371c0c-10cc-4676-94fe-ccba7dd1f874
