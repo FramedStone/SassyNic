@@ -71,7 +71,7 @@ Timetable enroll button: `'e' or 'Enter' key`
 - `Diploma` 2nd year
 
 ### Is SassyNic safe?
-- `Yes` and `No`, kindly check out [Privacy Policy](https://github.com/FramedStone/SassyNic/blob/main/PRIVACY_POLICY.md) section `4. Security`.
+- `Yes` and `Maybe No`, kindly check out [Privacy Policy](https://github.com/FramedStone/SassyNic/blob/main/PRIVACY_POLICY.md) section `4. Security`.
 
 ### Are the generated timetables accurate?
 - `Yes` and `Maybe No`.
