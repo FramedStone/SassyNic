@@ -5,7 +5,7 @@
   "version": "1.0.0",
   "minimum_chrome_version": "131.0.6778.86",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
-  "permissions": ["activeTab", "scripting", "storage", "tabs", "windows", "history"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs", "windows"],
   "icons": {
       "16": "./extension/images/icon/icon16.png",
       "32": "./extension/images/icon/icon32.png",
