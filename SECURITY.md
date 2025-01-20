@@ -10,7 +10,7 @@ Currently, there are no official releases of this project. Security updates and 
 
 ## Reporting a Vulnerability
 
-If you discover a security vulnerability, please report it by [email](leeweixuan39@gmail.com), [issue tracker](https://github.com/FramedStone/SassyNic/issues), [Discord](https://discordapp.com/users/framedstone).
+If you discover a security vulnerability, please report it by [email](leeweixuan39@gmail.com), [issue tracker](https://github.com/FramedStone/SassyNic/issues), [Discord](https://discordapp.com/users/329101286664306689).
 
 - Expect an initial response within 30 days.
 - You will be informed about the status of your report as soon as it has been reviewed.
