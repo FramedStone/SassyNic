@@ -23,6 +23,7 @@ A chrome extension that gets class details from MMU CliC, generate all possible 
 
 ## Key binding ⌨️
 Timetable table's navigation: `Arrow keys (Left & Right) or ('p' & 'n')`
+<br>
 Timetable enroll button: `'e' or 'Enter' key`
 
 ## Tech Stack 🚀
