@@ -6,7 +6,7 @@ Currently, there are no official releases of this project. Security updates and 
 
 | Version | Supported          |
 | ------- | ------------------ |
-| None    | :x:                |
+| [v1.0.0-beta](https://github.com/FramedStone/SassyNic/releases/tag/v1.0.0-beta)    | :x:                |
 
 ## Reporting a Vulnerability
 
