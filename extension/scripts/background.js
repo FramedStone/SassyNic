@@ -156,7 +156,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.log("Backtracking with daytime conflict + seats availability: ", prunedComb);
 
             // Passing pruned combination to 'timetable.html'
-            chrome.tabs.create({ url: chrome.runtime.getURL("./timetable/timetable.html") }, () => {
+            chrome.tabs.create({ url: chrome.runtime.getURL("extension/timetable/timetable.html") }, () => {
                 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     if(message.action === "timetablejsInjected") {
                         chrome.runtime.sendMessage({ action: "passDataset", dataset: prunedComb }, (response) => {
