@@ -1,10 +1,10 @@
 import { getActiveTabId, onTabUpdated } from './helpers/utils.js';
 import { hasScheduleConflict } from './helpers/constraints.js';
 
-// Navigate to 'SassyNic' website on installed
-// chrome.runtime.onInstalled.addListener(function() {
-//     chrome.tabs.create({ url: 'https://sassynic.com' });
-// });
+// Navigate to 'SassyNic' github wiki on installed
+chrome.runtime.onInstalled.addListener(function() {
+    chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
+});
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "startExtraction") {
