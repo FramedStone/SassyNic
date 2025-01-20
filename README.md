@@ -36,7 +36,7 @@ Timetable enroll button: `'e' or 'Enter' key`
 2. Genetic (only fitness function part)
 
 ## Changelog 📁
-[Release Notes](https://github.com/FramedStone/SassyNic/releases)
+[Release Notes](https://github.com/FramedStone/SassyNic/releases), [Version Support](https://github.com/FramedStone/SassyNic/blob/main/SECURITY.md)
 
 ## Privacy policy 📜
 [Privacy Policy](https://github.com/FramedStone/SassyNic/blob/main/PRIVACY_POLICY.md)
