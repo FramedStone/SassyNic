@@ -27,4 +27,4 @@ By using the "SassyNic" extension, you consent to this Privacy Policy.
 I may update this Privacy Policy from time to time and will notify you of any changes by posting the new Privacy Policy on this page. You are advised to review this Privacy Policy periodically for any changes.
 
 ## 7. Contact Me
-If you have any questions or concerns about this Privacy Policy or my practices, you can find me at [leeweixuan39@gmail.com](leeweixuan39@gmail.com).
+If you have any questions or concerns about this Privacy Policy or my practices, you can find me at [leeweixuan39@gmail.com](mailto:leeweixuan39@gmail.com).
