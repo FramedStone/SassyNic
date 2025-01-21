@@ -71,7 +71,7 @@ Timetable enroll button: `'e' or 'Enter' key`
 - `Diploma` 2nd year
 
 ### Is SassyNic safe?
-- `Yes` and `No`, kindly check out [Privacy Policy](https://github.com/FramedStone/SassyNic/blob/main/PRIVACY_POLICY.md) section `4. Security`.
+- `Yes` and `Maybe No`, kindly check out [Privacy Policy](https://github.com/FramedStone/SassyNic/blob/main/PRIVACY_POLICY.md) section `4. Security`.
 
 ### Are the generated timetables accurate?
 - `Yes` and `Maybe No`.
@@ -89,5 +89,5 @@ Timetable enroll button: `'e' or 'Enter' key`
 
 ### Where can I find you?
 - Somewhere in `MMU Cyberjaya` up until `2027`
-- [Email](leeweixuan39@gmail.com), [Discord](https://discordapp.com/users/329101286664306689)
+- [Email](mailto:leeweixuan39@gmail.com), [Discord](https://discordapp.com/users/329101286664306689)
 
