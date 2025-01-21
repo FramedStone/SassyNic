@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "author": "leeweixuan39@gmail.com",
   "name": "SassyNic",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "minimum_chrome_version": "131.0.6778.86",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
   "permissions": ["activeTab", "scripting", "storage", "tabs", "windows"],
