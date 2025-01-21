@@ -183,7 +183,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         // ---------------------- TIMETABLE TABLE ---------------------------------//
         // Timetable table
-        const src_table = chrome.runtime.getURL('extension./scripts/helpers/table.js');
+        const src_table = chrome.runtime.getURL('extension/scripts/helpers/table.js');
         const table = await import(src_table);
 
         table.getTable(dataset);
