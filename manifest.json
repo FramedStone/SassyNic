@@ -2,16 +2,16 @@
   "manifest_version": 3,
   "author": "leeweixuan39@gmail.com",
   "name": "SassyNic",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "minimum_chrome_version": "131.0.6778.86",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
   "permissions": ["activeTab", "scripting", "storage", "windows"],
   "icons": {
-      "16": "./extension/images/icon/icon16.png",
-      "32": "./extension/images/icon/icon32.png",
-      "48": "./extension/images/icon/icon48.png",
-      "128": "./extension/images/icon/icon128.png"
-    },
+    "16": "./extension/images/icon/icon16.png",
+    "32": "./extension/images/icon/icon32.png",
+    "48": "./extension/images/icon/icon48.png",
+    "128": "./extension/images/icon/icon128.png"
+  },
   "action": {
     "default_popup": "./extension/popup/popup.html"
   },
@@ -31,7 +31,10 @@
   ],
   "web_accessible_resources": [
     {
-      "resources": ["./extension/timetable/timetable.html", "./extension/timetable/timetable.js"],
+      "resources": [
+        "./extension/timetable/timetable.html",
+        "./extension/timetable/timetable.js"
+      ],
       "matches": ["<all_urls>"]
     }
   ]
