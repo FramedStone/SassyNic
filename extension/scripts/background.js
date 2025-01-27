@@ -1,5 +1,5 @@
 import { getActiveTabId, onTabUpdated } from './helpers/utils.js';
-import { hasScheduleConflict } from './helpers/constraints.js';
+import { pruneSchedule } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' github wiki on installed
 chrome.runtime.onInstalled.addListener(function() {
@@ -201,7 +201,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         function backtrack(data, courses = Object.keys(data), current = [], final = []) {
             // Exit factor
             if (current.length === courses.length) {
-                if (!hasScheduleConflict(current)) {
+                if (!pruneSchedule(current)) {
                     final.push([...current]);
                 }
                 return;
