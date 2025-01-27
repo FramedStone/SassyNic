@@ -36,11 +36,39 @@ export function isSeatsAvailable(seats) {
 }
 
 /**
- * 
+ * Function that will check for any entity that contains empty string or 'to be announced'
  * @param {Object} schedule 
- * @returns 
+ * @returns {Object} - pruned schedule dataset
  */
-export function hasScheduleConflict(schedule) {
+function isTBA(schedule) {
+    for (let data of schedule) {
+        for (let cClass of data.option.classes) {
+            if (!cClass.seats || cClass.seats.toLowerCase().includes('to be announced')) {
+                return true;
+            }
+            for (let cMisc of cClass.misc) {
+                if (!cMisc.day || !cMisc.time || !cMisc.room) {
+                    return true;
+                }
+                let lowerCaseVals = [cMisc.day, cMisc.time, cMisc.room].map(v => v.toLowerCase());
+                if (lowerCaseVals.some(v => v.includes('to be announced'))) {
+                    return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
+/**
+ * Function that will prune the schedule dataset with applied contraints 
+ * @param {Object} schedule 
+ * @returns {Object} - pruned schedule dataset
+ */
+export function pruneSchedule(schedule) {
+    if(isTBA(schedule)) {
+        return true;
+    }
     for (let i = 0; i < schedule.length; i++) {
         for (let j = i + 1; j < schedule.length; j++) {
             const currentOption = schedule[i];
