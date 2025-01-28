@@ -22,7 +22,7 @@ A chrome extension that gets class details from MMU CliC, generate all possible 
 - Chrome browser **ONLY** (for now).
 
 ## Installation 🔩
-1. Go to Chrome Web Store and search up "SassyNic" [SassyNic]
+1. Go to Chrome Web Store and search up "SassyNic" -- [SassyNic](https://chromewebstore.google.com/detail/sassynic/ondokkiefflddbjpeecipmgmcbdkijgf?hl=en-GB&utm_source=ext_sidebar)
 
 ## Key binding ⌨️
 Timetable table's navigation: `Arrow keys (Left & Right) or ('p' & 'n')`
