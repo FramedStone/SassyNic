@@ -1,4 +1,4 @@
-import { getActiveTabId, onTabUpdated } from './helpers/utils.js';
+import { getActiveTabId, onTabUpdated, getError } from './helpers/utils.js';
 import { pruneSchedule } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' github wiki on installed
@@ -12,7 +12,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         getActiveTabId(tabId => {
             if(tabId !== null) {
-                chrome.tabs.sendMessage(tabId, { action: "startExtraction_", term: message.term, index: 0, tabId: tabId });
+                chrome.tabs.sendMessage(tabId, { action: "startExtraction_", term: message.term, index: 0, tabId: tabId }, (response) => {
+                    if(response && response.status === "error") {
+                        getError(response.code);
+                    }
+                });
                 console.log("startExtraction_ sent to extraction.js");
             } else {
                 console.log("No active tab found!");
@@ -45,7 +49,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }).then(() => {
             onTabUpdated(tabId => {
                 if(tabId !== null) {
-                    chrome.tabs.sendMessage(message.tabId, { action: "selectTerm_", term: message.term, index: message.index, tabId: message.tabId });
+                    chrome.tabs.sendMessage(message.tabId, { action: "selectTerm_", term: message.term, index: message.index, tabId: message.tabId }, (response) => {
+                        if (response && response.status === "error") {
+                            getError(response.code);
+                        }
+                    });
                     console.log("selectTerm_ sent to extraction.js");
                 } else {
                     console.log("No active tab found!");
@@ -220,6 +228,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
             return final;
         }
-
     }
 });
