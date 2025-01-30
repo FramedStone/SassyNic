@@ -20,3 +20,10 @@ export function onTabUpdated(callback) {
     };
     chrome.tabs.onUpdated.addListener(listener);
 }
+
+// Helper function to lead users to associated error section within the wiki
+export function getError(code) {
+    chrome.tabs.create({
+        url: `https://github.com/FramedStone/SassyNic/wiki/Error-Reference#${code}`
+    });
+}

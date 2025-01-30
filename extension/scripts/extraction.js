@@ -14,7 +14,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 console.log("Term: ", term);
                 console.log("Subjects Total: ", subjectTotal);
 
-                document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
+                try {
+                    document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
+                } catch(error) {
+                    alert("1002_EXTRACTION_NOT_WITHIN_TERM");
+                    sendResponse({status: "error", code: 1002});
+                    return true;
+                };
+
                 chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset });
             } else {
                 alert("Extraction Completed!\nConstructing details onto a new tab...\n(Note: this can take up to 1 minute)");
@@ -50,18 +57,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
         });
 
+        // Add a flag to track if firstPromise has resolved
+        let firstResolved = false;
+        firstPromise.then(() => {
+            firstResolved = true;
+        });
+
         // Create the second waitForElement promise
         const secondPromise = waitForElement({
-            selector: "table tbody tr td",
-            method: "querySelectorAll"
+            selector: "table tbody tr",
+            method: "querySelectorAll",
         }).then(() => { 
-            const dataset = extractClassDetails();
-            console.log(dataset)
+            // If term !== message.term
+            waitForElement({
+                selector: "TERM_VAL_TBL_DESCR",
+                method: "getELementById",
+                textContent: message.term
+            }).then(() => {
+                const dataset = extractClassDetails();
+                console.log(dataset)
 
-            const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
-            const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-            chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
-        })
+                if(dataset.length === 0) {
+                    alert("1003_EXTRACTION_NO_CLASSES");
+                    sendResponse({status: "error", code: 1003});
+                    return true;
+                } else {
+                    const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
+                    const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
+                    chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+                }
+            }).catch(() => {
+                if (!firstResolved) {
+                    console.log("Term doesn't matches, expected term: ", message.term);
+                    alert("1001_EXTRACTION_TERM_NOT_MATCHING");
+                    sendResponse({status: "error", code: 1001});
+                    return true;
+                }
+            });
+        }).catch(() => {
+            if (!firstResolved) {
+                alert("1003_EXTRACTION_NO_CLASSES");
+                sendResponse({status: "error", code: 1003});
+                return true;
+            }
+        });
 
         // Use Promise.race to trigger whichever promise resolves first
         Promise.race([firstPromise, secondPromise])
@@ -75,11 +114,18 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             const dataset = extractClassDetails();
             console.log(dataset)
 
-            const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
-            const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-            chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+            if(dataset.length === 0) {
+                alert("1003_EXTRACTION_NO_CLASSES");
+                sendResponse({status: "error", code: 1003});
+                return true;
+            } else {
+                const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
+                const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
+                chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+            }
         })
     }
+    return true; // Keep message channel open to sendReponse() back to background.js
 });
 
 /**
@@ -331,4 +377,3 @@ function waitForElement({
         observer.observe(document.body, observerConfig);
     });
 }
-
