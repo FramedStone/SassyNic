@@ -1,5 +1,5 @@
 console.log("timetable.js loaded");
-chrome.runtime.sendMessage({ action: "timetablejsInjected" });
+browser.runtime.sendMessage({ action: "timetablejsInjected" });
 
 (async() => {
     document.addEventListener("DOMContentLoaded", async() => {
@@ -124,7 +124,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         let dataset;
 
         const getDataset = new Promise((resolve) => {
-            chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if(message.action === "passDataset") {
                     dataset = message.dataset;
                     resolve(dataset);
@@ -139,7 +139,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         // ---------------------- HTML DOM ELEMENTS ------------------------------//
         // ---------------------- FILTERS ----------------------------------------//
         // Filters 
-        const src_filters = chrome.runtime.getURL('extension/scripts/helpers/filters.js');
+        const src_filters = browser.runtime.getURL('extension/scripts/helpers/filters.js');
         const filters = await import(src_filters);
 
         filters.getDaysOfWeek();                // Days of week 
@@ -176,20 +176,20 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         });
 
         // ---------------------- DRAG AND DROP -----------------------------------//
-        const src_dragndrop = chrome.runtime.getURL('extension/scripts/helpers/dragndrop.js');
+        const src_dragndrop = browser.runtime.getURL('extension/scripts/helpers/dragndrop.js');
         const dragndrop = await import(src_dragndrop);
 
         dragndrop.getDragDrop();
 
         // ---------------------- TIMETABLE TABLE ---------------------------------//
         // Timetable table
-        const src_table = chrome.runtime.getURL('extension/scripts/helpers/table.js');
+        const src_table = browser.runtime.getURL('extension/scripts/helpers/table.js');
         const table = await import(src_table);
 
         table.getTable(dataset);
 
         // ------------------------- FITNESS FUNCTIONS ---------------------------//
-        const src_fitness = chrome.runtime.getURL('extension/scripts/helpers/fitness.js');
+        const src_fitness = browser.runtime.getURL('extension/scripts/helpers/fitness.js');
         const fitness = await import(src_fitness); 
 
         // ---------------------- MUTATION OBSERVERS --------------------------------//

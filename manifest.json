@@ -4,7 +4,13 @@
   "name": "SassyNic",
   "version": "1.1.2",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
-  "permissions": ["activeTab", "scripting", "storage", "windows"],
+  "permissions": ["activeTab", "scripting", "storage", "history"],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "sassynic@hksp.com",
+      "strict_min_version": "112.0"
+    }
+  },
   "icons": {
     "16": "./extension/images/icon/icon16.png",
     "32": "./extension/images/icon/icon32.png",
@@ -15,8 +21,9 @@
     "default_popup": "./extension/popup/popup.html"
   },
   "background": {
-    "service_worker": "./extension/scripts/background.js",
-    "type": "module"
+    "scripts": [
+      "./extension/scripts/background.js"
+    ]
   },
   "content_scripts": [
     {

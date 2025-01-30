@@ -2,17 +2,17 @@ import { getActiveTabId, onTabUpdated, getError } from './helpers/utils.js';
 import { pruneSchedule } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' github wiki on installed
-chrome.runtime.onInstalled.addListener(function() {
-    chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
+browser.runtime.onInstalled.addListener(function() {
+    browser.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "startExtraction") {
         console.log(message);
 
         getActiveTabId(tabId => {
             if(tabId !== null) {
-                chrome.tabs.sendMessage(tabId, { action: "startExtraction_", term: message.term, index: 0, tabId: tabId }, (response) => {
+                browser.tabs.sendMessage(tabId, { action: "startExtraction_", term: message.term, index: 0, tabId: tabId }, (response) => {
                     if(response && response.status === "error") {
                         getError(response.code);
                     }
@@ -29,7 +29,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
         onTabUpdated((tabId) => {
             if(tabId !== null) {
-                chrome.tabs.sendMessage(message.tabId, { action: "viewClasses_", term: message.term, index: message.index, tabId: message.tabId });
+                browser.tabs.sendMessage(message.tabId, { action: "viewClasses_", term: message.term, index: message.index, tabId: message.tabId });
                 console.log("viewClasses sent to extraction.js");
             } else {
                 console.log("No active tab found!");
@@ -40,7 +40,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "viewClasses") {
         console.log(message);
 
-        chrome.scripting.executeScript({
+        browser.scripting.executeScript({
             target: { tabId: message.tabId },
             world: 'MAIN',
             func: () => {
@@ -49,7 +49,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }).then(() => {
             onTabUpdated(tabId => {
                 if(tabId !== null) {
-                    chrome.tabs.sendMessage(message.tabId, { action: "selectTerm_", term: message.term, index: message.index, tabId: message.tabId }, (response) => {
+                    browser.tabs.sendMessage(message.tabId, { action: "selectTerm_", term: message.term, index: message.index, tabId: message.tabId }, (response) => {
                         if (response && response.status === "error") {
                             getError(response.code);
                         }
@@ -65,7 +65,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "selectTerm") {
         console.log(message);
 
-        chrome.scripting.executeScript({
+        browser.scripting.executeScript({
             target: { tabId: message.tabId },
             world: 'MAIN',
             func: (term) => {
@@ -75,7 +75,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }).then(() => {
             onTabUpdated(tabId => {
                 if(tabId !== null) {
-                    chrome.tabs.sendMessage(message.tabId, { action: "extractClassDetails_", term: message.term, index: message.index, tabId: message.tabId });
+                    browser.tabs.sendMessage(message.tabId, { action: "extractClassDetails_", term: message.term, index: message.index, tabId: message.tabId });
                     console.log("extractClassDetails_ sent to extraction.js");
                 } else {
                     console.log("No active tab found!");
@@ -87,22 +87,22 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "extractClassDetails") {
         console.log(message);
 
-        // Put dataset into chrome storage with 2 keys: message.title and message.code
-        chrome.storage.local.set({ [message.title]: message.dataset }, () => {
+        // Put dataset into browser storage with 2 keys: message.title and message.code
+        browser.storage.local.set({ [message.title]: message.dataset }, () => {
             console.log("Dataset saved to storage: ", message.title);
             console.log(message.dataset);
         });
 
-        chrome.scripting.executeScript({
+        browser.scripting.executeScript({
             target: { tabId: message.tabId },
             world: 'MAIN',
             func: () => {
-                window.history.back();
+                history.back();
             }
         }).then(() => {
             onTabUpdated(tabId => {
                 if(tabId !== null) {
-                    chrome.scripting.executeScript({
+                    browser.scripting.executeScript({
                         target: { tabId: message.tabId },
                         world: 'MAIN',
                         func: () => {
@@ -128,14 +128,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                                     onclick:true
                                 }
                             }).then(() => {
-                                window.history.back()
+                                history.back()
                             })
                         }
                     }).then(() => {
                         let index = message.index + 1; // Increment index to move to the next course
                         onTabUpdated(tabId => {
                             if(tabId !== null) {
-                                chrome.tabs.sendMessage(message.tabId, { action: "startExtraction_", term: message.term, index: index, tabId: message.tabId });
+                                browser.tabs.sendMessage(message.tabId, { action: "startExtraction_", term: message.term, index: index, tabId: message.tabId });
                                 console.log("startExtraction_ sent to extraction.js with index: ", index);
                             } else {
                                 console.log("No active tab found!");
@@ -155,7 +155,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
          * dataset ->
          */
 
-        chrome.storage.local.get(null, function(items) {
+        browser.storage.local.get(null, function(items) {
             let dataset = items;
             let pureComb = backtrack_(dataset);
             let prunedComb = backtrack(dataset);
@@ -164,15 +164,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             console.log("Backtracking with daytime conflict + seats availability: ", prunedComb);
 
             // Passing pruned combination to 'timetable.html'
-            chrome.tabs.create({ url: chrome.runtime.getURL("extension/timetable/timetable.html") }, () => {
-                chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            browser.tabs.create({ url: browser.runtime.getURL("extension/timetable/timetable.html") }, () => {
+                browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     if(message.action === "timetablejsInjected") {
-                        chrome.runtime.sendMessage({ action: "passDataset", dataset: prunedComb }, (response) => {
+                        browser.runtime.sendMessage({ action: "passDataset", dataset: prunedComb }, (response) => {
                             console.log("Pruned dataset sent to timetable.html");
 
-                            // Clear chrome storage
-                            chrome.storage.local.clear();
-                            console.log("Dataset cleared from chrome storage.");
+                            // Clear browser storage
+                            browser.storage.local.clear();
+                            console.log("Dataset cleared from browser storage.");
 
                             console.log(response.status);
                         });
