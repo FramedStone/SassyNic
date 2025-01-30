@@ -7,7 +7,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             selector: "table tbody tr",
             method: "querySelectorAll",
         }).then(() => {
-            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent.trim();
+            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent.replace(/\s*\/\s*/g, '/').trim();
             let subjectTotal = document.querySelectorAll('table[title="Non-Small Form Factor"] tbody tr').length;
 
             if(message.index < subjectTotal) {
