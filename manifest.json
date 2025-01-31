@@ -7,7 +7,7 @@
   "permissions": ["activeTab", "scripting", "storage", "history"],
   "browser_specific_settings": {
     "gecko": {
-      "id": "sassynic@hksp.com",
+      "id": "sassynic@framedstone.com",
       "strict_min_version": "112.0"
     }
   },
