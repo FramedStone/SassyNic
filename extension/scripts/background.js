@@ -2,8 +2,9 @@ import { getActiveTabId, onTabUpdated, getError } from './helpers/utils.js';
 import { pruneSchedule } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' github wiki on installed
-browser.runtime.onInstalled.addListener(function() {
-    browser.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
+browser.runtime.onInstalled.addListener(({reason}) => {
+    if(reason === 'install' || reason === 'update')
+        browser.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
 });
 
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
