@@ -147,7 +147,7 @@ function extractClassDetails() {
         const seatsElements = row.querySelectorAll('.SEATS span.ps_box-value');
         const dayTimeElements = row.querySelectorAll('.DAYS_TIMES .ps_box-longedit');
         const roomElements = row.querySelectorAll('.ROOM .ps_box-edit');
-        const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit');
+        const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit') || [];
 
         // class
         if(status === "Open" && !row.classList.contains('psc_disabled')) { // pre extraction filters
@@ -160,12 +160,12 @@ function extractClassDetails() {
                 if (dayTimeElements[index]) {
                     const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
                     const roomSpans = roomElements[index].querySelectorAll('span');
-                    const instructorSpans = instructorElements[index].querySelectorAll('span');
+                    const instructorSpans = instructorElements[index]?.querySelectorAll('span') || [];
 
                     daytimeSpans.forEach((span, index_) => {
                         const [day, time] = parseDayAndTime(span.innerHTML.trim());
                         const room = roomSpans[index_].innerText.trim();
-                        const instructor = instructorSpans[index_].innerText.trim();
+                        const instructor = instructorSpans[index_]?.innerText.trim() || 'no_instructor_displayed';
                         misc.push({ day, time, room, instructor });
                     });
                 }
