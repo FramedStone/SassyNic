@@ -7,7 +7,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             selector: "table tbody tr",
             method: "querySelectorAll",
         }).then(() => {
-            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent.replace(/\s*\/\s*/g, '/').trim();
+            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+                .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
+                .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+                .trim();
+
             let subjectTotal = document.querySelectorAll('table[title="Non-Small Form Factor"] tbody tr').length;
 
             if(message.index < subjectTotal) {
@@ -57,47 +61,34 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
         });
 
-        // Add a flag to track if firstPromise has resolved
-        let firstResolved = false;
-        firstPromise.then(() => {
-            firstResolved = true;
-        });
-
         // Create the second waitForElement promise
         const secondPromise = waitForElement({
-            selector: "table tbody tr",
-            method: "querySelectorAll",
+            selector: "TERM_VAL_TBL_DESCR",
+            method: "getELementById",
         }).then(() => { 
-            // If term !== message.term
-            waitForElement({
-                selector: "TERM_VAL_TBL_DESCR",
-                method: "getELementById",
-                textContent: message.term
-            }).then(() => {
-                const dataset = extractClassDetails();
-                console.log(dataset)
+            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+                .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
+                .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+                .trim();
 
-                if(dataset.length === 0) {
-                    alert("1003_EXTRACTION_NO_CLASSES");
-                    sendResponse({status: "error", code: 1003});
-                    return true;
-                } else {
+            // Check if term matching
+            if(term === message.term) {
+                // Check if there's any class details to extract
+                try {
+                    const dataset = extractClassDetails();
+                    console.log(dataset)
+
                     const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
                     const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
                     chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
-                }
-            }).catch(() => {
-                if (!firstResolved) {
-                    console.log("Term doesn't matches, expected term: ", message.term);
-                    alert("1001_EXTRACTION_TERM_NOT_MATCHING");
-                    sendResponse({status: "error", code: 1001});
-                    return true;
-                }
-            });
-        }).catch(() => {
-            if (!firstResolved) {
-                alert("1003_EXTRACTION_NO_CLASSES");
-                sendResponse({status: "error", code: 1003});
+                } catch(error) {
+                    alert("1003_EXTRACTION_NO_CLASES");
+                    sendResponse({status: "error", code: 1003});
+                    return; 
+                } 
+            } else {
+                alert("1001_EXTRACTION_TERM_NOT_MATCHING");
+                sendResponse({status: "error", code: 1001});
                 return true;
             }
         });
@@ -108,22 +99,35 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     if(message.action == "extractClassDetails_") {
         waitForElement({
-            selector: "table tbody tr td",
-            method: "querySelectorAll"
+            selector: "TERM_VAL_TBL_DESCR",
+            method: "getELementById",
         }).then(() => { 
-            const dataset = extractClassDetails();
-            console.log(dataset)
+            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+                .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
+                .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+                .trim();
 
-            if(dataset.length === 0) {
-                alert("1003_EXTRACTION_NO_CLASSES");
-                sendResponse({status: "error", code: 1003});
-                return true;
+            // Check if term matching
+            if(term === message.term) {
+                // Check if there's any class details to extract
+                try {
+                    const dataset = extractClassDetails();
+                    console.log(dataset)
+
+                    const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
+                    const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
+                    chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+                } catch(error) {
+                    alert("1003_EXTRACTION_NO_CLASES");
+                    sendResponse({status: "error", code: 1003});
+                    return; 
+                } 
             } else {
-                const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
-                const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-                chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+                alert("1001_EXTRACTION_TERM_NOT_MATCHING");
+                sendResponse({status: "error", code: 1001});
+                return true;
             }
-        })
+        });
     }
     return true; // Keep message channel open to sendReponse() back to background.js
 });
