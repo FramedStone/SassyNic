@@ -226,31 +226,50 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         prunedComb,
       );
 
-      // Passing pruned combination to 'timetable.html'
+      // Passing pruned combination to 'timetable.html' in chunks
       chrome.tabs.create(
         { url: chrome.runtime.getURL("extension/timetable/timetable.html") },
         () => {
-          chrome.runtime.onMessage.addListener(
-            (message, sender, sendResponse) => {
-              if (message.action === "timetablejsInjected") {
-                chrome.runtime.sendMessage(
-                  { action: "passDataset", dataset: prunedComb },
-                  (response) => {
-                    console.log("Pruned dataset sent to timetable.html");
-
-                    // Clear chrome storage
-                    chrome.storage.local.clear();
-                    console.log("Dataset cleared from chrome storage.");
-
-                    console.log(response.status);
-                  },
-                );
-              }
-              return true; // keep message port open for receiving message
-            },
-          );
+          chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+            if (message.action === "timetablejsInjected") {
+              sendLargeDataset(prunedComb);
+            }
+            return true; // keep message port open for receiving message
+          });
         },
       );
+
+      /**
+       * Function that will split dataset into chunks accordingly
+       * @param {Object} prunedComb 
+       */
+      function sendLargeDataset(prunedComb) {
+        const datasetStr = JSON.stringify(prunedComb);
+        const chunkSize = 1000000; 
+        const totalChunks = Math.ceil(datasetStr.length / chunkSize);
+
+        for (let i = 0; i < totalChunks; i++) {
+          const chunk = datasetStr.slice(i * chunkSize, (i + 1) * chunkSize);
+          chrome.runtime.sendMessage(
+            {
+              action: "passDataset",
+              chunk: chunk,
+              index: i,
+              total: totalChunks,
+            },
+            (response) => {
+              console.log(`Chunk ${i} sent with status: ${response?.status}`);
+              // Clear chrome storage after the last chunk is sent 
+              if (i === totalChunks - 1) {
+                chrome.storage.local.clear(() => {
+                  console.log("Dataset cleared from chrome storage.");
+                });
+              }
+            }
+          );
+        }
+      }
+
     });
 
     // Pure Backtracking

@@ -121,20 +121,30 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         // ---------------------- MESSAGE PASSING --------------------------------//
         // Listen message from background.js
-        let dataset;
+        let datasetChunks = [];
+        let expectedChunks = null;
 
         const getDataset = new Promise((resolve) => {
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-                if(message.action === "passDataset") {
-                    dataset = message.dataset;
-                    resolve(dataset);
+                if (message.action === "passDataset") {
+                    // Store the chunk at its index
+                    datasetChunks[message.index] = message.chunk;
+                    expectedChunks = message.total;
 
-                    sendResponse({ status: "Pruned dataset received successfully from background.js" });
+                    // Check if all chunks have been received
+                    if (datasetChunks.filter(Boolean).length === expectedChunks) {
+                        const datasetStr = datasetChunks.join('');
+                        const dataset = JSON.parse(datasetStr);
+                        resolve(dataset);
+                        sendResponse({ status: "Pruned dataset received successfully from background.js" });
+                    }
                 }
-                return true; // keep message port open for receiving message
+                return true; // keep message port open for async response
             });
         });
-        dataset = await getDataset; // load dataset
+
+        const dataset = await getDataset;
+
 
         // ---------------------- HTML DOM ELEMENTS ------------------------------//
         // ---------------------- FILTERS ----------------------------------------//
