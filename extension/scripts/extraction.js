@@ -52,13 +52,23 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         const firstPromise = waitForElement({
             selector: "td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link",
             method: "querySelectorAll",
-            textContent: message.term,
             attributes: {
                 onclick: true
             }
         }).then(() => {
-            // Action to take if the first promise resolves
-            chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+                .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
+                .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+                .trim();
+
+            if(term == message.term) {
+                // Action to take if the first promise resolves
+                chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+            } else {
+                alert("1001_EXTRACTION_TERM_NOT_MATCHING");
+                sendResponse({status: "error", code: 1001});
+                return true;
+            }
         });
 
         // Create the second waitForElement promise
