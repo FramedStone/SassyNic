@@ -56,25 +56,31 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 onclick: true
             }
         }).then(() => {
-            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+            let terms = document.querySelectorAll('td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link');
+
+            let found = Array.from(terms).some(term_ => {
+                let term = term_.textContent
                 .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
                 .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
                 .trim();
 
-            if(term == message.term) {
-                // Action to take if the first promise resolves
-                chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
-            } else {
+                if(term == message.term) {
+                    // Action to take if the first promise resolves
+                    chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+                    return true;
+                }
+            });
+
+            if(!found) {
                 alert("1001_EXTRACTION_TERM_NOT_MATCHING");
                 sendResponse({status: "error", code: 1001});
-                return true;
             }
         });
 
         // Create the second waitForElement promise
         const secondPromise = waitForElement({
             selector: "TERM_VAL_TBL_DESCR",
-            method: "getELementById",
+            method: "getElementById",
         }).then(() => { 
             let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
                 .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
@@ -110,9 +116,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action == "extractClassDetails_") {
         waitForElement({
             selector: "TERM_VAL_TBL_DESCR",
-            method: "getELementById",
+            method: "getElementById",
         }).then(() => { 
-            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+            let term = document.getElementById('TERM_VAL_TBL_DESCR').textContent
                 .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
                 .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
                 .trim();

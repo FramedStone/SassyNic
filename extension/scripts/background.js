@@ -105,7 +105,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           )
             .find((el) => el.textContent.trim().replace(/\s*\/\s*/g, '/')
             .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2')
-            .trim() === standardizedTerm)
+            .trim() === term)
             .click();
         },
         args: [message.term],
