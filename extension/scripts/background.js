@@ -103,7 +103,9 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               "td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link",
             ),
           )
-            .find((element) => element.textContent.trim() === term)
+            .find((el) => el.textContent.trim().replace(/\s*\/\s*/g, '/')
+            .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2')
+            .trim() === standardizedTerm)
             .click();
         },
         args: [message.term],
