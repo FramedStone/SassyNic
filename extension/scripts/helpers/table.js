@@ -54,6 +54,24 @@ export function getTable(dataset) {
         const { startHour, endHour } = getTimeRange(dataset[currentCombinationIndex]);
         const hours = Array.from({ length: endHour - startHour + 1 }, (_, i) => i + startHour);
 
+        // satisfaction indicator
+        const satisfaction_div = document.createElement('div');
+        const satisfaction_span = document.createElement('span');
+        satisfaction_span.id = `satisfaction-${currentCombinationIndex}`;
+        const fitness = dataset[currentCombinationIndex].fitness;
+        if (fitness === 1) {
+            satisfaction_span.innerText = 'Satisfied all current setting(s)';
+            satisfaction_span.style.color = 'green';
+        } else {
+            const fitnessPercentage = (fitness * 100).toFixed(2);
+            satisfaction_span.innerHTML = `<strong>${fitnessPercentage}%</strong> close to your current setting(s)`;
+            satisfaction_span.style.color = 'red';
+        }
+        satisfaction_span.style.textAlign = 'center';
+        satisfaction_span.style.fontSize = '16px';
+        satisfaction_div.appendChild(satisfaction_span);
+        timetableDiv.appendChild(satisfaction_div);
+
         // Create table
         const table = document.createElement('table');
         const thead = document.createElement('thead');
