@@ -152,7 +152,7 @@ export function getTable(dataset) {
 
     function showEnrollmentOptions() {
         let optionsHTML = '';
-        dataset[currentCombinationIndex].forEach(course => {
+        dataset[currentCombinationIndex + 1].forEach(course => {
             optionsHTML += `<strong>${course.title} - option ${course.option.option}</strong><br>`;
             course.option.classes.forEach(classInfo => {
                 const classTextMatch = classInfo.classText.match(/(LEC|LAB|TUT).*Class Sect\s+(\w+)/);
