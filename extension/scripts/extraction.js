@@ -70,11 +70,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     return true;
                 }
             });
-
-            if(!found) {
-                alert("1001_EXTRACTION_TERM_NOT_MATCHING");
-                sendResponse({status: "error", code: 1001});
-            }
         });
 
         // Create the second waitForElement promise
@@ -82,7 +77,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             selector: "TERM_VAL_TBL_DESCR",
             method: "getElementById",
         }).then(() => { 
-            let term = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
+            let term = document.getElementById('TERM_VAL_TBL_DESCR').textContent
                 .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
                 .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
                 .trim();
