@@ -151,8 +151,16 @@ export function getTable(dataset) {
     }
 
     function showEnrollmentOptions() {
+        // Remove existing modal before creating a new one
+        const existingModal = document.getElementById('customModal');
+        if(existingModal) {
+            existingModal.remove();
+        }
+
         let optionsHTML = '';
-        dataset[currentCombinationIndex + 1].forEach(course => {
+        console.log("timetable index: ", currentCombinationIndex);
+        dataset[currentCombinationIndex].forEach(course => {
+            console.log("enroll modal option: ", course.option.option);
             optionsHTML += `<strong>${course.title} - option ${course.option.option}</strong><br>`;
             course.option.classes.forEach(classInfo => {
                 const classTextMatch = classInfo.classText.match(/(LEC|LAB|TUT).*Class Sect\s+(\w+)/);
