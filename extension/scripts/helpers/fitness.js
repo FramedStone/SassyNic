@@ -1,6 +1,4 @@
 export function getSortedDataset(dataset, filters, children, callback) {
-    let isUpdated = false;
-
     // Setup each filter's weight
     setFilterWeight(filters, children, (maxFitness) => {
         setMaxFitness(dataset, parseFloat(maxFitness), (dataset_) => {
@@ -8,11 +6,10 @@ export function getSortedDataset(dataset, filters, children, callback) {
         });
     });
 
-    setFitnessScore(dataset, (dataset_, isUpdated_) => {
+    setFitnessScore(dataset, (dataset_) => {
         dataset = dataset_;
-        isUpdated = isUpdated_;
     });
-    callback(dataset, isUpdated);
+    callback(dataset);
 }
 
 /**
