@@ -48,12 +48,15 @@
                 </div>
                 <!-- Days Of Week -->
                 <div class="draggable-item daysofweek" id="daysofweek" data-rank="1" show-details="false" hidden>
-                    <span class="rank-display">1. Day Filter</span>
+                    <span class="rank-display">1. Day Filter (Inclusive/Exclusive)</span>
                     <br>
-                    <div class="draggable-item-child" data-rank="1">
+                    <label><strong>Inclusive</strong></label>
+                    <div style="border: 1px solid #ccc; border-radius: 5px;" data-rank="1" draggable="false">
                         <input type="checkbox" id="everyday" checked/>
                         <label for="everyday">Everyday</label>
                     </div>
+                    <br>
+                    <label><strong>Exclusive</strong><br>(drag & drop to change priority)</label>
                     <div class="draggable-item-child" data-rank="2">
                         <input type="checkbox" id="monday" disabled/>
                         <label for="monday">Monday</label>
@@ -86,7 +89,7 @@
 
                 <!-- Time -->
                 <div class="draggable-item time" id="time" data-rank="2" show-details="true" hidden>
-                    <span class="rank-display">2. Time Filter</span>
+                    <span class="rank-display">2. Time Filter (Inclusive)</span>
                     <br>
                     <label for="time-start">Start</label>
                     <input type="time" id="time-start"/>
@@ -107,7 +110,7 @@
                 </div>
                 <!-- Class Gap -->
                 <div class="draggable-item gap" id="gap" data-rank="3" show-details="true" hidden>
-                    <span class="rank-display">3. Class Gap Filter</span>
+                    <span class="rank-display">3. Class Gap Filter (Inclusive)</span>
                     <br>
                     <label for="class_gap">Class Gap (30 minutes interval):</label>
                     <br>
@@ -127,7 +130,7 @@
                 </div>
                 <!-- Instructor -->
                 <div class="draggable-item instructor" id="instructor" data-rank="4" show-details="false" hidden>
-                    <span class="rank-display">4. Instructor Filter</span>
+                    <span class="rank-display">4. Instructor Filter (Exclusive)</span>
                     <!-- Instructor list will be dynamically displayed here -->
                 </div>
             </div>
