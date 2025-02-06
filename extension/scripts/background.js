@@ -8,6 +8,18 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Auto Login
+  if (message.action === "autoLogin") {
+    getActiveTabId((tabId) => {
+      if (tabId !== null) {
+        chrome.tabs.create({ url: "https://outlook.office.com/mail/" });
+      } else {
+        console.log("No active tab found!");
+      }
+    });
+  }
+
+  // Timetable
   if (message.action === "startExtraction") {
     console.log(message);
 
