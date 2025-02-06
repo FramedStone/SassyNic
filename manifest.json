@@ -26,6 +26,13 @@
         "./extension/scripts/auto_enrollment.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://clic.mmu.edu.my/*", "https://outlook.office.com/mail/*"],
+      "js": [
+        "./extension/scripts/auto_login.js"
+      ],
+      "run_at": "document_idle"
     }
   ],
   "web_accessible_resources": [
