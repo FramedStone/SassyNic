@@ -23,6 +23,7 @@ body {
   padding: 16px;
 }
 
+/* Title Wrapper */
 header {
   display: flex;
   align-items: center;
@@ -66,6 +67,7 @@ main {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Dropdown Wrapper */
 .dropdown {
   margin-bottom: 16px;
   border: 1px solid var(--border-color);
@@ -144,3 +146,56 @@ button:hover {
   font-size: 14px;
 }
 
+/* Auto Login */
+.switch-auto-login {
+  position: relative;
+  display: inline-block;
+  width: 30px;
+  height: 17px;
+}
+
+.switch-auto-login input { 
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-span-auto-login {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #ccc;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 34px;
+}
+
+.switch-span-auto-login:before {
+  position: absolute;
+  content: "";
+  height: 13px;
+  width: 13px;
+  left: 2px;
+  bottom: 2px;
+  background-color: white;
+  -webkit-transition: .4s;
+  transition: .4s;
+  border-radius: 50%;
+}
+
+input:checked + .switch-span-auto-login {
+  background-color: #2196F3;
+}
+
+input:focus + .switch-span-auto-login {
+  box-shadow: 0 0 1px #2196F3;
+}
+
+input:checked + .switch-span-auto-login:before {
+  -webkit-transform: translateX(13px);
+  -ms-transform: translateX(13px);
+  transform: translateX(13px);
+}
