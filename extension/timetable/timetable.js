@@ -172,13 +172,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                     const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
                     const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
 
-                    fitness.getSortedDataset(dataset, filters, children, (result, isUpdated) => {
+                    fitness.getSortedDataset(dataset, filters, children, (result) => {
                         console.log(result);
-                        if(isUpdated)
-                            document.getElementById('update-display').textContent = "Updated!";
-                        else 
-                            document.getElementById('update-display').textContent = "Not Updated";
-
                         table.getTable(dataset);
                     });
                 }
@@ -215,13 +210,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result, isUpdated) => {
+            fitness.getSortedDataset(dataset, filters, children, (result) => {
                 console.log(result);
-                if(isUpdated)
-                    document.getElementById('update-display').textContent = "Updated!";
-                else 
-                    document.getElementById('update-display').textContent = "Not Updated";
-
                 table.getTable(dataset);
             });
 
@@ -240,13 +230,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result, isUpdated) => {
+            fitness.getSortedDataset(dataset, filters, children, (result) => {
                 console.log(result);
-                if(isUpdated)
-                    document.getElementById('update-display').textContent = "Updated!";
-                else 
-                    document.getElementById('update-display').textContent = "Not Updated";
-
                 table.getTable(dataset);
             });
 
@@ -289,13 +274,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result, isUpdated) => {
+            fitness.getSortedDataset(dataset, filters, children, (result) => {
                 console.log(result);
-                if(isUpdated)
-                    document.getElementById('update-display').textContent = "Updated!";
-                else 
-                    document.getElementById('update-display').textContent = "Not Updated";
-
                 table.getTable(dataset);
             });
         }, dragndrop, fitness, table, dataset); // pass dragndrop object to track newly created span(s), and fitness for real time updates
