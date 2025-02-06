@@ -85,18 +85,24 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             // Check if term matching
             if(term === message.term) {
                 // Check if there's any class details to extract
-                try {
-                    const dataset = extractClassDetails();
-                    console.log(dataset)
+                waitForElement({
+                    selector: "table tr td",
+                    method: "querySelectorAll",
+                }).then(() => {
+                    // Check if there's any class details to extract
+                    try {
+                        const dataset = extractClassDetails();
+                        console.log(dataset)
 
-                    const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
-                    const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-                    chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
-                } catch(error) {
-                    alert("1003_EXTRACTION_NO_CLASES");
-                    sendResponse({status: "error", code: 1003});
-                    return; 
-                } 
+                        const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
+                        const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
+                        chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+                    } catch(error) {
+                        alert("1003_EXTRACTION_NO_CLASES");
+                        sendResponse({status: "error", code: 1003});
+                        return; 
+                    } 
+                });
             } else {
                 alert("1001_EXTRACTION_TERM_NOT_MATCHING");
                 sendResponse({status: "error", code: 1001});
