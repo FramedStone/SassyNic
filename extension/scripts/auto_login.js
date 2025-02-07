@@ -1,7 +1,7 @@
 console.log("auto_login.js injected");
 
 // CliC OTP page
-if(window.location.href.startsWith("https://clic.mmu.edu.my/")) {
+// if(window.location.href.startsWith("https://clic.mmu.edu.my/psp/csprd/?&cmd=login")) {
     // Only observe when autoLogin is toggled on
     chrome.storage.local.get("autoLoginEnabled", function (data) {
         console.log("Loaded from storage:", data);
@@ -30,11 +30,8 @@ if(window.location.href.startsWith("https://clic.mmu.edu.my/")) {
             observer.observe(document.body, { childList: true, subtree: true });
             console.log('Observing CliC OTP page.');
             checkForTimestamp();
+
+            observer.disconnect();
         }
     });
-}
-
-// Outlook mail page
-if (window.location.href.startsWith("https://outlook.office.com/mail/*")) {
-
-}
+// }
