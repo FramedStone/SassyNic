@@ -28,12 +28,16 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://clic.mmu.edu.my/*", "https://outlook.office.com/mail/*"],
+      "matches": ["https://clic.mmu.edu.my/psp/csprd/?&cmd=login*"],
       "js": [
         "./extension/scripts/auto_login.js"
       ],
       "run_at": "document_idle"
     }
+  ],
+  "host_permissions": [
+    "https://outlook.office.com/mail/*",
+    "https://clic.mmu.edu.my/*"
   ],
   "web_accessible_resources": [
     {
