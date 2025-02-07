@@ -10,7 +10,8 @@ Currently, there are no official releases of this project. Security updates and 
 | [v1.1.9](https://github.com/FramedStone/SassyNic/releases/tag/v1.1.9)    | :x:                |
 | [v1.3.0](https://github.com/FramedStone/SassyNic/releases/tag/v1.3.0)    | :x:                |
 | [v1.3.1](https://github.com/FramedStone/SassyNic/releases/tag/v1.3.1)    | :x:                |
-| [v1.3.2](https://github.com/FramedStone/SassyNic/releases/tag/v1.3.2)    | ✅                |
+| [v1.3.2](https://github.com/FramedStone/SassyNic/releases/tag/v1.3.2)    | :white_check_mark:                |
+| [v2.3.2](https://github.com/FramedStone/SassyNic/releases/tag/v2.3.2)    | ✅                |
 
 
 ## Reporting a Vulnerability

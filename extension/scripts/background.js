@@ -8,6 +8,84 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Auto Login
+  if (message.action === "autoLogin") {
+    getActiveTabId((tabId) => {
+      if(tabId !== null) {
+        // Create a tab and navigate to outlook webpage
+        chrome.tabs.create({ url: "https://outlook.office.com/mail/" });
+
+        onTabUpdated((tabId_) => {
+          if(tabId_ !== null) {
+            chrome.scripting.executeScript({
+                target: { tabId: tabId_ },
+                world: "MAIN",
+                func: (timestamp) => {
+                    console.log("Timestamp from CliC OTP request webapge: ", timestamp);
+                    let otp = null;
+
+                    // Create a MutationObserver to wait for all spans or new spans to load
+                    return new Promise((resolve) => {
+                      let observer = new MutationObserver((mutations, obs) => {
+                          let spans = document.querySelectorAll('span');
+
+                          if(spans.length > 0) { 
+                              spans.forEach(span => {
+                                  if (span.innerText.includes(timestamp)) {
+                                      console.log("Matching span:", span.innerText);
+                                      let otpMatch = span.innerText.match(/\b\d{6}\b/);
+                                      otp = otpMatch ? otpMatch[0] : "OTP not found";
+                                      console.log("Extracted OTP:", otp);
+
+                                      // Disconnect observer
+                                      obs.disconnect();
+
+                                      resolve(otp);
+                                  }
+                              });
+                          }
+                      });
+
+                      // Observe changes in the document body
+                      observer.observe(document.body, { childList: true, subtree: true });
+                    })
+                },
+                args: [message.timestamp]
+            }).then((results) => {
+              let extractedOTP = results[0]?.result || "OTP not found";
+              console.log("Extracted OTP: ", extractedOTP);
+
+              // Close outlook webpage after extracted OTP
+              chrome.tabs.remove(tabId_);
+
+              // Focus back to CliC
+              chrome.tabs.update(tabId, { active: true });
+
+              // Insert extracted OTP and clik 'Validate OTP'
+              chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                world: "MAIN",
+                func: (otp) => {
+                  // OTP input field
+                  document.getElementById('otp').value = otp;
+
+                  // Validate Button
+                  document.getElementById('ps_submit_button').click();
+                },
+                args: [extractedOTP]
+              });
+            });
+          } else {
+            console.log("No active tab found!");
+          }
+        });
+      } else {
+        console.log("No active tab found!");
+      }
+    });
+  }
+
+  // Timetable
   if (message.action === "startExtraction") {
     console.log(message);
 
