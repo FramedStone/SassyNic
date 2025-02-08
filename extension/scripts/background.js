@@ -58,7 +58,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               chrome.tabs.remove(tabId_);
 
               // Focus back to CliC
-              chrome.tabs.update(tabId, { active: true });
+              // chrome.tabs.update(tabId, { active: true });
 
               // Insert extracted OTP and clik 'Validate OTP'
               chrome.scripting.executeScript({
