@@ -55,6 +55,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               let extractedOTP = results[0]?.result || "OTP not found";
               console.log("Extracted OTP: ", extractedOTP);
 
+              if(extractedOTP === "OTP not found") {
+                alert("2001_OTP_NOT_FOUND");
+                getError(2001);
+              }
+
               // Close outlook webpage after extracted OTP
               chrome.tabs.remove(tabId_);
 
