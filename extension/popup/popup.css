@@ -146,56 +146,72 @@ button:hover {
   font-size: 14px;
 }
 
-/* Auto Login */
-.switch-auto-login {
-  position: relative;
-  display: inline-block;
-  width: 30px;
-  height: 17px;
+/* Toggle Button */
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: var(--surface-color);
+  transition: all 0.3s ease;
 }
 
-.switch-auto-login input { 
+.toggle-button label {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--primary-color);
+  text-shadow: 0 0 3px var(--primary-color);
+}
+
+/* Auto otp-extractor Switch */
+.switch-auto-otp-extractor {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch-auto-otp-extractor input {
   opacity: 0;
   width: 0;
   height: 0;
 }
 
-.switch-span-auto-login {
+.switch-span-auto-otp-extractor {
   position: absolute;
   cursor: pointer;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: #ccc;
-  -webkit-transition: .4s;
+  background-color: var(--surface-color);
   transition: .4s;
   border-radius: 34px;
+  border: 2px solid var(--border-color);
 }
 
-.switch-span-auto-login:before {
+.switch-span-auto-otp-extractor:before {
   position: absolute;
   content: "";
-  height: 13px;
-  width: 13px;
+  height: 18px;
+  width: 18px;
   left: 2px;
-  bottom: 2px;
-  background-color: white;
-  -webkit-transition: .4s;
+  bottom: 1px;
+  background-color: var(--text-color);
   transition: .4s;
   border-radius: 50%;
 }
 
-input:checked + .switch-span-auto-login {
-  background-color: #2196F3;
+.switch-auto-otp-extractor input:checked + .switch-span-auto-otp-extractor {
+  background-color: var(--primary-color);
 }
 
-input:focus + .switch-span-auto-login {
-  box-shadow: 0 0 1px #2196F3;
+.switch-auto-otp-extractor input:focus + .switch-span-auto-otp-extractor {
+  box-shadow: 0 0 5px var(--primary-color);
 }
 
-input:checked + .switch-span-auto-login:before {
-  -webkit-transform: translateX(13px);
-  -ms-transform: translateX(13px);
-  transform: translateX(13px);
+.switch-auto-otp-extractor input:checked + .switch-span-auto-otp-extractor:before {
+  transform: translateX(26px);
+  background-color: var(--surface-color);
 }
