@@ -19,14 +19,15 @@ document.addEventListener('DOMContentLoaded', function() {
    });
 
    // Timetable
-   document.getElementById('btnExtraction').addEventListener('click', () => {
-      const choice = confirm("\nContinue with extraction (OK)\nClose to watch the tutorial (Cancel)\n\nNote: Make sure to watch the tutorial to prevent any unwanted issues!");
+   // Tutorial
+   document.getElementById('btnTutorial').addEventListener('click', () => {
+      chrome.tabs.create({ url: "./extension/tutorial-videos/index.html" });
+      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
+   });
 
-      if(choice) {
-         // send message to background.js to start extraction 
-         chrome.runtime.sendMessage({ action: "startExtraction" });
-      } else {
-         chrome.tabs.create({ url: "./extension/tutorial-videos/index.html" });
-      }
+   // Start Extraction
+   document.getElementById('btnExtraction').addEventListener('click', () => {
+      // send message to background.js to start extraction 
+      chrome.runtime.sendMessage({ action: "startExtraction" });
    });
 });
