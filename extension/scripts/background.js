@@ -7,7 +7,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
     chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic" });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
   // Auto Login
   if (message.action === "autoLogin") {
     getActiveTabId((tabId) => {
