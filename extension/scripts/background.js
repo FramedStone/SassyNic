@@ -79,6 +79,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 args: [extractedOTP]
               });
             }).catch((error) => {
+              // Close outlook webpage after extracted OTP
+              chrome.tabs.remove(tabId_);
+
+              // Focus back to CliC
+              chrome.tabs.update(tabId, { active: true });
+
               chrome.scripting.executeScript({
                 target: { tabId: tabId },
                 world: "MAIN",
