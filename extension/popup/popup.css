@@ -105,7 +105,7 @@ summary::before {
 }
 
 details[open] summary::before {
-  transform: translateY(-50%) rotate(90deg);
+  transform: translateY(-70%) rotate(90deg);
 }
 
 .dropdown-content {
@@ -117,7 +117,7 @@ details[open] summary::before {
 
 details[open] .dropdown-content {
   padding: 12px;
-  max-height: 100px;
+  max-height: 200px;
   opacity: 1;
 }
 
