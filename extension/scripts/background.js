@@ -207,9 +207,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === "extractClassDetails") {
     console.log(message);
+    const key = 'COURSE_' + message.title;
 
-    // Put dataset into chrome storage with 2 keys: message.title and message.code
-    chrome.storage.local.set({ [message.title]: message.dataset }, () => {
+    // Put dataset into chrome storage with key + message.title 
+    chrome.storage.local.set({ [key]: message.dataset }, () => {
       console.log("Dataset saved to storage: ", message.title);
       console.log(message.dataset);
     });
@@ -294,7 +295,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
      */
 
     chrome.storage.local.get(null, function (items) {
-      let dataset = items;
+      const courseItems = {};
+      Object.keys(items).forEach((key) => {
+        if (key.startsWith("COURSE_")) {
+          courseItems[key] = items[key];
+        }
+      });
+
+      let dataset = courseItems;
       let pureComb = backtrack_(dataset);
       let prunedComb = backtrack(dataset);
       console.log("Dataset: ", dataset);
