@@ -60,7 +60,7 @@ chrome.runtime.onMessage.addListener((message) => {
               // Focus back to CliC
               // chrome.tabs.update(tabId, { active: true });
 
-              // Insert extracted OTP and clik 'Validate OTP'
+              // Insert extracted OTP and click 'Validate OTP'
               chrome.scripting.executeScript({
                 target: { tabId: tabId },
                 world: "MAIN",
@@ -79,6 +79,8 @@ chrome.runtime.onMessage.addListener((message) => {
                 args: [extractedOTP]
               });
             }).catch((error) => {
+              console.log("OTP error: ", error);
+
               // Close outlook webpage after extracted OTP
               chrome.tabs.remove(tabId_);
 
@@ -94,6 +96,21 @@ chrome.runtime.onMessage.addListener((message) => {
                 } 
               });
             });
+
+            // Randomly choosing Welcome audio to play
+            const total_welcome_audios = 10; // audio total (prefix welcome[number]) 
+
+            // Generate a random index 
+            const random_index = Math.floor(Math.random() * total_welcome_audios) + 1;
+
+            // Construct the filename and get its full URL
+            const audio_filename = `welcome${random_index}.mp3`;
+            const audio_url = chrome.runtime.getURL(audio_filename);
+
+            // Create and play the audio element
+            const audio_element = new Audio(audio_url);
+            audio_element.play().catch(error => console.error("Audio play error:", error));
+
           } else {
             console.log("No active tab found!");
           }
