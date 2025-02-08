@@ -44,6 +44,13 @@ document.addEventListener('DOMContentLoaded', function() {
    })
 });
 
+/**
+ * Function that will update popup window's timetable process indicator accordingly
+ * @param {String} extractingTerm 
+ * @param {String} subjectTotal 
+ * @param {String} extractingSubject 
+ * @param {String} currentIndex - Current Subject's index
+ */
 function updateTimetableProcessIndicator(extractingTerm = null, subjectTotal = null, extractingSubject = null, currentIndex = null) {
    document.getElementById('extracting-term-content').textContent = extractingTerm;
    document.getElementById('subject-total-content').textContent = subjectTotal;
