@@ -58,7 +58,7 @@ chrome.runtime.onMessage.addListener((message) => {
               chrome.tabs.remove(tabId_);
 
               // Focus back to CliC
-              // chrome.tabs.update(tabId, { active: true });
+              chrome.tabs.update(tabId, { active: true });
 
               // Insert extracted OTP and click 'Validate OTP'
               chrome.scripting.executeScript({
@@ -138,7 +138,7 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "selectedCourse") {
     console.log(message);
 
-    onTabUpdated((tabId) => {
+    onTabUpdated(message.tabId, (tabId) => {
       if (tabId !== null) {
         chrome.tabs.sendMessage(message.tabId, {
           action: "viewClasses_",
@@ -172,7 +172,7 @@ chrome.runtime.onMessage.addListener((message) => {
         },
       })
       .then(() => {
-        onTabUpdated((tabId) => {
+        onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
             chrome.tabs.sendMessage(
               message.tabId,
@@ -217,7 +217,7 @@ chrome.runtime.onMessage.addListener((message) => {
         args: [message.term],
       })
       .then(() => {
-        onTabUpdated((tabId) => {
+        onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
             chrome.tabs.sendMessage(message.tabId, {
               action: "extractClassDetails_",
@@ -252,7 +252,7 @@ chrome.runtime.onMessage.addListener((message) => {
         },
       })
       .then(() => {
-        onTabUpdated((tabId) => {
+        onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
             chrome.scripting
               .executeScript({
@@ -293,7 +293,7 @@ chrome.runtime.onMessage.addListener((message) => {
               })
               .then(() => {
                 let index = message.index + 1; // Increment index to move to the next course
-                onTabUpdated((tabId) => {
+                onTabUpdated(message.tabId, (tabId) => {
                   if (tabId !== null) {
                     chrome.tabs.sendMessage(message.tabId, {
                       action: "startExtraction_",
