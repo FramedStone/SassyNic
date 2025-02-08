@@ -58,7 +58,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         }).then(() => {
             let terms = document.querySelectorAll('td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link');
 
-            let found = Array.from(terms).some(term_ => {
+            // Match term with extracting term selection
+            Array.from(terms).some(term_ => {
                 let term = term_.textContent
                 .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
                 .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
@@ -67,6 +68,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if(term == message.term) {
                     // Action to take if the first promise resolves
                     chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+                    return true;
+                } else {
+                    alert("1001_EXTRACTION_TERM_NOT_MATCHING");
+                    sendResponse({status: "error", code: 1001});
                     return true;
                 }
             });
