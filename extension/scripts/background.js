@@ -35,7 +35,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                                       console.log("Matching span:", span.innerText);
                                       let otpMatch = span.innerText.match(/\b\d{6}\b/);
                                       otp = otpMatch ? otpMatch[0] : "OTP not found";
-                                      console.log("Extracted OTP:", otp);
 
                                       // Disconnect observer
                                       obs.disconnect();
@@ -66,6 +65,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 target: { tabId: tabId },
                 world: "MAIN",
                 func: (otp) => {
+                  if(otp === "OTP not found") {
+                      alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email.");
+                      return; 
+                  }
+
                   // OTP input field
                   document.getElementById('otp').value = otp;
 
@@ -124,6 +128,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           tabId: message.tabId,
         });
         console.log("viewClasses sent to extraction.js");
+
+        // Update timetable process indicator content(s)
+        chrome.runtime.sendMessage({ action: "updateTimetableProcessIndicator", extractingTerm: message.term, subjectTotal: message.subjectTotal, extractingSubject: message.extractingSubject, currentIndex: message.index + 1 }).then(() => {
+          console.log("updateTimetableIndicator sent to popup.js");
+        })
       } else {
         console.log("No active tab found!");
       }
@@ -207,9 +216,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === "extractClassDetails") {
     console.log(message);
+    const key = 'COURSE_' + message.title;
 
-    // Put dataset into chrome storage with 2 keys: message.title and message.code
-    chrome.storage.local.set({ [message.title]: message.dataset }, () => {
+    // Put dataset into chrome storage with key + message.title 
+    chrome.storage.local.set({ [key]: message.dataset }, () => {
       console.log("Dataset saved to storage: ", message.title);
       console.log(message.dataset);
     });
@@ -294,7 +304,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
      */
 
     chrome.storage.local.get(null, function (items) {
-      let dataset = items;
+      const courseItems = {};
+      Object.keys(items).forEach((key) => {
+        if (key.startsWith("COURSE_")) {
+          courseItems[key] = items[key];
+        }
+      });
+
+      let dataset = courseItems;
       let pureComb = backtrack_(dataset);
       let prunedComb = backtrack(dataset);
       console.log("Dataset: ", dataset);

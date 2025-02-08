@@ -36,6 +36,7 @@
     }
   ],
   "host_permissions": [
+    "https://outlook.office.com/mail/",
     "https://outlook.office.com/mail/*",
     "https://clic.mmu.edu.my/*"
   ],
