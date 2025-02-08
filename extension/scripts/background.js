@@ -78,6 +78,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 },
                 args: [extractedOTP]
               });
+            }).catch((error) => {
+              chrome.scripting.executeScript({
+                target: { tabId: tabId },
+                world: "MAIN",
+                func: () => {
+                  alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email.");
+                  return;
+                } 
+              });
             });
           } else {
             console.log("No active tab found!");
