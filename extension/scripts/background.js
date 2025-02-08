@@ -128,6 +128,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           tabId: message.tabId,
         });
         console.log("viewClasses sent to extraction.js");
+
+        // Update timetable process indicator content(s)
+        chrome.runtime.sendMessage({ action: "updateTimetableProcessIndicator", extractingTerm: message.term, subjectTotal: message.subjectTotal, extractingSubject: message.extractingSubject, currentIndex: message.index + 1 }).then(() => {
+          console.log("updateTimetableIndicator sent to popup.js");
+        })
       } else {
         console.log("No active tab found!");
       }

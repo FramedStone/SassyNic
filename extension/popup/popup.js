@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
       // Save state to storage
       chrome.storage.local.set({ autoLoginEnabled: isChecked }, function () {
-         console.log("State saved:", isChecked);
+         console.log("Auto OTP Extractor State saved:", isChecked);
       });
    });
 
@@ -36,4 +36,16 @@ document.addEventListener('DOMContentLoaded', function() {
       chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
    });
 
+   // Receive message from 'background.js'
+   chrome.runtime.onMessage.addListener((message) => {
+      if(message.action === "updateTimetableProcessIndicator") {
+         updateTimetableProcessIndicator(message.extractingTerm, message.subjectTotal, message.extractingSubject, message.currentIndex);
+      }
+   })
 });
+
+function updateTimetableProcessIndicator(extractingTerm = null, subjectTotal = null, extractingSubject = null, currentIndex = null) {
+   document.getElementById('extracting-term-content').textContent = extractingTerm;
+   document.getElementById('subject-total-content').textContent = subjectTotal;
+   document.getElementById('extracting-subject-content').textContent = `${currentIndex}. ${JSON.stringify(extractingSubject)}`;
+}
