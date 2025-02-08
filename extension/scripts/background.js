@@ -65,7 +65,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 target: { tabId: tabId },
                 world: "MAIN",
                 func: (otp) => {
-                  if(otp === "OTP not found") {
+                  if(otp === "OTP not found" || null) {
                       alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email.");
                       return; 
                   }
