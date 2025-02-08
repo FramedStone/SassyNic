@@ -28,7 +28,7 @@
       "run_at": "document_idle"
     },
     {
-      "matches": ["https://clic.mmu.edu.my/psp/csprd/?&cmd=login*"],
+      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*?&cmd=login*"],
       "js": [
         "./extension/scripts/auto_login.js"
       ],
