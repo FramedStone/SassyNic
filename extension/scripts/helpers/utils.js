@@ -11,11 +11,18 @@ export function getActiveTabId(callback) {
 }
 
 // Helper function to get updated tab
-export function onTabUpdated(callback) {
+export function onTabUpdated(target_tabId = null, callback) {
     const listener = (tabId, changeInfo, tab) => {
-        if (changeInfo.status === "complete" && tab.active) {
-            callback(tabId);
-            chrome.tabs.onUpdated.removeListener(listener);
+        if (target_tabId !== null) {
+            if (tabId === target_tabId && changeInfo.status === "complete") {
+                callback(tabId);
+                chrome.tabs.onUpdated.removeListener(listener);
+            }
+        } else {
+            if (changeInfo.status === "complete") {
+                callback(tabId);
+                chrome.tabs.onUpdated.removeListener(listener);
+            }
         }
     };
     chrome.tabs.onUpdated.addListener(listener);
