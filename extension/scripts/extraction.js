@@ -69,10 +69,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                     // Action to take if the first promise resolves
                     chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
                     return true;
-                } else {
-                    alert("1001_EXTRACTION_TERM_NOT_MATCHING");
-                    sendResponse({status: "error", code: 1001});
-                    return true;
                 }
             });
         });
