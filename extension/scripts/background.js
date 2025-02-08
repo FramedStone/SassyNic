@@ -15,7 +15,7 @@ chrome.runtime.onMessage.addListener((message) => {
         // Create a tab and navigate to outlook webpage
         chrome.tabs.create({ url: "https://outlook.office.com/mail/" });
 
-        onTabUpdated((tabId_) => {
+        onTabUpdated(null, (tabId_) => {
           if(tabId_ !== null) {
             chrome.scripting.executeScript({
                 target: { tabId: tabId_ },
