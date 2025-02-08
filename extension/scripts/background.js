@@ -35,7 +35,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                                       console.log("Matching span:", span.innerText);
                                       let otpMatch = span.innerText.match(/\b\d{6}\b/);
                                       otp = otpMatch ? otpMatch[0] : "OTP not found";
-                                      console.log("Extracted OTP:", otp);
 
                                       // Disconnect observer
                                       obs.disconnect();
@@ -55,11 +54,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               let extractedOTP = results[0]?.result || "OTP not found";
               console.log("Extracted OTP: ", extractedOTP);
 
-              if(extractedOTP === "OTP not found") {
-                alert("2001_OTP_NOT_FOUND");
-                getError(2001);
-              }
-
               // Close outlook webpage after extracted OTP
               chrome.tabs.remove(tabId_);
 
@@ -71,6 +65,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 target: { tabId: tabId },
                 world: "MAIN",
                 func: (otp) => {
+                  if(otp === "OTP not found") {
+                      alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email.");
+                      return; 
+                  }
+
                   // OTP input field
                   document.getElementById('otp').value = otp;
 
