@@ -371,9 +371,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               console.log(`Chunk ${i} sent with status: ${response?.status}`);
               // Clear chrome storage after the last chunk is sent 
               if (i === totalChunks - 1) {
-                chrome.storage.local.clear(() => {
-                  console.log("Dataset cleared from chrome storage.");
+                chrome.storage.local.get(null, (items) => {
+                  Object.keys(items).forEach((key) => {
+                    if (key.startsWith("COURSE_")) {
+                      chrome.storage.local.remove(key);
+                    }
+                  });
+                  console.log("All keys starting with 'COURSE_' have been cleared.");
                 });
+
               }
             }
           );
