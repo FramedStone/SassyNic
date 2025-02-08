@@ -20,7 +20,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://clic.mmu.edu.my/*"],
+      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*EMPLOYEE*"],
       "js": [
         "./extension/scripts/extraction.js",
         "./extension/scripts/auto_enrollment.js"

@@ -65,9 +65,9 @@ chrome.runtime.onMessage.addListener((message) => {
                 target: { tabId: tabId },
                 world: "MAIN",
                 func: (otp) => {
-                  if(otp === "OTP not found" || null) {
+                  if(otp === "OTP not found") {
                       alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email and then refresh this page.");
-                      return; 
+                      return true; 
                   }
 
                   // OTP input field
@@ -78,6 +78,8 @@ chrome.runtime.onMessage.addListener((message) => {
                 },
                 args: [extractedOTP]
               });
+
+              return true;
             }).catch((error) => {
               console.log("OTP error: ", error);
 
@@ -92,25 +94,10 @@ chrome.runtime.onMessage.addListener((message) => {
                 world: "MAIN",
                 func: () => {
                   alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email.");
-                  return;
+                  return true;
                 } 
               });
             });
-
-            // Randomly choosing Welcome audio to play
-            const total_welcome_audios = 10; // audio total (prefix welcome[number]) 
-
-            // Generate a random index 
-            const random_index = Math.floor(Math.random() * total_welcome_audios) + 1;
-
-            // Construct the filename and get its full URL
-            const audio_filename = `welcome${random_index}.mp3`;
-            const audio_url = chrome.runtime.getURL(audio_filename);
-
-            // Create and play the audio element
-            const audio_element = new Audio(audio_url);
-            audio_element.play().catch(error => console.error("Audio play error:", error));
-
           } else {
             console.log("No active tab found!");
           }
