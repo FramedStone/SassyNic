@@ -38,6 +38,7 @@
   "host_permissions": [
     "https://outlook.office.com/mail/",
     "https://outlook.office.com/mail/*",
+    "https://outlook.live.com/mail/*",
     "https://clic.mmu.edu.my/*"
   ],
   "web_accessible_resources": [

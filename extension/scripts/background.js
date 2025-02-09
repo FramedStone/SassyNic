@@ -10,97 +10,148 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
 chrome.runtime.onMessage.addListener((message) => {
   // Auto Login
   if (message.action === "autoLogin") {
-    getActiveTabId((tabId) => {
-      if(tabId !== null) {
-        // Create a tab and navigate to outlook webpage
-        chrome.tabs.create({ url: "https://outlook.office.com/mail/" });
+    getActiveTabId((active_tab_id) => {
+      if (active_tab_id !== null) {
+        // Create a new tab and navigate to Outlook.
+        chrome.tabs.create({ url: "https://outlook.office.com" }, (new_tab) => {
+          let personalAlertShown = false;
 
-        onTabUpdated(null, (tabId_) => {
-          if(tabId_ !== null) {
+          function waitForTenantLogo(tab_id) {
             chrome.scripting.executeScript({
-                target: { tabId: tabId_ },
-                world: "MAIN",
-                func: (timestamp) => {
-                    console.log("Timestamp from CliC OTP request webapge: ", timestamp);
-                    let otp = null;
-
-                    // Create a MutationObserver to wait for all spans or new spans to load
-                    return new Promise((resolve) => {
-                      let observer = new MutationObserver((mutations, obs) => {
-                          let spans = document.querySelectorAll('span');
-
-                          if(spans.length > 0) { 
-                              spans.forEach(span => {
-                                  if (span.innerText.includes(timestamp)) {
-                                      console.log("Matching span:", span.innerText);
-                                      let otpMatch = span.innerText.match(/\b\d{6}\b/);
-                                      otp = otpMatch ? otpMatch[0] : "OTP not found";
-
-                                      // Disconnect observer
-                                      obs.disconnect();
-
-                                      resolve(otp);
-                                  }
-                              });
-                          }
+              target: { tabId: tab_id },
+              world: "MAIN",
+              func: () => {
+                return new Promise((resolve) => {
+                  // Check if the page URL indicates a personal account.
+                  if (window.location.href.includes("https://outlook.live.com/mail/")) {
+                    resolve("personal");
+                    return;
+                  }
+                  // Helper to detect the MMU tenant logo.
+                  const detectLogo = () =>
+                    document.getElementById("O365_MainLink_TenantLogoImg") !== null;
+                  if (document.readyState === "complete") {
+                    if (detectLogo()) {
+                      resolve(true);
+                    } else {
+                      const observer = new MutationObserver((mutations, obs) => {
+                        if (detectLogo()) {
+                          obs.disconnect();
+                          resolve(true);
+                        }
                       });
-
-                      // Observe changes in the document body
                       observer.observe(document.body, { childList: true, subtree: true });
-                    })
-                },
-                args: [message.timestamp]
+                    }
+                  } else {
+                    window.addEventListener("load", () => {
+                      setTimeout(() => {
+                        if (detectLogo()) {
+                          resolve(true);
+                        } else {
+                          const observer = new MutationObserver((mutations, obs) => {
+                            if (detectLogo()) {
+                              obs.disconnect();
+                              resolve(true);
+                            }
+                          });
+                          observer.observe(document.body, { childList: true, subtree: true });
+                        }
+                      }, 1000);
+                    });
+                  }
+                });
+              }
+            }, (results) => {
+              if (results && results[0]?.result === true) {
+                console.log("MMU Tenant logo detected");
+                extractOTP(tab_id);
+              } else if (results && results[0]?.result === "personal") {
+                // If a personal account is detected, alert once in the MAIN world.
+                if (!personalAlertShown) {
+                  chrome.scripting.executeScript({
+                    target: { tabId: tab_id },
+                    world: "MAIN",
+                    func: () => {
+                      alert("Kindly login into your MMU outlook account.\n\nNote: Do not close this tab, just sign out and sign in into your MMU account using this tab.");
+                    }
+                  });
+                  personalAlertShown = true;
+                }
+                console.log("Personal account detected, waiting for next update...");
+                onTabUpdated(tab_id, (updated_tab_id) => {
+                  waitForTenantLogo(updated_tab_id);
+                });
+              } else {
+                console.log("MMU Tenant logo not detected, waiting for next update...");
+                onTabUpdated(tab_id, (updated_tab_id) => {
+                  waitForTenantLogo(updated_tab_id);
+                });
+              }
+            });
+          }
+
+          /**
+           * Helper function that will extract the 6 digits OTP once it found the same regex pattern within mail
+           * @param {String} tab_id 
+           */
+          function extractOTP(tab_id) {
+            chrome.scripting.executeScript({
+              target: { tabId: tab_id },
+              world: "MAIN",
+              func: (timestamp) => {
+                console.log("Timestamp from CliC OTP request webpage:", timestamp);
+                return new Promise((resolve) => {
+                  const observer = new MutationObserver((mutations, obs) => {
+                    const spans = document.querySelectorAll("span");
+                    spans.forEach((span) => {
+                      if (span.innerText.includes(timestamp)) {
+                        const otp_match = span.innerText.match(/\b\d{6}\b/);
+                        const otp = otp_match ? otp_match[0] : "OTP not found";
+                        obs.disconnect();
+                        resolve(otp);
+                      }
+                    });
+                  });
+                  observer.observe(document.body, { childList: true, subtree: true });
+                });
+              },
+              args: [message.timestamp]
             }).then((results) => {
-              let extractedOTP = results[0]?.result || "OTP not found";
-              console.log("Extracted OTP: ", extractedOTP);
+              const extracted_otp = results[0]?.result || "OTP not found";
+              // Remove outlook tab
+              chrome.tabs.remove(tab_id);
 
-              // Close outlook webpage after extracted OTP
-              chrome.tabs.remove(tabId_);
-
-              // Focus back to CliC
-              chrome.tabs.update(tabId, { active: true });
-
-              // Insert extracted OTP and click 'Validate OTP'
+              // Insert OTP and validate OTP
               chrome.scripting.executeScript({
-                target: { tabId: tabId },
+                target: { tabId: active_tab_id },
                 world: "MAIN",
                 func: (otp) => {
-                  if(otp === "OTP not found") {
-                      alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email and then refresh this page.");
-                      return true; 
+                  if (otp === "OTP not found") {
+                    alert("2001_OTP_NOT_FOUND");
+                    return true;
                   }
-
-                  // OTP input field
-                  document.getElementById('otp').value = otp;
-
-                  // Validate Button
-                  document.getElementById('ps_submit_button').click();
+                  document.getElementById("otp").value = otp;
+                  document.getElementById("ps_submit_button").click();
                 },
-                args: [extractedOTP]
+                args: [extracted_otp]
               });
-
-              return true;
             }).catch((error) => {
-              console.log("OTP error: ", error);
-
-              // Close outlook webpage after extracted OTP
-              chrome.tabs.remove(tabId_);
-
-              // Focus back to CliC
-              chrome.tabs.update(tabId, { active: true });
-
+              console.log("OTP error:", error);
+              // Remove outlook tab and focus back to CliC tab
+              chrome.tabs.remove(tab_id);
+              chrome.tabs.update(active_tab_id, { active: true });
               chrome.scripting.executeScript({
-                target: { tabId: tabId },
+                target: { tabId: active_tab_id },
                 world: "MAIN",
                 func: () => {
-                  alert("2001_OTP_NOT_FOUND\n\nKindly login into Outlook with your MMU email.");
+                  alert("2001_OTP_NOT_FOUND");
                   return true;
-                } 
+                }
               });
             });
-          } else {
-            console.log("No active tab found!");
           }
+
+          waitForTenantLogo(new_tab.id);
         });
       } else {
         console.log("No active tab found!");
