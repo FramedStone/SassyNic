@@ -27,15 +27,24 @@ chrome.runtime.onMessage.addListener((message) => {
                     resolve("personal");
                     return;
                   }
-                  // Helper to detect the MMU tenant logo.
-                  const detectLogo = () =>
-                    document.getElementById("O365_MainLink_TenantLogoImg") !== null;
+                  // Helper to detect the MMU Email
+                  const detectMMUEmail = () => {
+                    let profileDiv = document.getElementById('O365_MainLink_Me');
+                    console.log(profileDiv)
+                    if(profileDiv) {
+                      profileDiv.click();
+                      // Using regex test for string '@student.mmu.edu.my' and '@mmu.edu.my'
+                      return /@.*mmu\.edu\.my$/.test(document.getElementById('mectrl_currentAccount_secondary').textContent.trim());
+                    } else {
+                      return false;
+                    }
+                  }
                   if (document.readyState === "complete") {
-                    if (detectLogo()) {
+                    if (detectMMUEmail()) {
                       resolve(true);
                     } else {
                       const observer = new MutationObserver((mutations, obs) => {
-                        if (detectLogo()) {
+                        if (detectMMUEmail()) {
                           obs.disconnect();
                           resolve(true);
                         }
@@ -45,11 +54,11 @@ chrome.runtime.onMessage.addListener((message) => {
                   } else {
                     window.addEventListener("load", () => {
                       setTimeout(() => {
-                        if (detectLogo()) {
+                        if (detectMMUEmail()) {
                           resolve(true);
                         } else {
                           const observer = new MutationObserver((mutations, obs) => {
-                            if (detectLogo()) {
+                            if (detectMMUEmail()) {
                               obs.disconnect();
                               resolve(true);
                             }
@@ -63,7 +72,7 @@ chrome.runtime.onMessage.addListener((message) => {
               }
             }, (results) => {
               if (results && results[0]?.result === true) {
-                console.log("MMU Tenant logo detected");
+                console.log("MMU MMU email detected");
                 extractOTP(tab_id);
               } else if (results && results[0]?.result === "personal") {
                 // If a personal account is detected, alert once in the MAIN world.
@@ -82,7 +91,7 @@ chrome.runtime.onMessage.addListener((message) => {
                   waitForTenantLogo(updated_tab_id);
                 });
               } else {
-                console.log("MMU Tenant logo not detected, waiting for next update...");
+                console.log("MMU MMU email not detected, waiting for next update...");
                 onTabUpdated(tab_id, (updated_tab_id) => {
                   waitForTenantLogo(updated_tab_id);
                 });
@@ -91,7 +100,7 @@ chrome.runtime.onMessage.addListener((message) => {
           }
 
           /**
-           * Helper function that will extract the 6 digits OTP once it found the same regex pattern within mail
+           * Helper function that will extract the 6 digits OTP and delete the mail once it found the same regex pattern within mail
            * @param {String} tab_id 
            */
           function extractOTP(tab_id) {
@@ -107,6 +116,13 @@ chrome.runtime.onMessage.addListener((message) => {
                       if (span.innerText.includes(timestamp)) {
                         const otp_match = span.innerText.match(/\b\d{6}\b/);
                         const otp = otp_match ? otp_match[0] : "OTP not found";
+
+                        // Delete the mail
+                        const deleteBtn = document.querySelector('button[aria-label="Delete"]');
+                        if (deleteBtn) {
+                          deleteBtn.click();
+                        }
+
                         obs.disconnect();
                         resolve(otp);
                       }
