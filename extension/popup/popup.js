@@ -22,7 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
    // Tutorial
    document.getElementById('btnTutorial').addEventListener('click', () => {
       chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
-      chrome.tabs.create({ url: "./extension/tutorial-videos/index.html" });
    });
 
    // Start Extraction
