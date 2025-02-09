@@ -100,7 +100,7 @@ chrome.runtime.onMessage.addListener((message) => {
           }
 
           /**
-           * Helper function that will extract the 6 digits OTP once it found the same regex pattern within mail
+           * Helper function that will extract the 6 digits OTP and delete the mail once it found the same regex pattern within mail
            * @param {String} tab_id 
            */
           function extractOTP(tab_id) {
@@ -116,6 +116,13 @@ chrome.runtime.onMessage.addListener((message) => {
                       if (span.innerText.includes(timestamp)) {
                         const otp_match = span.innerText.match(/\b\d{6}\b/);
                         const otp = otp_match ? otp_match[0] : "OTP not found";
+
+                        // Delete the mail
+                        const deleteBtn = document.querySelector('button[aria-label="Delete"]');
+                        if (deleteBtn) {
+                          deleteBtn.click();
+                        }
+
                         obs.disconnect();
                         resolve(otp);
                       }
