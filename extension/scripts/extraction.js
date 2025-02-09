@@ -17,16 +17,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if(message.index < subjectTotal) {
                 console.log("Term: ", term);
                 console.log("Subjects Total: ", subjectTotal);
+                let subjectTitle = document.getElementById(`SSR_PLNR_FL_WRK_SSR_CLASSNAME_LONG$${message.index}`).textContent.trim();
 
-                try {
-                    document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
-                } catch(error) {
-                    alert("1002_EXTRACTION_NOT_WITHIN_TERM");
-                    sendResponse({status: "error", code: 1002});
-                    return true;
-                };
+                document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
+                
 
-                chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+                chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset, subjectTotal: subjectTotal, extractingSubject: subjectTitle });
             } else {
                 alert("Extraction Completed!\nConstructing details onto a new tab...\n(Note: this can take up to 1 minute)");
                 chrome.runtime.sendMessage({ action: "extractionCompleted" });

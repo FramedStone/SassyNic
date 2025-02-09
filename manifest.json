@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "author": "leeweixuan39@gmail.com",
   "name": "SassyNic",
-  "version": "1.3.2",
+  "version": "2.3.2",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
   "permissions": ["activeTab", "scripting", "storage", "windows"],
   "icons": {
@@ -20,13 +20,26 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://clic.mmu.edu.my/*"],
+      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*EMPLOYEE*"],
       "js": [
         "./extension/scripts/extraction.js",
         "./extension/scripts/auto_enrollment.js"
       ],
       "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*&cmd=login*"],
+      "js": [
+        "./extension/scripts/auto_login.js"
+      ],
+      "run_at": "document_idle"
     }
+  ],
+  "host_permissions": [
+    "https://outlook.office.com/mail/",
+    "https://outlook.office.com/mail/*",
+    "https://outlook.live.com/mail/*",
+    "https://clic.mmu.edu.my/*"
   ],
   "web_accessible_resources": [
     {

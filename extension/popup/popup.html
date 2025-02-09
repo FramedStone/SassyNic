@@ -20,13 +20,36 @@
             </a>
         </header>
         <main>
+            <!-- Auto OTP Extractor -->
+            <div class="toggle-button">
+                <label for="switch-auto-otp-extractor">Auto OTP Extractor</label> 
+                <br>
+                <label class="switch-auto-otp-extractor">
+                    <input type="checkbox" id="switch-auto-otp-extractor">
+                    <span class="switch-span-auto-otp-extractor"></span>
+                </label>
+            </div>
+            <!-- Error Code Reference -->
+            <button id="btnErrorCode">Error Code Reference</button>
+            <br><br>
+
             <details class="dropdown">
                 <summary>Timetable</summary>
                 <div class="dropdown-content">
+                    <button id="btnTutorial">Tutorial</button>
+                </div>
+                <div class="dropdown-content">
                     <button id="btnExtraction">Start Extraction</button>
                 </div>
+
+                <div class="dropdown-content">
+                    <span id="extracting-term">Extracting Term: <span id="extracting-term-content"></span></span>
+                    <br><br>
+                    <span id="subjects-total">Subjects Total: <span id="subject-total-content"></span></span>
+                    <br><br>
+                    <span id="extracting-subject">Extracting Subject: <br><span id="extracting-subject-content"></span></span>
+                </div>
             </details>
-            <div id="data"></div>
         </main>
     </div>
     <script type="module" src="popup.js" defer></script>

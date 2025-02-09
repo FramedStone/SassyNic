@@ -3,7 +3,7 @@
   --secondary-color: #ff00ff;
   --background-color: #1a1a2e;
   --surface-color: #16213e;
-  --text-color: #e0e0e0;
+  --text-color: #00ffff;
   --button-bg: #4361ee;
   --button-text: #ffffff;
   --border-color: #4cc9f0;
@@ -23,6 +23,7 @@ body {
   padding: 16px;
 }
 
+/* Title Wrapper */
 header {
   display: flex;
   align-items: center;
@@ -66,6 +67,7 @@ main {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Dropdown Wrapper */
 .dropdown {
   margin-bottom: 16px;
   border: 1px solid var(--border-color);
@@ -103,7 +105,7 @@ summary::before {
 }
 
 details[open] summary::before {
-  transform: translateY(-50%) rotate(90deg);
+  transform: translateY(-70%) rotate(90deg);
 }
 
 .dropdown-content {
@@ -115,7 +117,7 @@ details[open] summary::before {
 
 details[open] .dropdown-content {
   padding: 12px;
-  max-height: 100px;
+  max-height: 200px;
   opacity: 1;
 }
 
@@ -144,3 +146,72 @@ button:hover {
   font-size: 14px;
 }
 
+/* Toggle Button */
+.toggle-button {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  background-color: var(--surface-color);
+  transition: all 0.3s ease;
+}
+
+.toggle-button label {
+  font-size: 14px;
+  font-weight: 400;
+  color: var(--primary-color);
+  text-shadow: 0 0 3px var(--primary-color);
+}
+
+/* Auto otp-extractor Switch */
+.switch-auto-otp-extractor {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.switch-auto-otp-extractor input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.switch-span-auto-otp-extractor {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--surface-color);
+  transition: .4s;
+  border-radius: 34px;
+  border: 2px solid var(--border-color);
+}
+
+.switch-span-auto-otp-extractor:before {
+  position: absolute;
+  content: "";
+  height: 18px;
+  width: 18px;
+  left: 2px;
+  bottom: 1px;
+  background-color: var(--text-color);
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.switch-auto-otp-extractor input:checked + .switch-span-auto-otp-extractor {
+  background-color: var(--primary-color);
+}
+
+.switch-auto-otp-extractor input:focus + .switch-span-auto-otp-extractor {
+  box-shadow: 0 0 5px var(--primary-color);
+}
+
+.switch-auto-otp-extractor input:checked + .switch-span-auto-otp-extractor:before {
+  transform: translateX(26px);
+  background-color: var(--surface-color);
+}

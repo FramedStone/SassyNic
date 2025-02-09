@@ -7,7 +7,159 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
     chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic" });
 });
 
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+chrome.runtime.onMessage.addListener((message) => {
+  // Auto Login
+  if (message.action === "autoLogin") {
+    getActiveTabId((active_tab_id) => {
+      if (active_tab_id !== null) {
+        // Create a new tab and navigate to Outlook.
+        chrome.tabs.create({ url: "https://outlook.office.com" }, (new_tab) => {
+          let personalAlertShown = false;
+
+          function waitForTenantLogo(tab_id) {
+            chrome.scripting.executeScript({
+              target: { tabId: tab_id },
+              world: "MAIN",
+              func: () => {
+                return new Promise((resolve) => {
+                  // Check if the page URL indicates a personal account.
+                  if (window.location.href.includes("https://outlook.live.com/mail/")) {
+                    resolve("personal");
+                    return;
+                  }
+                  // Helper to detect the MMU tenant logo.
+                  const detectLogo = () =>
+                    document.getElementById("O365_MainLink_TenantLogoImg") !== null;
+                  if (document.readyState === "complete") {
+                    if (detectLogo()) {
+                      resolve(true);
+                    } else {
+                      const observer = new MutationObserver((mutations, obs) => {
+                        if (detectLogo()) {
+                          obs.disconnect();
+                          resolve(true);
+                        }
+                      });
+                      observer.observe(document.body, { childList: true, subtree: true });
+                    }
+                  } else {
+                    window.addEventListener("load", () => {
+                      setTimeout(() => {
+                        if (detectLogo()) {
+                          resolve(true);
+                        } else {
+                          const observer = new MutationObserver((mutations, obs) => {
+                            if (detectLogo()) {
+                              obs.disconnect();
+                              resolve(true);
+                            }
+                          });
+                          observer.observe(document.body, { childList: true, subtree: true });
+                        }
+                      }, 1000);
+                    });
+                  }
+                });
+              }
+            }, (results) => {
+              if (results && results[0]?.result === true) {
+                console.log("MMU Tenant logo detected");
+                extractOTP(tab_id);
+              } else if (results && results[0]?.result === "personal") {
+                // If a personal account is detected, alert once in the MAIN world.
+                if (!personalAlertShown) {
+                  chrome.scripting.executeScript({
+                    target: { tabId: tab_id },
+                    world: "MAIN",
+                    func: () => {
+                      alert("Kindly login into your MMU outlook account.\n\nNote: Do not close this tab, just sign out and sign in into your MMU account using this tab.");
+                    }
+                  });
+                  personalAlertShown = true;
+                }
+                console.log("Personal account detected, waiting for next update...");
+                onTabUpdated(tab_id, (updated_tab_id) => {
+                  waitForTenantLogo(updated_tab_id);
+                });
+              } else {
+                console.log("MMU Tenant logo not detected, waiting for next update...");
+                onTabUpdated(tab_id, (updated_tab_id) => {
+                  waitForTenantLogo(updated_tab_id);
+                });
+              }
+            });
+          }
+
+          /**
+           * Helper function that will extract the 6 digits OTP once it found the same regex pattern within mail
+           * @param {String} tab_id 
+           */
+          function extractOTP(tab_id) {
+            chrome.scripting.executeScript({
+              target: { tabId: tab_id },
+              world: "MAIN",
+              func: (timestamp) => {
+                console.log("Timestamp from CliC OTP request webpage:", timestamp);
+                return new Promise((resolve) => {
+                  const observer = new MutationObserver((mutations, obs) => {
+                    const spans = document.querySelectorAll("span");
+                    spans.forEach((span) => {
+                      if (span.innerText.includes(timestamp)) {
+                        const otp_match = span.innerText.match(/\b\d{6}\b/);
+                        const otp = otp_match ? otp_match[0] : "OTP not found";
+                        obs.disconnect();
+                        resolve(otp);
+                      }
+                    });
+                  });
+                  observer.observe(document.body, { childList: true, subtree: true });
+                });
+              },
+              args: [message.timestamp]
+            }).then((results) => {
+              const extracted_otp = results[0]?.result || "OTP not found";
+              // Remove outlook tab
+              chrome.tabs.remove(tab_id);
+
+              // Insert OTP and validate OTP
+              chrome.scripting.executeScript({
+                target: { tabId: active_tab_id },
+                world: "MAIN",
+                func: (otp) => {
+                  if (otp === "OTP not found") {
+                    alert("2001_OTP_NOT_FOUND");
+                    return true;
+                  }
+                  document.getElementById("otp").value = otp;
+                  document.getElementById("ps_submit_button").click();
+                },
+                args: [extracted_otp]
+              });
+            }).catch((error) => {
+              console.log("OTP error:", error);
+              // Remove outlook tab and focus back to CliC tab
+              chrome.tabs.remove(tab_id);
+              chrome.tabs.update(active_tab_id, { active: true });
+              chrome.scripting.executeScript({
+                target: { tabId: active_tab_id },
+                world: "MAIN",
+                func: () => {
+                  alert("2001_OTP_NOT_FOUND");
+                  return true;
+                }
+              });
+            });
+          }
+
+          waitForTenantLogo(new_tab.id);
+        });
+      } else {
+        console.log("No active tab found!");
+      }
+    });
+  }
+
+  // Timetable
   if (message.action === "startExtraction") {
     console.log(message);
 
@@ -37,7 +189,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === "selectedCourse") {
     console.log(message);
 
-    onTabUpdated((tabId) => {
+    onTabUpdated(message.tabId, (tabId) => {
       if (tabId !== null) {
         chrome.tabs.sendMessage(message.tabId, {
           action: "viewClasses_",
@@ -46,6 +198,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           tabId: message.tabId,
         });
         console.log("viewClasses sent to extraction.js");
+
+        // Update timetable process indicator content(s)
+        chrome.runtime.sendMessage({ action: "updateTimetableProcessIndicator", extractingTerm: message.term, subjectTotal: message.subjectTotal, extractingSubject: message.extractingSubject, currentIndex: message.index + 1 }).then(() => {
+          console.log("updateTimetableIndicator sent to popup.js");
+        })
       } else {
         console.log("No active tab found!");
       }
@@ -66,7 +223,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         },
       })
       .then(() => {
-        onTabUpdated((tabId) => {
+        onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
             chrome.tabs.sendMessage(
               message.tabId,
@@ -111,7 +268,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         args: [message.term],
       })
       .then(() => {
-        onTabUpdated((tabId) => {
+        onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
             chrome.tabs.sendMessage(message.tabId, {
               action: "extractClassDetails_",
@@ -129,9 +286,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === "extractClassDetails") {
     console.log(message);
+    const key = 'COURSE_' + message.title;
 
-    // Put dataset into chrome storage with 2 keys: message.title and message.code
-    chrome.storage.local.set({ [message.title]: message.dataset }, () => {
+    // Put dataset into chrome storage with key + message.title 
+    chrome.storage.local.set({ [key]: message.dataset }, () => {
       console.log("Dataset saved to storage: ", message.title);
       console.log(message.dataset);
     });
@@ -145,7 +303,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         },
       })
       .then(() => {
-        onTabUpdated((tabId) => {
+        onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
             chrome.scripting
               .executeScript({
@@ -186,7 +344,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               })
               .then(() => {
                 let index = message.index + 1; // Increment index to move to the next course
-                onTabUpdated((tabId) => {
+                onTabUpdated(message.tabId, (tabId) => {
                   if (tabId !== null) {
                     chrome.tabs.sendMessage(message.tabId, {
                       action: "startExtraction_",
@@ -216,7 +374,14 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
      */
 
     chrome.storage.local.get(null, function (items) {
-      let dataset = items;
+      const courseItems = {};
+      Object.keys(items).forEach((key) => {
+        if (key.startsWith("COURSE_")) {
+          courseItems[key] = items[key];
+        }
+      });
+
+      let dataset = courseItems;
       let pureComb = backtrack_(dataset);
       let prunedComb = backtrack(dataset);
       console.log("Dataset: ", dataset);
@@ -261,9 +426,15 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
               console.log(`Chunk ${i} sent with status: ${response?.status}`);
               // Clear chrome storage after the last chunk is sent 
               if (i === totalChunks - 1) {
-                chrome.storage.local.clear(() => {
-                  console.log("Dataset cleared from chrome storage.");
+                chrome.storage.local.get(null, (items) => {
+                  Object.keys(items).forEach((key) => {
+                    if (key.startsWith("COURSE_")) {
+                      chrome.storage.local.remove(key);
+                    }
+                  });
+                  console.log("All keys starting with 'COURSE_' have been cleared.");
                 });
+
               }
             }
           );
