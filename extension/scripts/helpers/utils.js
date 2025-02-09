@@ -15,12 +15,12 @@ export function onTabUpdated(target_tabId = null, callback) {
     const listener = (tabId, changeInfo, tab) => {
         if (target_tabId !== null) {
             if (tabId === target_tabId && changeInfo.status === "complete") {
-                callback(tabId);
+                callback(tabId, tab);
                 chrome.tabs.onUpdated.removeListener(listener);
             }
         } else {
             if (changeInfo.status === "complete") {
-                callback(tabId);
+                callback(tabId, tab);
                 chrome.tabs.onUpdated.removeListener(listener);
             }
         }
