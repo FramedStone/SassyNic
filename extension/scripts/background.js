@@ -118,14 +118,13 @@ chrome.runtime.onMessage.addListener((message) => {
                         const otp = otp_match ? otp_match[0] : "OTP not found";
 
                         // Delete the mail
-                        const deleteBtn = document.querySelector('button[aria-label="Delete"]');
+                        const divWrapper = span.closest('div[role="group"]');
+                        const deleteBtn = divWrapper.querySelector('div[title="Delete"]');
                         if (deleteBtn) {
-                          span.parentElement.click();
                           deleteBtn.click();
+                          obs.disconnect();
+                          setTimeout(() => resolve(otp), 500);
                         }
-
-                        obs.disconnect();
-                        resolve(otp);
                       }
                     });
                   });
