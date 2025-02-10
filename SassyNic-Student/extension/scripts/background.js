@@ -2,19 +2,19 @@ import { getActiveTabId, onTabUpdated, getError } from "./helpers/utils.js";
 import { pruneSchedule } from "./helpers/constraints.js";
 
 // Navigate to 'SassyNic' github wiki on installed
-chrome.runtime.onInstalled.addListener(({ reason }) => {
+browser.runtime.onInstalled.addListener(({ reason }) => {
   if (reason === "install" || reason === "update")
-    chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic" });
+    browser.tabs.create({ url: "https://github.com/FramedStone/SassyNic" });
 });
 
-chrome.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener((message) => {
   // Timetable
   if (message.action === "startExtraction") {
     console.log(message);
 
     getActiveTabId((tabId) => {
       if (tabId !== null) {
-        chrome.tabs.sendMessage(
+        browser.tabs.sendMessage(
           tabId,
           {
             action: "startExtraction_",
@@ -26,7 +26,7 @@ chrome.runtime.onMessage.addListener((message) => {
             if (response && response.status === "error") {
               getError(response.code);
             }
-          },
+          }
         );
         console.log("startExtraction_ sent to extraction.js");
       } else {
@@ -40,7 +40,7 @@ chrome.runtime.onMessage.addListener((message) => {
 
     onTabUpdated(message.tabId, (tabId) => {
       if (tabId !== null) {
-        chrome.tabs.sendMessage(message.tabId, {
+        browser.tabs.sendMessage(message.tabId, {
           action: "viewClasses_",
           term: message.term,
           index: message.index,
@@ -49,9 +49,17 @@ chrome.runtime.onMessage.addListener((message) => {
         console.log("viewClasses sent to extraction.js");
 
         // Update timetable process indicator content(s)
-        chrome.runtime.sendMessage({ action: "updateTimetableProcessIndicator", extractingTerm: message.term, subjectTotal: message.subjectTotal, extractingSubject: message.extractingSubject, currentIndex: message.index + 1 }).then(() => {
-          console.log("updateTimetableIndicator sent to popup.js");
-        })
+        browser.runtime
+          .sendMessage({
+            action: "updateTimetableProcessIndicator",
+            extractingTerm: message.term,
+            subjectTotal: message.subjectTotal,
+            extractingSubject: message.extractingSubject,
+            currentIndex: message.index + 1,
+          })
+          .then(() => {
+            console.log("updateTimetableIndicator sent to popup.js");
+          });
       } else {
         console.log("No active tab found!");
       }
@@ -61,7 +69,7 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "viewClasses") {
     console.log(message);
 
-    chrome.scripting
+    browser.scripting
       .executeScript({
         target: { tabId: message.tabId },
         world: "MAIN",
@@ -74,7 +82,7 @@ chrome.runtime.onMessage.addListener((message) => {
       .then(() => {
         onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
-            chrome.tabs.sendMessage(
+            browser.tabs.sendMessage(
               message.tabId,
               {
                 action: "selectTerm_",
@@ -86,7 +94,7 @@ chrome.runtime.onMessage.addListener((message) => {
                 if (response && response.status === "error") {
                   getError(response.code);
                 }
-              },
+              }
             );
             console.log("selectTerm_ sent to extraction.js");
           } else {
@@ -99,19 +107,23 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.action === "selectTerm") {
     console.log(message);
 
-    chrome.scripting
+    browser.scripting
       .executeScript({
         target: { tabId: message.tabId },
         world: "MAIN",
         func: (term) => {
           Array.from(
             document.querySelectorAll(
-              "td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link",
-            ),
+              "td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link"
+            )
           )
-            .find((el) => el.textContent.trim().replace(/\s*\/\s*/g, '/')
-            .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2')
-            .trim() === term)
+            .find((el) =>
+              el.textContent
+                .trim()
+                .replace(/\s*\/\s*/g, "/")
+                .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, "$1/$2")
+                .trim() === term
+            )
             .click();
         },
         args: [message.term],
@@ -119,7 +131,7 @@ chrome.runtime.onMessage.addListener((message) => {
       .then(() => {
         onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
-            chrome.tabs.sendMessage(message.tabId, {
+            browser.tabs.sendMessage(message.tabId, {
               action: "extractClassDetails_",
               term: message.term,
               index: message.index,
@@ -135,15 +147,15 @@ chrome.runtime.onMessage.addListener((message) => {
 
   if (message.action === "extractClassDetails") {
     console.log(message);
-    const key = 'COURSE_' + message.title;
+    const key = "COURSE_" + message.title;
 
-    // Put dataset into chrome storage with key + message.title 
-    chrome.storage.local.set({ [key]: message.dataset }, () => {
+    // Put dataset into browser storage with key + message.title 
+    browser.storage.local.set({ [key]: message.dataset }, () => {
       console.log("Dataset saved to storage: ", message.title);
       console.log(message.dataset);
     });
 
-    chrome.scripting
+    browser.scripting
       .executeScript({
         target: { tabId: message.tabId },
         world: "MAIN",
@@ -154,7 +166,7 @@ chrome.runtime.onMessage.addListener((message) => {
       .then(() => {
         onTabUpdated(message.tabId, (tabId) => {
           if (tabId !== null) {
-            chrome.scripting
+            browser.scripting
               .executeScript({
                 target: { tabId: message.tabId },
                 world: "MAIN",
@@ -195,7 +207,7 @@ chrome.runtime.onMessage.addListener((message) => {
                 let index = message.index + 1; // Increment index to move to the next course
                 onTabUpdated(message.tabId, (tabId) => {
                   if (tabId !== null) {
-                    chrome.tabs.sendMessage(message.tabId, {
+                    browser.tabs.sendMessage(message.tabId, {
                       action: "startExtraction_",
                       term: message.term,
                       index: index,
@@ -203,7 +215,7 @@ chrome.runtime.onMessage.addListener((message) => {
                     });
                     console.log(
                       "startExtraction_ sent to extraction.js with index: ",
-                      index,
+                      index
                     );
                   } else {
                     console.log("No active tab found!");
@@ -221,8 +233,7 @@ chrome.runtime.onMessage.addListener((message) => {
     /**
      * dataset ->
      */
-
-    chrome.storage.local.get(null, function (items) {
+    browser.storage.local.get(null, function (items) {
       const courseItems = {};
       Object.keys(items).forEach((key) => {
         if (key.startsWith("COURSE_")) {
@@ -237,20 +248,20 @@ chrome.runtime.onMessage.addListener((message) => {
       console.log("Pure backtracking result: ", pureComb);
       console.log(
         "Backtracking with daytime conflict + seats availability: ",
-        prunedComb,
+        prunedComb
       );
 
       // Passing pruned combination to 'timetable.html' in chunks
-      chrome.tabs.create(
-        { url: chrome.runtime.getURL("extension/timetable/timetable.html") },
+      browser.tabs.create(
+        { url: browser.runtime.getURL("extension/timetable/timetable.html") },
         () => {
-          chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+          browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
             if (message.action === "timetablejsInjected") {
               sendLargeDataset(prunedComb);
             }
             return true; // keep message port open for receiving message
           });
-        },
+        }
       );
 
       /**
@@ -259,12 +270,12 @@ chrome.runtime.onMessage.addListener((message) => {
        */
       function sendLargeDataset(prunedComb) {
         const datasetStr = JSON.stringify(prunedComb);
-        const chunkSize = 1000000; 
+        const chunkSize = 1000000;
         const totalChunks = Math.ceil(datasetStr.length / chunkSize);
 
         for (let i = 0; i < totalChunks; i++) {
           const chunk = datasetStr.slice(i * chunkSize, (i + 1) * chunkSize);
-          chrome.runtime.sendMessage(
+          browser.runtime.sendMessage(
             {
               action: "passDataset",
               chunk: chunk,
@@ -273,23 +284,37 @@ chrome.runtime.onMessage.addListener((message) => {
             },
             (response) => {
               console.log(`Chunk ${i} sent with status: ${response?.status}`);
-              // Clear chrome storage after the last chunk is sent 
+              // Clear browser storage after the last chunk is sent 
               if (i === totalChunks - 1) {
-                chrome.storage.local.get(null, (items) => {
-                  Object.keys(items).forEach((key) => {
-                    if (key.startsWith("COURSE_")) {
-                      chrome.storage.local.remove(key);
-                    }
-                  });
-                  console.log("All keys starting with 'COURSE_' have been cleared.");
-                });
-
+                clearCourseKeys();
               }
             }
           );
         }
       }
 
+      /**
+       * Function to clear all keys starting with "COURSE_"
+       */
+      function clearCourseKeys() {
+        // Use promises to ensure all keys are removed
+        browser.storage.local
+          .get(null)
+          .then((items) => {
+            const keysToRemove = Object.keys(items).filter((key) =>
+              key.startsWith("COURSE_")
+            );
+            return Promise.all(
+              keysToRemove.map((key) => browser.storage.local.remove(key))
+            );
+          })
+          .then(() => {
+            console.log("All keys starting with 'COURSE_' have been cleared.");
+          })
+          .catch((err) => {
+            console.error("Error clearing COURSE_ keys: ", err);
+          });
+      }
     });
 
     // Pure Backtracking
@@ -297,7 +322,7 @@ chrome.runtime.onMessage.addListener((message) => {
       data,
       courses = Object.keys(data),
       current = [],
-      final = [],
+      final = []
     ) {
       // Exit factor
       if (current.length === courses.length) {
@@ -324,7 +349,7 @@ chrome.runtime.onMessage.addListener((message) => {
       data,
       courses = Object.keys(data),
       current = [],
-      final = [],
+      final = []
     ) {
       // Exit factor
       if (current.length === courses.length) {

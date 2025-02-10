@@ -3,22 +3,22 @@ document.addEventListener('DOMContentLoaded', function() {
    // Timetable
    // Tutorial
    document.getElementById('btnTutorial').addEventListener('click', () => {
-      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
+      browser.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
    });
 
    // Start Extraction
    document.getElementById('btnExtraction').addEventListener('click', () => {
       // send message to background.js to start extraction 
-      chrome.runtime.sendMessage({ action: "startExtraction" });
+      browser.runtime.sendMessage({ action: "startExtraction" });
    });
 
    // Error Code Reference
    document.getElementById('btnErrorCode').addEventListener('click', () => {
-      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
+      browser.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
    });
 
    // Receive message from 'background.js'
-   chrome.runtime.onMessage.addListener((message) => {
+   browser.runtime.onMessage.addListener((message) => {
       if(message.action === "updateTimetableProcessIndicator") {
          updateTimetableProcessIndicator(message.extractingTerm, message.subjectTotal, message.extractingSubject, message.currentIndex);
       }

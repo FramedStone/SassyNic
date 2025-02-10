@@ -1,7 +1,7 @@
 console.log("extraction.js successfully injected");
 
 // Listen messages from 'background.js'
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if(message.action === "startExtraction_") {
         waitForElement({
             selector: "table tbody tr",
@@ -22,10 +22,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
                 
 
-                chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset, subjectTotal: subjectTotal, extractingSubject: subjectTitle });
+                browser.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset, subjectTotal: subjectTotal, extractingSubject: subjectTitle });
             } else {
                 alert("Extraction Completed!\nConstructing details onto a new tab...\n(Note: this can take up to 1 minute)");
-                chrome.runtime.sendMessage({ action: "extractionCompleted" });
+                browser.runtime.sendMessage({ action: "extractionCompleted" });
             }
         });
     }
@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 onclick:true
             }
         }).then(() => {
-            chrome.runtime.sendMessage({ action: "viewClasses", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+            browser.runtime.sendMessage({ action: "viewClasses", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
         })
     }
 
@@ -63,7 +63,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
                 if(term == message.term) {
                     // Action to take if the first promise resolves
-                    chrome.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
+                    browser.runtime.sendMessage({ action: "selectTerm", term: message.term, index: message.index, tabId: message.tabId, dataset: message.dataset });
                     return true;
                 }
             });
@@ -93,7 +93,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
                         const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
                         const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-                        chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+                        browser.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
                     } catch(error) {
                         alert("1003_EXTRACTION_NO_CLASES");
                         sendResponse({status: "error", code: 1003});
@@ -134,7 +134,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
                         const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG').textContent.trim();
                         const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
-                        chrome.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
+                        browser.runtime.sendMessage({ action: "extractClassDetails", term: message.term, index: message.index, tabId: message.tabId, dataset: dataset, title: subjectTitle, code: subjectCode });
                     } catch(error) {
                         alert("1003_EXTRACTION_NO_CLASES");
                         sendResponse({status: "error", code: 1003});
