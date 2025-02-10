@@ -11,6 +11,7 @@
 | [v1.3.2](https://github.com/FramedStone/SassyNic/releases/tag/v1.3.2)    | :white_check_mark: |
 | [v2.3.2](https://github.com/FramedStone/SassyNic/releases/tag/v2.3.2)    | ✅                |
 | [v2.3.3](https://github.com/FramedStone/SassyNic/releases/tag/v2.3.3)    | ✅                |
+| [v3.3.3](https://github.com/FramedStone/SassyNic/releases/tag/v3.3.3)    | ✅                |
 
 
 ## Reporting a Vulnerability

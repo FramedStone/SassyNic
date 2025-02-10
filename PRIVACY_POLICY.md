@@ -7,10 +7,12 @@ Thank you for using "SassyNic", a chrome extension that gets class details from 
 ## 1. Information I Collect
 - Keystrokes: To navigate through the extension's external webpage with keybinds, the extension will attach an event listener to listen for your keypress and perform actions accordingly.
 - Classes Data: The extension scrapes each of your courses's class data from the CliC platform to process the data and generate timetable combinations.
+- Timestamp within CliC's OTP page: The extension scrapes the timestamp within the CliC's OTP page to match the mail and scrapes the OTP accordingly in Outlook.
 
 ## 2. How I Use Your Information
 - Keystrokes: To only navigate through the extension's external webpage with pre-defined keybinds.
 - Classes Data: To only be used for generating timetable combinations, and it will be deleted from your chrome strorage  as soon as it's passed to extension's external webpage.
+- Timestamp within CliC's OTP page: To only match the associated mail in Outlook and scrapes the OTP back to CliC's OTP page for completing sign in process.
 
 ## 3. Data Sharing and Disclosure
 I do not share, sell, or otherwise disclose your personal information to third parties. The data processed by the extension is only used for the purposes of integrating your timetable into Google Calendar.

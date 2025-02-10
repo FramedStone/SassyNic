@@ -1,4 +1,4 @@
-console.log("auto_login.js injected");
+console.log("content_script.js injected");
 
 // Only observe when autoLogin is toggled on
 chrome.storage.local.get("autoLoginEnabled", function (data) {
