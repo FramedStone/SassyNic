@@ -17,4 +17,9 @@ document.addEventListener('DOMContentLoaded', function() {
          console.log("Auto OTP Extractor State saved:", isChecked);
       });
    });
+
+   // Error Code Reference
+   document.getElementById("btnErrorCode").addEventListener("click", function() {
+      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
+   });
 });
