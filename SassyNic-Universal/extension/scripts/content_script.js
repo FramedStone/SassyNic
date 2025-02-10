@@ -14,7 +14,7 @@ chrome.storage.local.get("autoLoginEnabled", function (data) {
                     const timestamp = match[0];
                     console.log("timestamp found:", timestamp);
                     // send message to background.js to scrape OTP from outlook 
-                    chrome.runtime.sendMessage({ action: "autoLogin", timestamp: timestamp }); 
+                    chrome.runtime.sendMessage({ action: "autoOTPExtractor", timestamp: timestamp }); 
                 }
             }
         }
