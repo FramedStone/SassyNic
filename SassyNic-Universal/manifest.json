@@ -25,13 +25,6 @@
         "./extension/scripts/content_script.js"
       ],
       "run_at": "document_idle"
-    },
-    {
-      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*&cmd=login*"],
-      "js": [
-        "./extension/scripts/auto_login.js"
-      ],
-      "run_at": "document_idle"
     }
   ],
   "host_permissions": [
