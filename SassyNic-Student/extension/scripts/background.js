@@ -243,28 +243,33 @@ chrome.runtime.onMessage.addListener((message) => {
       // Passing pruned combination to 'timetable.html' in chunks
       chrome.tabs.create(
         { url: chrome.runtime.getURL("extension/timetable/timetable.html") },
-        () => {
-          chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-            if (message.action === "timetablejsInjected") {
-              sendLargeDataset(prunedComb);
+        (newTab) => {
+          const tabId = newTab.id;
+          const listener = (msg, sender, sendResponse) => {
+            if (msg.action === "timetablejsInjected" && sender.tab?.id === tabId) {
+              sendLargeDataset(prunedComb, tabId);
+              chrome.runtime.onMessage.removeListener(listener);
             }
-            return true; // keep message port open for receiving message
-          });
-        },
+            return true;
+          };
+          chrome.runtime.onMessage.addListener(listener);
+        }
       );
 
       /**
        * Function that will split dataset into chunks accordingly
        * @param {Object} prunedComb 
        */
-      function sendLargeDataset(prunedComb) {
-        const datasetStr = JSON.stringify(prunedComb);
-        const chunkSize = 1000000; 
+      function sendLargeDataset(prunedComb, targetTabId) {
+        let datasetStr = JSON.stringify(prunedComb);
+        const chunkSize = 1000000;
         const totalChunks = Math.ceil(datasetStr.length / chunkSize);
+        let chunksAcknowledged = 0;
 
         for (let i = 0; i < totalChunks; i++) {
           const chunk = datasetStr.slice(i * chunkSize, (i + 1) * chunkSize);
-          chrome.runtime.sendMessage(
+          chrome.tabs.sendMessage(
+            targetTabId,
             {
               action: "passDataset",
               chunk: chunk,
@@ -273,23 +278,43 @@ chrome.runtime.onMessage.addListener((message) => {
             },
             (response) => {
               console.log(`Chunk ${i} sent with status: ${response?.status}`);
-              // Clear chrome storage after the last chunk is sent 
-              if (i === totalChunks - 1) {
+              chunksAcknowledged++;
+
+              // Clear all data after last chunk confirmation
+              if (chunksAcknowledged === totalChunks) {
+                // Clear chrome.storage
                 chrome.storage.local.get(null, (items) => {
                   Object.keys(items).forEach((key) => {
                     if (key.startsWith("COURSE_")) {
                       chrome.storage.local.remove(key);
                     }
                   });
-                  console.log("All keys starting with 'COURSE_' have been cleared.");
-                });
+                  console.log("Cleared all COURSE_ keys from storage");
 
+                  // Clear caches
+                  caches.keys().then(cacheNames => {
+                    return Promise.all(
+                      cacheNames.map(cacheName => {
+                        if (cacheName.includes('timetable')) {
+                          console.log(`Clearing cache: ${cacheName}`);
+                          return caches.delete(cacheName);
+                        }
+                      })
+                    );
+                  }).then(() => {
+                    console.log("All timetable caches cleared");
+                    
+                    // Release memory references
+                    prunedComb = null;
+                    datasetStr = null;
+                    console.log("Memory references cleared");
+                  });
+                });
               }
             }
           );
         }
       }
-
     });
 
     // Pure Backtracking
