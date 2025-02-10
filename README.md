@@ -19,7 +19,7 @@ Multiple chrome extensions that hopes to speed up the tasks within MMU CliC.
 
 ## ❗❗ Requirements ❗❗
 - MMU student with **"Active"** current student status **ONLY**.
-- Chrome browser **ONLY** (for now).
+- Chrome browser & Firefox **ONLY** (for now).
 
 ## Installation 🔩
 1. Go to Chrome Web Store and search up "SassyNic" -- [SassyNic](https://chromewebstore.google.com/detail/sassynic/ondokkiefflddbjpeecipmgmcbdkijgf?hl=en-GB&utm_source=ext_sidebar)
@@ -34,6 +34,7 @@ Timetable enroll button: `'e' or 'Enter' key`
 2. CSS
 3. Javascript
 4. Chrome API
+5. Firefox API
 
 ## Algorithm Used 💻
 1. Backtracking
@@ -49,11 +50,11 @@ Timetable enroll button: `'e' or 'Enter' key`
 [GNU General Public License v3.0](https://github.com/FramedStone/SassyNic/blob/main/LICENSE)
 
 ## Credits 🤝🏻
-[Hackerspace MMU](https://hackerspacemmu.rocks/) and Prof. Linda `MMU Cyberjaya`
+[Hackerspace MMU](https://hackerspacemmu.rocks/) and Prof. Linda Chua @ `MMU Cyberjaya`
 
 ## FAQs 🍩
 ### How do I install SassyNic?
-- Go to Chrome Web Store and search for "SassyNic". Click **Add to Chrome** to install.
+- Go to Chrome Web Store and search for "SassyNic". Click **Add to Chrome** to install. For `Firefox`, there's **.xpi** files in [Installation](https://github.com/FramedStone/SassyNic/wiki/Installation)
 
 ### Is there any specific requirement to use SassyNic?
 - Yes, you need to be an MMU student with an **Active** current student status and use the **Chrome browser** (for now).
