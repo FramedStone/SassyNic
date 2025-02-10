@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', function() {
    const checkbox = document.getElementById("switch-auto-otp-extractor");
 
    // Load saved state from storage when popup opens
-   chrome.storage.local.get("autoLoginEnabled", function (data) {
+   browser.storage.local.get("autoLoginEnabled", function (data) {
       console.log("Loaded from storage:", data);
       checkbox.checked = data.autoLoginEnabled || false; // Default to false if not set
    });
@@ -13,13 +13,13 @@ document.addEventListener('DOMContentLoaded', function() {
       const isChecked = checkbox.checked;
 
       // Save state to storage
-      chrome.storage.local.set({ autoLoginEnabled: isChecked }, function () {
+      browser.storage.local.set({ autoLoginEnabled: isChecked }, function () {
          console.log("Auto OTP Extractor State saved:", isChecked);
       });
    });
 
    // Error Code Reference
    document.getElementById("btnErrorCode").addEventListener("click", function() {
-      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
+      browser.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
    });
 });

@@ -1,7 +1,7 @@
 console.log("content_script.js injected");
 
 // Only observe when autoLogin is toggled on
-chrome.storage.local.get("autoLoginEnabled", function (data) {
+browser.storage.local.get("autoLoginEnabled", function (data) {
     console.log("Loaded from storage:", data);
     if (data.autoLoginEnabled) {
         // Function to check for the target element and extract the timestamp
@@ -14,7 +14,7 @@ chrome.storage.local.get("autoLoginEnabled", function (data) {
                     const timestamp = match[0];
                     console.log("timestamp found:", timestamp);
                     // send message to background.js to scrape OTP from outlook 
-                    chrome.runtime.sendMessage({ action: "autoOTPExtractor", timestamp: timestamp }); 
+                    browser.runtime.sendMessage({ action: "autoOTPExtractor", timestamp: timestamp }); 
                 }
             }
         }

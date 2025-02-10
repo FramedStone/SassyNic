@@ -1,16 +1,16 @@
 import { getActiveTabId, onTabUpdated } from "./helpers/utils.js";
 
-chrome.runtime.onMessage.addListener((message) => {
+browser.runtime.onMessage.addListener((message) => {
   // Auto Login
   if (message.action === "autoOTPExtractor") {
     getActiveTabId((active_tab_id) => {
       if (active_tab_id !== null) {
         // Create a new tab and navigate to Outlook.
-        chrome.tabs.create({ url: "https://outlook.office.com" }, (new_tab) => {
+        browser.tabs.create({ url: "https://outlook.office.com" }, (new_tab) => {
           let personalAlertShown = false;
 
           function waitForTenantLogo(tab_id) {
-            chrome.scripting.executeScript({
+            browser.scripting.executeScript({
               target: { tabId: tab_id },
               world: "MAIN",
               func: () => {
@@ -70,7 +70,7 @@ chrome.runtime.onMessage.addListener((message) => {
               } else if (results && results[0]?.result === "personal") {
                 // If a personal account is detected, alert once in the MAIN world.
                 if (!personalAlertShown) {
-                  chrome.scripting.executeScript({
+                  browser.scripting.executeScript({
                     target: { tabId: tab_id },
                     world: "MAIN",
                     func: () => {
@@ -97,7 +97,7 @@ chrome.runtime.onMessage.addListener((message) => {
            * @param {String} tab_id 
            */
           function extractOTP(tab_id) {
-            chrome.scripting.executeScript({
+            browser.scripting.executeScript({
               target: { tabId: tab_id },
               world: "MAIN",
               func: (timestamp) => {
@@ -128,10 +128,10 @@ chrome.runtime.onMessage.addListener((message) => {
             }).then((results) => {
               const extracted_otp = results[0]?.result || "OTP not found";
               // Remove outlook tab
-              chrome.tabs.remove(tab_id);
+              browser.tabs.remove(tab_id);
 
               // Insert OTP and validate OTP
-              chrome.scripting.executeScript({
+              browser.scripting.executeScript({
                 target: { tabId: active_tab_id },
                 world: "MAIN",
                 func: (otp) => {
@@ -147,9 +147,9 @@ chrome.runtime.onMessage.addListener((message) => {
             }).catch((error) => {
               console.log("OTP error:", error);
               // Remove outlook tab and focus back to CliC tab
-              chrome.tabs.remove(tab_id);
-              chrome.tabs.update(active_tab_id, { active: true });
-              chrome.scripting.executeScript({
+              browser.tabs.remove(tab_id);
+              browser.tabs.update(active_tab_id, { active: true });
+              browser.scripting.executeScript({
                 target: { tabId: active_tab_id },
                 world: "MAIN",
                 func: () => {
