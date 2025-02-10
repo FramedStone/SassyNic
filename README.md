@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="./extension/images/icon/icon128.png" alt="SassyNic Logo"/>
+  <img src="./icon128.png" alt="SassyNic Logo"/>
   <h1>
     SassyNic
     <br>
