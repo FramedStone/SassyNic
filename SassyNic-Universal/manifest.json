@@ -1,0 +1,43 @@
+{
+  "manifest_version": 3,
+  "author": "leeweixuan39@gmail.com",
+  "name": "SassyNic - Universal",
+  "version": "1.0.0",
+  "description": "Extracts OTP from Outlook and insert back into CliC OTP page to complete sign in.",
+  "permissions": ["activeTab", "scripting", "storage", "windows"],
+  "icons": {
+    "16": "./extension/images/icon/icon16.png",
+    "32": "./extension/images/icon/icon32.png",
+    "48": "./extension/images/icon/icon48.png",
+    "128": "./extension/images/icon/icon128.png"
+  },
+  "action": {
+    "default_popup": "./extension/popup/popup.html"
+  },
+  "background": {
+    "service_worker": "./extension/scripts/service_worker.js",
+    "type": "module"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*&cmd=login*"],
+      "js": [
+        "./extension/scripts/content_script.js"
+      ],
+      "run_at": "document_idle"
+    },
+    {
+      "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*&cmd=login*"],
+      "js": [
+        "./extension/scripts/auto_login.js"
+      ],
+      "run_at": "document_idle"
+    }
+  ],
+  "host_permissions": [
+    "https://outlook.office.com/mail/",
+    "https://outlook.office.com/mail/*",
+    "https://outlook.live.com/mail/*",
+    "https://clic.mmu.edu.my/*"
+  ]
+}
