@@ -165,7 +165,7 @@ function extractClassDetails() {
         const class_ = {};
         const option = row.querySelector('.OPTION_NSFF a').textContent.trim();
         const status = row.querySelector('.ps_box-value').textContent.trim();
-        const psc_disabled = row.class.contains('psc_disabled')? '1' : '0';
+        const psc_disabled = row.classList.contains('psc_disabled')? '1' : '0';
 
         const classElements = row.querySelectorAll('.CMPNT_CLASS_NBR a.ps-link');
         const seatsElements = row.querySelectorAll('.SEATS span.ps_box-value');
