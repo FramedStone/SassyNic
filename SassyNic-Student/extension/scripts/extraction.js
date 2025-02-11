@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset, subjectTotal: subjectTotal, extractingSubject: subjectTitle });
             } else {
                 alert("Extraction Completed!\nConstructing details onto a new tab...\n(Note: this can take up to 1 minute)");
-                chrome.runtime.sendMessage({ action: "extractionCompleted" });
+                chrome.runtime.sendMessage({ action: "extractionCompleted", term: term });
             }
         });
     }

@@ -127,6 +127,9 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const getDataset = new Promise((resolve) => {
             chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 if (message.action === "passDataset") {
+                    // Update extracted term
+                    document.getElementById('extractedTerm').textContent = `Extracted Term: ${message.term}`;
+
                     // Store the chunk at its index
                     datasetChunks[message.index] = message.chunk;
                     expectedChunks = message.total;
