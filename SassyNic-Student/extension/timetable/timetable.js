@@ -148,7 +148,6 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         const dataset = await getDataset;
 
-
         // ---------------------- HTML DOM ELEMENTS ------------------------------//
         // ---------------------- FILTERS ----------------------------------------//
         // Filters 
@@ -195,6 +194,26 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const table = await import(src_table);
 
         table.getTable(dataset);
+
+        // ---------------------- DISPLAYING OPTION ------------------------------//
+        // Prune dataset based on Displaying Option
+        const displayingOption = document.getElementById('displayingOption');
+
+        displayingOption.addEventListener("click", () => {
+            if(displayingOption.checked) { // checked = Show Available
+                let dataset_ = dataset.map(set => 
+                    set.filter(course => course.option.psc_disabled === "0" && course.option.status === "Open")
+                );
+
+                // Further filter out of the filtered dataset_ courses length is not equal to original dataset courses length
+                dataset_ = dataset_.filter((set_, index) => 
+                    dataset_[index].length === dataset[index].length
+                );
+                table.getTable(dataset_); // refresh tatble
+            } else {
+                table.getTable(dataset);
+            }
+        });
 
         // ------------------------- FITNESS FUNCTIONS ---------------------------//
         const src_fitness = chrome.runtime.getURL('extension/scripts/helpers/fitness.js');
