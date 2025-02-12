@@ -147,6 +147,12 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         });
 
         const dataset = await getDataset;
+        // Setup unique set to store all subjects title for evaluation purpose later on
+        const subjects = new Set();
+        dataset[0].forEach((course) => {
+            subjects.add({title: course.title, count: 0});
+        });
+        console.log("Subjects: ", subjects);
 
         // ---------------------- HTML DOM ELEMENTS ------------------------------//
         // ---------------------- FILTERS ----------------------------------------//
@@ -193,7 +199,8 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const src_table = chrome.runtime.getURL('extension/scripts/helpers/table.js');
         const table = await import(src_table);
 
-        table.getTable(dataset);
+        const dataset_ = getAvailableSets();
+        table.getTable(dataset_);
 
         // ---------------------- DISPLAYING OPTION ------------------------------//
         // Prune dataset based on Displaying Option
@@ -201,19 +208,58 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         displayingOption.addEventListener("click", () => {
             if(displayingOption.checked) { // checked = Show Available
-                let dataset_ = dataset.map(set => 
-                    set.filter(course => course.option.psc_disabled === "0" && course.option.status === "Open")
-                );
-
-                // Further filter out of the filtered dataset_ courses length is not equal to original dataset courses length
-                dataset_ = dataset_.filter((set_, index) => 
-                    dataset_[index].length === dataset[index].length
-                );
+                getAvailableSets();
                 table.getTable(dataset_); // refresh tatble
             } else {
                 table.getTable(dataset);
             }
         });
+
+        /**
+         * Function that will return sets that are available to enroll 
+         * @returns dataset with all available sets
+         */
+        function getAvailableSets() {
+            // Reset count for subjects
+                subjects.forEach((subject) => {
+                    subject.count = 0;
+                });
+
+                // Filter from all --> available sets 
+                let dataset_ = dataset.map(set => {
+                        let filteredSet = set.filter(course => course.option.psc_disabled === "0" && course.option.status === "Open");
+                        let filteredSet_ = set.filter(course => course.option.psc_disabled === "1" || course.option.status === "Closed");
+                        if (filteredSet_.length > 0) {
+                            filteredSet_.forEach(course => {
+                                let subject = Array.from(subjects).find(subject => subject.title === course.title);
+                                if (subject) {
+                                    subject.count++;
+                                }
+                            });
+                        }
+                        return filteredSet;
+                    }
+                );
+                console.log(subjects);
+
+                // Further filter out of the filtered dataset_ courses length is not equal to original dataset courses length
+                dataset_ = dataset_.filter((set_, index) => 
+                    dataset_[index].length === dataset[index].length
+                );
+
+                // Alert users which subject(s) all classes are not able to enroll
+                let subjects_ = [];
+                subjects.forEach(subject => {
+                    if(subject.count === dataset.length) {
+                        subjects_.push(subject.title);
+                    }
+                });
+                alert("3001_TIMETABLE_SUBJECT_NOT_AVAILABLE\n\n" + [...subjects_].join(' ,'));
+                chrome.tabs.create({
+                    url: `https://github.com/FramedStone/SassyNic/wiki/Error-Reference#3001`
+                });
+            return dataset_;
+        }
 
         // ------------------------- FITNESS FUNCTIONS ---------------------------//
         const src_fitness = chrome.runtime.getURL('extension/scripts/helpers/fitness.js');
