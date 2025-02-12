@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "author": "leeweixuan39@gmail.com",
   "name": "SassyNic - Universal",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Extracts OTP from Outlook and insert back into CliC OTP page to complete sign in.",
   "permissions": ["activeTab", "scripting", "storage", "windows"],
   "icons": {
