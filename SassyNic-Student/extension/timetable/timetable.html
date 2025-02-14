@@ -31,10 +31,23 @@
             </audio>
 
             <!-- Extracted Term + Displaying Option -->
-            <span id="extractedTerm">Extracted Term: </span>
-            <br>
-            <label for="displayingOption">Displaying Option</label>
-            <input type="checkbox" id="displayingOption" checked/>
+            <div class="center-container">
+                <span id="extractedTerm">Extracted Term: </span>
+                <br>
+                <div class="toggle-switch">
+                    <!-- Hidden checkbox controls the switch state -->
+                    <input type="checkbox" id="displayingOption" checked>
+                    <!-- Left text label -->
+                    <span class="toggle-text left">All</span>
+                    <!-- The label styled as the switch track. Clicking it toggles the checkbox. -->
+                    <label for="displayingOption" class="switch">
+                    <span class="slider"></span>
+                    </label>
+                    <!-- Right text label -->
+                    <span class="toggle-text right">Available</span>
+                </div>
+            </div>
+            <br><br>
 
             <!-- Filters -->
             <div class="filters" id="filters">

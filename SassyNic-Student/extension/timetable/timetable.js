@@ -180,10 +180,17 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                     const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
                     const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
 
-                    fitness.getSortedDataset(dataset, filters, children, (result) => {
-                        console.log(result);
-                        table.getTable(dataset);
-                    });
+                    if(isAvailable) {
+                        fitness.getSortedDataset(dataset_, filters, children, (result) => {
+                            console.log(result);
+                            table.getTable(dataset_);
+                        });
+                    } else {
+                        fitness.getSortedDataset(dataset, filters, children, (result) => {
+                            console.log(result);
+                            table.getTable(dataset);
+                        });
+                    }
                 }
             });
         });
@@ -199,6 +206,9 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
         const src_table = chrome.runtime.getURL('extension/scripts/helpers/table.js');
         const table = await import(src_table);
 
+        // var to switch between all and available sets for every filters' updates
+        let isAvailable = true;
+
         const dataset_ = getAvailableSets();
         table.getTable(dataset_);
 
@@ -208,9 +218,11 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
         displayingOption.addEventListener("click", () => {
             if(displayingOption.checked) { // checked = Show Available
+                isAvailable = true;
                 getAvailableSets();
                 table.getTable(dataset_); // refresh tatble
             } else {
+                isAvailable = false;
                 table.getTable(dataset);
             }
         });
@@ -254,10 +266,12 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
                         subjects_.push(subject.title);
                     }
                 });
-                alert("3001_TIMETABLE_SUBJECT_NOT_AVAILABLE\n\n" + [...subjects_].join(' ,'));
-                chrome.tabs.create({
-                    url: `https://github.com/FramedStone/SassyNic/wiki/Error-Reference#3001`
-                });
+                if(subjects_.length > 0) {
+                    alert("3001_TIMETABLE_SUBJECT_NOT_AVAILABLE\n\n" + [...subjects_].join('\n'));
+                    chrome.tabs.create({
+                        url: `https://github.com/FramedStone/SassyNic/wiki/Error-Reference#3001`
+                    });
+                }
             return dataset_;
         }
 
@@ -278,10 +292,17 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result) => {
-                console.log(result);
-                table.getTable(dataset);
-            });
+            if(isAvailable) {
+                fitness.getSortedDataset(dataset_, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset_);
+                });
+            } else {
+                fitness.getSortedDataset(dataset, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset);
+                });
+            }
 
             // console.log("--------------------------------------------------------------");
         });
@@ -298,10 +319,17 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result) => {
-                console.log(result);
-                table.getTable(dataset);
-            });
+            if(isAvailable) {
+                fitness.getSortedDataset(dataset_, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset_);
+                });
+            } else {
+                fitness.getSortedDataset(dataset, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset);
+                });
+            }
 
             // console.log("--------------------------------------------------------------");
         });
@@ -342,10 +370,17 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
 
             const filters = document.querySelectorAll('div.filters div.draggable-item:not([hidden])');
             const children = document.querySelectorAll('div.filters div.draggable-item:not([hidden]) div.draggable-item-child:not([hidden])');
-            fitness.getSortedDataset(dataset, filters, children, (result) => {
-                console.log(result);
-                table.getTable(dataset);
-            });
+            if(isAvailable) {
+                fitness.getSortedDataset(dataset_, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset_);
+                });
+            } else {
+                fitness.getSortedDataset(dataset, filters, children, (result) => {
+                    console.log(result);
+                    table.getTable(dataset);
+                });
+            }
         }, dragndrop, fitness, table, dataset); // pass dragndrop object to track newly created span(s), and fitness for real time updates
     });
 })();
