@@ -37,14 +37,22 @@
                 <div class="toggle-switch">
                     <!-- Hidden checkbox controls the switch state -->
                     <input type="checkbox" id="displayingOption" checked>
-                    <!-- Left text label -->
-                    <span class="toggle-text left">All</span>
+                    <!-- Left text label with tooltip -->
+                    <div class="toggle-text-container">
+                        <span class="info-icon">?</span>
+                        <span class="toggle-text left">All</span>
+                        <span class="tooltip tooltip-left">Show all timetables regardless enroll availability</span>
+                    </div>
                     <!-- The label styled as the switch track. Clicking it toggles the checkbox. -->
                     <label for="displayingOption" class="switch">
                     <span class="slider"></span>
                     </label>
-                    <!-- Right text label -->
-                    <span class="toggle-text right">Available</span>
+                    <!-- Right text label with tooltip -->
+                    <div class="toggle-text-container">
+                        <span class="toggle-text right">Available</span>
+                        <span class="info-icon">?</span>
+                        <span class="tooltip tooltip-right">Show only timetables that can be enrolled into</span>
+                    </div>
                 </div>
             </div>
             <br><br>

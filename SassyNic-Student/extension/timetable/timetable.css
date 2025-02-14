@@ -284,10 +284,10 @@ td {
     color: #777;
 }
 
-#displayingOption:checked ~ .toggle-text.left {
+#displayingOption:checked ~ .toggle-text-container .toggle-text.left {
     color: #777;
 }
-#displayingOption:checked ~ .toggle-text.right {
+#displayingOption:checked ~ .toggle-text-container .toggle-text.right {
     color: #2196F3;
 }
 
@@ -314,4 +314,73 @@ td {
 
 #displayingOption:checked ~ label.switch .slider {
     left: calc(100% - 2px - 21px);
+}
+
+/* Displaying Option Tooltip */
+.toggle-text-container {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.info-icon {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    background-color: transparent;
+    color: black;
+    border: 1px solid black;
+    border-radius: 50%;
+    text-align: center;
+    line-height: 12px;
+    font-size: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    margin: 0 4px;
+}
+
+.tooltip {
+    visibility: hidden;
+    width: 120px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 125%;
+    opacity: 0;
+    transition: opacity 0.3s, visibility 0.3s;
+    font-size: 10px;
+}
+
+.tooltip-left {
+    right: 0;
+}
+
+.tooltip-right {
+    left: 0;
+}
+
+.tooltip::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #333 transparent transparent transparent;
+}
+
+.tooltip-left::after {
+    right: 10px;
+}
+
+.tooltip-right::after {
+    left: 10px;
+}
+
+.toggle-text-container:hover .tooltip {
+    visibility: visible;
+    opacity: 1;
 }
