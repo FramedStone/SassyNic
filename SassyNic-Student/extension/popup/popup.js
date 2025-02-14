@@ -1,20 +1,27 @@
 // wait for popup.html to be loaded
 document.addEventListener('DOMContentLoaded', function() {
-   // Timetable
-   // Tutorial
-   document.getElementById('btnTutorial').addEventListener('click', () => {
+   // ---------------------- ERROR CODE REFERENCE ----------------------------------------//
+   // Error Code Reference
+   document.getElementById('btnErrorCode').addEventListener('click', () => {
+      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
+   });
+
+   // ---------------------- TUTORIAL(S) ----------------------------------------//
+   // Timetable 
+   document.getElementById('btnTutorialTimetable').addEventListener('click', () => {
       chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
    });
 
+   // TODO: Auto Subjects Grouping (ASG)
+   document.getElementById('btnTutorialASG').addEventListener('click', () => {
+      // chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
+   });
+
+   // ---------------------- TIMETABLE ----------------------------------------//
    // Start Extraction
    document.getElementById('btnExtraction').addEventListener('click', () => {
       // send message to background.js to start extraction 
       chrome.runtime.sendMessage({ action: "startExtraction" });
-   });
-
-   // Error Code Reference
-   document.getElementById('btnErrorCode').addEventListener('click', () => {
-      chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Error-Reference" });
    });
 
    // Receive message from 'background.js'
@@ -23,6 +30,18 @@ document.addEventListener('DOMContentLoaded', function() {
          updateTimetableProcessIndicator(message.extractingTerm, message.subjectTotal, message.extractingSubject, message.currentIndex);
       }
    })
+
+   // ---------------------- AUTO SUBJECTS GROUPING (ASG) ----------------------------------------//
+   // To 'Selected Term'
+   document.getElementById('btnToSelected').addEventListener('click', () => {
+
+   });
+
+   // To 'Unassigned Courses'
+   document.getElementById('btnToUnassigned').addEventListener('click', () => {
+
+   });
+
 });
 
 /**
