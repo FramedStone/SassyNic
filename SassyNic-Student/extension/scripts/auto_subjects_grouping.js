@@ -1,14 +1,13 @@
 console.log("auto_subejcts_group.js injected");
 
 chrome.runtime.onMessage.addListener((message) => {
-    if(message.action === "AGS_Start") {
+    if(message.action === "AGS_Start_") {
         // Initial
-        if(message.index === 0) {
+        if(message.termTo === null) {
             let termFrom = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent
-            let subjectTotal = document.querySelectorAll('table[title="Non-Small Form Factor"] tbody tr').length;
 
-            document.getElementById(`PLANNER_ITEMS_NFF$0_row_${message.index}`).click();
-            chrome.runtime.sendMessage({ action: "AGS_MoveToTerm", termFrom: termFrom, subjectTotal: subjectTotal, index: message.index, tabId: message.tabId });
+            document.getElementById(`PLANNER_ITEMS_NFF$0_row_0`).click();
+            chrome.runtime.sendMessage({ action: "AGS_MoveToTerm", termFrom: termFrom, termTo: message.termTo, tabId: message.tabId });
         } else {
             // Click 'Planner'
             const spans = document.querySelectorAll('span.ps-text');
@@ -16,7 +15,7 @@ chrome.runtime.onMessage.addListener((message) => {
                 if(span.textContent === 'Planner')
                     span.click();
             });
-            chrome.runtime.sendMessage({ action: "AGS_MoveToTerm", termFrom: message.termFrom, termTo: message.termTo, index: message.index , tabId: message.tabId });
+            chrome.runtime.sendMessage({ action: "AGS_SelectTerm", termFrom: message.termFrom, termTo: message.termTo, tabId: message.tabId });
         }
     }
 
@@ -26,27 +25,54 @@ chrome.runtime.onMessage.addListener((message) => {
             method: "querySelector"
         }).then(() => {
             // Move To Term button (sent back to background.js to execute the click due to CSP restriction)
-            chrome.runtime.sendMessage({ action: "AGS_SelectTerm", termFrom: message.termFrom, termTo: message.termTo, index: message.index, tabId: message.tabId });
+            chrome.runtime.sendMessage({ action: "AGS_MoveToTerm_Click", termFrom: message.termFrom, termTo: message.termTo, tabId: message.tabId });
         });
     }
 
-    if(message.action === "AGS_SelectTerm_") {
-        alert("Select the term that you want to move --> Save");
+    if(message.action === "AGS_MoveToTerm_Click_") {
+        if(message.termTo === null) {
+            alert("Select the term that you want to move --> Save");
+            waitForElement({
+                selector: "a",
+                method: "querySelectorAll"
+            }).then(() => {
+                // Dynamic generated popup modal, hence sending back to background.js to extract
+                chrome.runtime.sendMessage({ action: "AGS_SelectedTerm", termFrom: message.termFrom, termTo: message.termTo, tabId: message.tabId });
+            });
+        } else {
+            waitForElement({
+                selector: "PANEL_TITLElbl",
+                method: "getElementById",
+                textContent: message.termTo,
+            }).then(() => {
+                chrome.runtime.sendMessage({ action: "AGS_SelectedTerm", termFrom: message.termFrom, termTo: message.termTo, tabId: message.tabId });
+            });
+        }
+    }
 
+    if(message.action === "AGS_SelectTerm_") {
         waitForElement({
-            selector: "a",
+            selector: "td[class='ps_grid-cell TERMS'] a",
             method: "querySelectorAll"
         }).then(() => {
-            // Initial
-            if(message.index === 0) {
-                // Dynamic generated popup modal, hence sending back to background.js to extract
-                chrome.runtime.sendMessage({ action: "AGS_SelectedTerm", termFrom: message.termFrom, index: message.index, tabId: message.tabId });
+            // observer disconnect factor (look for termFrom row)
+            const termFrom = Array.from(document.querySelectorAll("td[class='ps_grid-cell TERMS'] a")).find(a => a.textContent === message.termFrom);
+            if(!termFrom) {
+                chrome.runtime.sendMessage({ action: "AGS_MoveToTerm_Click", termFrom: message.termFrom, termTo: message.termTo, AGS_Stop: true, tabId: message.tabId });
             } else {
-                // TODO: move the rest subjects into selected term
-                console.log("index: ", message.index);
-                console.log("term from: ", message.termFrom);
-                console.log("term to: ", message.termTo);
+                // Select Term (sent back to background.js to execute the click due to CSP restriction)
+                chrome.runtime.sendMessage({ action: "AGS_SelectSubject", termFrom: message.termFrom, termTo: message.termTo, tabId: message.tabId });
             }
+        });
+    }
+
+    if(message.action === "AGS_SelectSubject_") {
+        waitForElement({
+            selector: "PLANNER_ITEMS_NFF$0_row_0",
+            method: "getElementById"
+        }).then(() => {
+            document.getElementById(`PLANNER_ITEMS_NFF$0_row_0`).click();
+            chrome.runtime.sendMessage({ action: "AGS_MoveToTerm", termFrom: message.termFrom, termTo: message.termTo, tabId: message.tabId });
         });
     }
 });
