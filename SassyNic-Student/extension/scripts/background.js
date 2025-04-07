@@ -7,6 +7,7 @@ chrome.runtime.onInstalled.addListener(({ reason }) => {
     chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic" });
 });
 
+// -------------------------------------------- extraction.js & auto_enrollment.js -----------------------------------------------------//
 chrome.runtime.onMessage.addListener((message) => {
   // Timetable
   if (message.action === "startExtraction") {
@@ -375,5 +376,67 @@ chrome.runtime.onMessage.addListener((message) => {
 
       return final;
     }
+  }
+});
+
+// -------------------------------------------- auto_subjects_grouping.js -----------------------------------------------------//
+chrome.runtime.onMessage.addListener((message) => {
+  // To Selected Term
+  if(message.action === "AGS_ToSelected") {
+    console.log(message);
+
+    getActiveTabId((tabId) => {
+      if(tabId !== null) {
+        chrome.tabs.sendMessage(tabId, { action: "AGS_Start", index: 0, tabId: tabId });
+        console.log("AGS_Start sent to auto_subjects_grouping.js");
+      } else {
+        console.log("No active tab found!");
+      }
+    });
+  }
+
+  if(message.action === "AGS_MoveToTerm") {
+    console.log(message);
+
+    onTabUpdated(message.tabId, (tabId) => {
+      if(tabId !== null) {
+        chrome.tabs.sendMessage(tabId, { action: "AGS_MoveToTerm_", termFrom: message.termFrom, index: message.index, tabId: tabId })
+        console.log("AGS_MoveToTerm_ sent to auto_subjects_grouping.js");
+      } else {
+        console.log("No active tab found!");
+      }
+    });
+  }
+
+  if(message.action == "AGS_SelectTerm") {
+    console.log(message);
+
+    chrome.scripting.executeScript({
+      target: { tabId: message.tabId },
+      world: "MAIN",
+      func: () => {
+        document.querySelector("span[title='Change to Term'] a").click();
+      }
+    }).then(() => {
+      chrome.tabs.sendMessage(message.tabId, { action: "AGS_SelectTerm_", termFrom: message.termFrom, index: message.index, tabId: message.tabId })
+      console.log("AGS_SelectTerm_ sent to auto_subjects_grouping.js");
+    });
+  }
+
+  if(message.action === "AGS_SelectedTerm") {
+    console.log(message);
+        
+    chrome.scripting.executeScript({
+      target: { tabId: message.tabId },
+      world: "MAIN",
+      func: () => {
+        // Get selected term
+        const term = document.getElementById('PANEL_TITLElbl');
+        console.log(term);
+      }
+    }).then(() => {
+      chrome.tabs.sendMessage(message.tabId, { action: "AGS_Start", termFrom: message.termFrom, index: message.index, tabId: message.tabId })
+      console.log("AGS_Start sent to auto_subjects_grouping.js");
+    });
   }
 });

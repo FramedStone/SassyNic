@@ -262,7 +262,6 @@ function parseDayAndTime(daytime) {
     return [day, timeToMinutes(time)];
 }
 
-
 /**
  * Waits for an element to appear in the DOM using specified selection methods and attribute conditions,
  * optionally filtering by textContent or value, and ensuring the element is interactable before resolving.

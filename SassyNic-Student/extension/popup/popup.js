@@ -34,14 +34,8 @@ document.addEventListener('DOMContentLoaded', function() {
    // ---------------------- AUTO SUBJECTS GROUPING (ASG) ----------------------------------------//
    // To 'Selected Term'
    document.getElementById('btnToSelected').addEventListener('click', () => {
-
+      chrome.runtime.sendMessage({ action: "AGS_ToSelected" });
    });
-
-   // To 'Unassigned Courses'
-   document.getElementById('btnToUnassigned').addEventListener('click', () => {
-
-   });
-
 });
 
 /**
