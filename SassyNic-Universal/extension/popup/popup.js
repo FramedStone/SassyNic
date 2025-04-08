@@ -6,7 +6,17 @@ document.addEventListener('DOMContentLoaded', function () {
   // Load saved state from storage when popup opens
   chrome.storage.local.get('autoLoginEnabled', function (data) {
     console.log('Loaded from storage:', data);
-    checkbox.checked = data.autoLoginEnabled || true; // Default to true
+
+    if (data.autoLoginEnabled === undefined) {
+      // No value saved yet, set default to true
+      chrome.storage.local.set({ autoLoginEnabled: true }, function () {
+        console.log('Initial: Auto OTP Extractor State saved:', true);
+        checkbox.checked = true;
+      });
+    } else {
+      // Value exists, use it
+      checkbox.checked = data.autoLoginEnabled;
+    }
   });
 
   checkbox.addEventListener('change', function () {
