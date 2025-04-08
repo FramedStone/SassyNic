@@ -5,9 +5,10 @@
     "prettier": "^3.5.3"
   },
   "scripts": {
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "prettier --write ."
   },
   "lint-staged": {
-    "**/*": "prettier --write --ignore-unknown"
+    "*.{js,json,css,html}": "prettier --write"
   }
 }

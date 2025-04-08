@@ -1,71 +1,87 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>SassyNic</title>
-    <link rel="stylesheet" href="popup.css">
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-</head>
-<body>
+    <link rel="stylesheet" href="popup.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="container">
-        <header>
-            <div class="title-wrapper">
-                <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
-                    <img src="/extension/images/icon/icon128.png" alt="Left Icon" class="left-icon">
-                </a>
-                <h1>SassyNic</h1>
-            </div>
-            <a href="https://hackerspacemmu.rocks/" target="_blank">
-                <img src="/extension/images/logo/hackerspace.png" alt="Right Icon" class="right-icon">
-            </a>
-        </header>
-        <main>
-            <!-- Error Code Reference -->
-            <button id="btnErrorCode">Error Code Reference</button>
-            <br><br>
+      <header>
+        <div class="title-wrapper">
+          <a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ" target="_blank">
+            <img src="/extension/images/icon/icon128.png" alt="Left Icon" class="left-icon" />
+          </a>
+          <h1>SassyNic</h1>
+        </div>
+        <a href="https://hackerspacemmu.rocks/" target="_blank">
+          <img src="/extension/images/logo/hackerspace.png" alt="Right Icon" class="right-icon" />
+        </a>
+      </header>
+      <main>
+        <!-- Error Code Reference -->
+        <button id="btnErrorCode">Error Code Reference</button>
+        <br /><br />
 
-            <!-- Timetable Tools -->
-            <details class="dropdown">
-                <summary>Timetable</summary>
-                <div class="dropdown-content">
-                    <button id="btnTutorialTimetable">Tutorial</button>
-                </div>
-                <div class="dropdown-content">
-                    <button id="btnExtraction">Start Extraction</button>
-                </div>
+        <!-- Timetable Tools -->
+        <details class="dropdown">
+          <summary>Timetable</summary>
+          <div class="dropdown-content">
+            <button id="btnTutorialTimetable">Tutorial</button>
+          </div>
+          <div class="dropdown-content">
+            <button id="btnExtraction">Start Extraction</button>
+          </div>
 
-                <div class="dropdown-content">
-                    <span id="extracting-term">Extracting Term: <span id="extracting-term-content"></span></span>
-                    <br><br>
-                    <span id="subjects-total">Subjects Total: <span id="subject-total-content"></span></span>
-                    <br><br>
-                    <span id="extracting-subject">Extracting Subject: <br><span id="extracting-subject-content"></span></span>
-                </div>
-            </details>
+          <div class="dropdown-content">
+            <span id="extracting-term"
+              >Extracting Term: <span id="extracting-term-content"></span
+            ></span>
+            <br /><br />
+            <span id="subjects-total"
+              >Subjects Total: <span id="subject-total-content"></span
+            ></span>
+            <br /><br />
+            <span id="extracting-subject"
+              >Extracting Subject: <br /><span id="extracting-subject-content"></span
+            ></span>
+          </div>
+        </details>
 
-            <!-- Auto Subjects Grouping -->
-            <details class="dropdown">
-                <summary>Auto Subjects Grouping</summary>
-                <div class="dropdown-content">
-                    <button id="btnTutorialASG">Tutorial</button>
-                </div>
-                <div class="dropdown-content">
-                    <button id="btnToSelected">To 'Selected Term'</button>
-                </div>
+        <!-- Auto Subjects Grouping -->
+        <details class="dropdown">
+          <summary>Auto Subjects Grouping</summary>
+          <div class="dropdown-content">
+            <button id="btnTutorialASG">Tutorial</button>
+          </div>
+          <div class="dropdown-content">
+            <button id="btnToSelected">To 'Selected Term'</button>
+          </div>
 
-                <div class="dropdown-content">
-                    <span id="AGS-moving-term-from">Moving From: <span id="AGS-moving-term-from-content"></span></span>
-                    <br><br>
-                    <span id="AGS-moving-term-to">Moving To: <span id="AGS-moving-term-to-content"></span></span>
-                    <br><br>
-                    <span id="AGS-subjects-total">Subjects Total: <span id="AGS-subject-total-content"></span></span>
-                    <br><br>
-                    <span id="AGS-moving-subject">Moving Subject: <br><span id="AGS-moving-subject-content"></span></span>
-                </div>
-            </details>
-        </main>
+          <div class="dropdown-content">
+            <span id="AGS-moving-term-from"
+              >Moving From: <span id="AGS-moving-term-from-content"></span
+            ></span>
+            <br /><br />
+            <span id="AGS-moving-term-to"
+              >Moving To: <span id="AGS-moving-term-to-content"></span
+            ></span>
+            <br /><br />
+            <span id="AGS-subjects-total"
+              >Subjects Total: <span id="AGS-subject-total-content"></span
+            ></span>
+            <br /><br />
+            <span id="AGS-moving-subject"
+              >Moving Subject: <br /><span id="AGS-moving-subject-content"></span
+            ></span>
+          </div>
+        </details>
+      </main>
     </div>
     <script type="module" src="popup.js" defer></script>
-</body>
+  </body>
 </html>
-

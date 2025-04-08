@@ -29,15 +29,10 @@
       "run_at": "document_idle"
     }
   ],
-  "host_permissions": [
-    "https://clic.mmu.edu.my/*"
-  ],
+  "host_permissions": ["https://clic.mmu.edu.my/*"],
   "web_accessible_resources": [
     {
-      "resources": [
-        "./extension/timetable/timetable.html",
-        "./extension/timetable/timetable.js"
-      ],
+      "resources": ["./extension/timetable/timetable.html", "./extension/timetable/timetable.js"],
       "matches": ["<all_urls>"]
     }
   ]
