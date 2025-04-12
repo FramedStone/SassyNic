@@ -14,9 +14,11 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // TODO: Auto Subjects Grouping (ASG)
+  // Auto Subjects Grouping (ASG)
   document.getElementById('btnTutorialASG').addEventListener('click', () => {
-    // chrome.tabs.create({ url: "https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial" });
+    chrome.tabs.create({
+      url: 'https://github.com/FramedStone/SassyNic/wiki/Auto-Group-Subjects-Grouping-Tutorial',
+    });
   });
 
   // ---------------------- TIMETABLE ----------------------------------------//
