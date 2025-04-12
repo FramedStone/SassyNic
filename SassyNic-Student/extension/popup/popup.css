@@ -10,7 +10,7 @@
 }
 
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   width: 320px;
   margin: 0;
   padding: 0;
@@ -96,7 +96,7 @@ summary::-webkit-details-marker {
 }
 
 summary::before {
-  content: "▸";
+  content: '▸';
   position: absolute;
   left: 8px;
   top: 50%;
@@ -122,7 +122,7 @@ details[open] .dropdown-content {
 }
 
 button {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   background-color: var(--surface-color);
   border: 2px solid var(--primary-color);
   border-radius: 8px;
