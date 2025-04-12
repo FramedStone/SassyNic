@@ -10,7 +10,7 @@
 }
 
 body {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   width: 320px;
   margin: 0;
   padding: 0;
@@ -96,7 +96,7 @@ summary::-webkit-details-marker {
 }
 
 summary::before {
-  content: "▸";
+  content: '▸';
   position: absolute;
   left: 8px;
   top: 50%;
@@ -122,7 +122,7 @@ details[open] .dropdown-content {
 }
 
 button {
-  font-family: "Roboto", sans-serif;
+  font-family: 'Roboto', sans-serif;
   background-color: var(--surface-color);
   border: 2px solid var(--primary-color);
   border-radius: 8px;
@@ -186,20 +186,20 @@ button:hover {
   right: 0;
   bottom: 0;
   background-color: var(--surface-color);
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 34px;
   border: 2px solid var(--border-color);
 }
 
 .switch-span-auto-otp-extractor:before {
   position: absolute;
-  content: "";
+  content: '';
   height: 18px;
   width: 18px;
   left: 2px;
   bottom: 1px;
   background-color: var(--text-color);
-  transition: .4s;
+  transition: 0.4s;
   border-radius: 50%;
 }
 
