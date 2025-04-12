@@ -1,184 +1,199 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
     <title>Timetable Viewer</title>
-    <link rel="stylesheet" href="timetable.css">
-</head>
-<body>
+    <link rel="stylesheet" href="timetable.css" />
+  </head>
+  <body>
     <main class="main">
-         <!-- Skip Button -->
-        <button id="skipButton" class="skip-button">Skip</button>
+      <!-- Skip Button -->
+      <button id="skipButton" class="skip-button">Skip</button>
 
-        <!-- Mute Button -->
-        <button id="muteButton" class="mute-button" style="display: none"></button>
+      <!-- Mute Button -->
+      <button id="muteButton" class="mute-button" style="display: none"></button>
 
-        <!-- Intro Animated Text -->
-        <div id="animated-text" class="animated-text"></div>
-        <div id="content" class="content" style="display:none">
-            <!-- Background Audio -->
-            <audio id="backgroundAudio" loop>
-                <source src="../audio/HarryPotter/Hedwig's-Theme.mp3" type="audio/mpeg">
-                Your browser does not support the audio element.
-            </audio>
+      <!-- Intro Animated Text -->
+      <div id="animated-text" class="animated-text"></div>
+      <div id="content" class="content" style="display: none">
+        <!-- Background Audio -->
+        <audio id="backgroundAudio" loop>
+          <source src="../audio/HarryPotter/Hedwig's-Theme.mp3" type="audio/mpeg" />
+          Your browser does not support the audio element.
+        </audio>
 
-            <audio id="manual-enroll">
-            <source src="../audio/HarryPotter/Welcome-to-Gryffindor.MP3" type="audio/mpeg"> 
-            </audio>
+        <audio id="manual-enroll">
+          <source src="../audio/HarryPotter/Welcome-to-Gryffindor.MP3" type="audio/mpeg" />
+        </audio>
 
-            <audio id="auto-enroll">
-            <source src="../audio/HarryPotter/Avada-Kedavra.mp3" type="audio/mpeg"> 
-            </audio>
+        <audio id="auto-enroll">
+          <source src="../audio/HarryPotter/Avada-Kedavra.mp3" type="audio/mpeg" />
+        </audio>
 
-            <!-- Extracted Term + Displaying Option -->
-            <div class="center-container">
-                <span id="extractedTerm">Extracted Term: </span>
-                <br>
-                <div class="toggle-switch">
-                    <!-- Hidden checkbox controls the switch state -->
-                    <input type="checkbox" id="displayingOption" checked>
-                    <!-- Left text label with tooltip -->
-                    <div class="toggle-text-container">
-                        <span class="info-icon">?</span>
-                        <span class="toggle-text left">All</span>
-                        <span class="tooltip tooltip-left">Show all timetables regardless enroll availability</span>
-                    </div>
-                    <!-- The label styled as the switch track. Clicking it toggles the checkbox. -->
-                    <label for="displayingOption" class="switch">
-                    <span class="slider"></span>
-                    </label>
-                    <!-- Right text label with tooltip -->
-                    <div class="toggle-text-container">
-                        <span class="toggle-text right">Available</span>
-                        <span class="info-icon">?</span>
-                        <span class="tooltip tooltip-right">Show only timetables that can be enrolled into</span>
-                    </div>
-                </div>
+        <!-- Extracted Term + Displaying Option -->
+        <div class="center-container">
+          <span id="extractedTerm">Extracted Term: </span>
+          <br />
+          <div class="toggle-switch">
+            <!-- Hidden checkbox controls the switch state -->
+            <input type="checkbox" id="displayingOption" checked />
+            <!-- Left text label with tooltip -->
+            <div class="toggle-text-container">
+              <span class="info-icon">?</span>
+              <span class="toggle-text left">All</span>
+              <span class="tooltip tooltip-left"
+                >Show all timetables regardless enroll availability</span
+              >
             </div>
-            <br><br>
-
-            <!-- Filters -->
-            <div class="filters" id="filters">
-                <div class="selection" id="selection">
-                    <label for="filter_daysofweek">Day Filter</label>
-                    <input type="checkbox" id="filter_daysofweek"/>
-                    <br>
-                    <label for="filter_daysofweek">Time Filter</label>
-                    <input type="checkbox" id="filter_time"/>
-                    <br>
-                    <label for="filter_daysofweek">Class Gap Filter</label>
-                    <input type="checkbox" id="filter_gap"/>
-                    <br>
-                    <label for="filter_daysofweek">Instructor Filter</label>
-                    <input type="checkbox" id="filter_instructor"/>
-                    <br>
-                </div>
-                <!-- Days Of Week -->
-                <div class="draggable-item daysofweek" id="daysofweek" data-rank="1" show-details="false" hidden>
-                    <span class="rank-display">1. Day Filter (Inclusive/Exclusive)</span>
-                    <br>
-                    <label><strong>Inclusive</strong></label>
-                    <div style="border: 1px solid #ccc; border-radius: 5px;" data-rank="1" draggable="false">
-                        <input type="checkbox" id="everyday" checked/>
-                        <label for="everyday">Everyday</label>
-                    </div>
-                    <br>
-                    <label><strong>Exclusive</strong><br>(drag & drop to change priority)</label>
-                    <div class="draggable-item-child" data-rank="2">
-                        <input type="checkbox" id="monday" disabled/>
-                        <label for="monday">Monday</label>
-                    </div>
-                    <div class="draggable-item-child" data-rank="3">
-                        <input type="checkbox" id="tuesday" disabled/>
-                        <label for="tuesday">Tuesday</label>
-                    </div>
-                    <div class="draggable-item-child" data-rank="4">
-                        <input type="checkbox" id="wednesday" disabled/>
-                        <label for="wednesday">Wednesday</label>
-                    </div>
-                    <div class="draggable-item-child" data-rank="5">
-                        <input type="checkbox" id="thursday" disabled/>
-                        <label for="thursday">Thursday</label>
-                    </div>
-                    <div class="draggable-item-child" data-rank="6">
-                        <input type="checkbox" id="friday" disabled/>
-                        <label for="friday">Friday</label>
-                    </div>
-                    <div class="draggable-item-child" data-rank="7">
-                        <input type="checkbox" id="saturday" disabled/>
-                        <label for="saturday">Saturday</label>
-                    </div>
-                    <div class="draggable-item-child" data-rank="8">
-                        <input type="checkbox" id="sunday" disabled/>
-                        <label for="sunday">Sunday</label>
-                    </div>
-                </div>
-
-                <!-- Time -->
-                <div class="draggable-item time" id="time" data-rank="2" show-details="true" hidden>
-                    <span class="rank-display">2. Time Filter (Inclusive)</span>
-                    <br>
-                    <label for="time-start">Start</label>
-                    <input type="time" id="time-start"/>
-                    <br>
-                    <label for="time-end">End</label>
-                    <input type="time" id="time-end"/>
-                    <br><br>
-                    <select id="time_daysofweek">
-                        <option id="time_everyday">Everyday</option>
-                        <option id="time_monday">Monday</option>
-                        <option id="time_tuesday">Tuesday</option>
-                        <option id="time_wednesday">Wednesday</option>
-                        <option id="time_thursday">Thursday</option>
-                        <option id="time_friday">Friday</option>
-                        <option id="time_saturday">Saturday</option>
-                        <option id="time_sunday">Sunday</option>
-                    </select>
-                </div>
-                <!-- Class Gap -->
-                <div class="draggable-item gap" id="gap" data-rank="3" show-details="true" hidden>
-                    <span class="rank-display">3. Class Gap Filter (Inclusive)</span>
-                    <br>
-                    <label for="class_gap">Class Gap (30 minutes interval):</label>
-                    <br>
-                    <input type="range" min="0" max="120" step="30" value="0" id="class_gap">
-                    <span id="class_gap_value">0</span>
-                    <br><br>
-                    <select id="gap_daysofweek">
-                        <option id="gap_everyday">Everyday</option>
-                        <option id="gap_monday">Monday</option>
-                        <option id="gap_tuesday">Tuesday</option>
-                        <option id="gap_wednesday">Wednesday</option>
-                        <option id="gap_thursday">Thursday</option>
-                        <option id="gap_friday">Friday</option>
-                        <option id="gap_saturday">Saturday</option>
-                        <option id="gap_sunday">Sunday</option>
-                    </select>
-                </div>
-                <!-- Instructor -->
-                <div class="draggable-item instructor" id="instructor" data-rank="4" show-details="false" hidden>
-                    <span class="rank-display">4. Instructor Filter (Exclusive)</span>
-                    <!-- Instructor list will be dynamically displayed here -->
-                </div>
+            <!-- The label styled as the switch track. Clicking it toggles the checkbox. -->
+            <label for="displayingOption" class="switch">
+              <span class="slider"></span>
+            </label>
+            <!-- Right text label with tooltip -->
+            <div class="toggle-text-container">
+              <span class="toggle-text right">Available</span>
+              <span class="info-icon">?</span>
+              <span class="tooltip tooltip-right"
+                >Show only timetables that can be enrolled into</span
+              >
             </div>
-
-            <br>
-
-            <!-- Timtable table -->
-            <div class="frame-container" id="frameContainer_timetable">
-                <!-- Timetable data will be dynamically generated here as table format -->
-            </div>
-
-            <!-- Timetable navigation buttons -->
-            <div class="nav-buttons">
-                <button id="btnPrev" disabled>Previous (p)</button>
-                <button id="btnNext">Next (n)</button>
-                <button id="btnEnroll">Enroll (e)</button>
-            </div>
+          </div>
         </div>
+        <br /><br />
+
+        <!-- Filters -->
+        <div class="filters" id="filters">
+          <div class="selection" id="selection">
+            <label for="filter_daysofweek">Day Filter</label>
+            <input type="checkbox" id="filter_daysofweek" />
+            <br />
+            <label for="filter_daysofweek">Time Filter</label>
+            <input type="checkbox" id="filter_time" />
+            <br />
+            <label for="filter_daysofweek">Class Gap Filter</label>
+            <input type="checkbox" id="filter_gap" />
+            <br />
+            <label for="filter_daysofweek">Instructor Filter</label>
+            <input type="checkbox" id="filter_instructor" />
+            <br />
+          </div>
+          <!-- Days Of Week -->
+          <div
+            class="draggable-item daysofweek"
+            id="daysofweek"
+            data-rank="1"
+            show-details="false"
+            hidden
+          >
+            <span class="rank-display">1. Day Filter (Inclusive/Exclusive)</span>
+            <br />
+            <label><strong>Inclusive</strong></label>
+            <div style="border: 1px solid #ccc; border-radius: 5px" data-rank="1" draggable="false">
+              <input type="checkbox" id="everyday" checked />
+              <label for="everyday">Everyday</label>
+            </div>
+            <br />
+            <label><strong>Exclusive</strong><br />(drag & drop to change priority)</label>
+            <div class="draggable-item-child" data-rank="2">
+              <input type="checkbox" id="monday" disabled />
+              <label for="monday">Monday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="3">
+              <input type="checkbox" id="tuesday" disabled />
+              <label for="tuesday">Tuesday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="4">
+              <input type="checkbox" id="wednesday" disabled />
+              <label for="wednesday">Wednesday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="5">
+              <input type="checkbox" id="thursday" disabled />
+              <label for="thursday">Thursday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="6">
+              <input type="checkbox" id="friday" disabled />
+              <label for="friday">Friday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="7">
+              <input type="checkbox" id="saturday" disabled />
+              <label for="saturday">Saturday</label>
+            </div>
+            <div class="draggable-item-child" data-rank="8">
+              <input type="checkbox" id="sunday" disabled />
+              <label for="sunday">Sunday</label>
+            </div>
+          </div>
+
+          <!-- Time -->
+          <div class="draggable-item time" id="time" data-rank="2" show-details="true" hidden>
+            <span class="rank-display">2. Time Filter (Inclusive)</span>
+            <br />
+            <label for="time-start">Start</label>
+            <input type="time" id="time-start" />
+            <br />
+            <label for="time-end">End</label>
+            <input type="time" id="time-end" />
+            <br /><br />
+            <select id="time_daysofweek">
+              <option id="time_everyday">Everyday</option>
+              <option id="time_monday">Monday</option>
+              <option id="time_tuesday">Tuesday</option>
+              <option id="time_wednesday">Wednesday</option>
+              <option id="time_thursday">Thursday</option>
+              <option id="time_friday">Friday</option>
+              <option id="time_saturday">Saturday</option>
+              <option id="time_sunday">Sunday</option>
+            </select>
+          </div>
+          <!-- Class Gap -->
+          <div class="draggable-item gap" id="gap" data-rank="3" show-details="true" hidden>
+            <span class="rank-display">3. Class Gap Filter (Inclusive)</span>
+            <br />
+            <label for="class_gap">Class Gap (30 minutes interval):</label>
+            <br />
+            <input type="range" min="0" max="120" step="30" value="0" id="class_gap" />
+            <span id="class_gap_value">0</span>
+            <br /><br />
+            <select id="gap_daysofweek">
+              <option id="gap_everyday">Everyday</option>
+              <option id="gap_monday">Monday</option>
+              <option id="gap_tuesday">Tuesday</option>
+              <option id="gap_wednesday">Wednesday</option>
+              <option id="gap_thursday">Thursday</option>
+              <option id="gap_friday">Friday</option>
+              <option id="gap_saturday">Saturday</option>
+              <option id="gap_sunday">Sunday</option>
+            </select>
+          </div>
+          <!-- Instructor -->
+          <div
+            class="draggable-item instructor"
+            id="instructor"
+            data-rank="4"
+            show-details="false"
+            hidden
+          >
+            <span class="rank-display">4. Instructor Filter (Exclusive)</span>
+            <!-- Instructor list will be dynamically displayed here -->
+          </div>
+        </div>
+
+        <br />
+
+        <!-- Timtable table -->
+        <div class="frame-container" id="frameContainer_timetable">
+          <!-- Timetable data will be dynamically generated here as table format -->
+        </div>
+
+        <!-- Timetable navigation buttons -->
+        <div class="nav-buttons">
+          <button id="btnPrev" disabled>Previous (p)</button>
+          <button id="btnNext">Next (n)</button>
+          <button id="btnEnroll">Enroll (e)</button>
+        </div>
+      </div>
     </main>
 
     <script type="module" src="timetable.js" defer></script>
-
-</body>
+  </body>
 </html>

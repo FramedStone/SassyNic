@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "author": "leeweixuan39@gmail.com",
   "name": "SassyNic - Universal",
-  "version": "1.0.1",
+  "version": "1.0.4",
   "description": "Extracts OTP from Outlook and insert back into CliC OTP page to complete sign in.",
   "permissions": ["activeTab", "scripting", "storage", "windows"],
   "icons": {
@@ -21,9 +21,7 @@
   "content_scripts": [
     {
       "matches": ["https://clic.mmu.edu.my/ps*/csprd*/*&cmd=login*"],
-      "js": [
-        "./extension/scripts/content_script.js"
-      ],
+      "js": ["./extension/scripts/content_script.js"],
       "run_at": "document_idle"
     }
   ],
