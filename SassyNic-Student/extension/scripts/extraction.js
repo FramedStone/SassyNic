@@ -25,7 +25,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 chrome.runtime.sendMessage({ action: "selectedCourse", term: term, index: message.index, tabId: message.tabId, dataset: message.dataset, subjectTotal: subjectTotal, extractingSubject: subjectTitle });
             } else {
                 alert("Extraction Completed!\nConstructing details onto a new tab...\n(Note: this can take up to 1 minute)");
-                chrome.runtime.sendMessage({ action: "extractionCompleted", term: term });
+                chrome.runtime.sendMessage({ action: "extractionCompleted" });
             }
         });
     }
@@ -165,7 +165,6 @@ function extractClassDetails() {
         const class_ = {};
         const option = row.querySelector('.OPTION_NSFF a').textContent.trim();
         const status = row.querySelector('.ps_box-value').textContent.trim();
-        const psc_disabled = row.classList.contains('psc_disabled')? '1' : '0';
 
         const classElements = row.querySelectorAll('.CMPNT_CLASS_NBR a.ps-link');
         const seatsElements = row.querySelectorAll('.SEATS span.ps_box-value');
@@ -174,36 +173,35 @@ function extractClassDetails() {
         const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit') || [];
 
         // class
-        const classes = Array.from(classElements).map((el, index) => {
-            const classText = el.textContent.trim();
-            const seats = (seatsElements[index].innerText.trim()).split(' ').filter(char => !isNaN(parseInt(char))).join(' ');
-            const misc = [];
+        if(status === "Open" && !row.classList.contains('psc_disabled')) { // pre extraction filters
+            const classes = Array.from(classElements).map((el, index) => {
+                const classText = el.textContent.trim();
+                const seats = (seatsElements[index].innerText.trim()).split(' ').filter(char => !isNaN(parseInt(char))).join(' ');
+                const misc = [];
 
-            // Bundle misc details (day, time, instructor, room)
-            if (dayTimeElements[index]) {
-                const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
-                const roomSpans = roomElements[index].querySelectorAll('span');
-                const instructorSpans = instructorElements[index]?.querySelectorAll('span') || [];
+                // Bundle misc details (day, time, instructor, room)
+                if (dayTimeElements[index]) {
+                    const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
+                    const roomSpans = roomElements[index].querySelectorAll('span');
+                    const instructorSpans = instructorElements[index]?.querySelectorAll('span') || [];
 
-                daytimeSpans.forEach((span, index_) => {
-                    const [day, time] = parseDayAndTime(span.innerHTML.trim());
-                    const room = roomSpans[index_].innerText.trim();
-                    const instructor = instructorSpans[index_]?.innerText.trim() || 'no_instructor_displayed';
-                    misc.push({ day, time, room, instructor });
-                });
-            }
+                    daytimeSpans.forEach((span, index_) => {
+                        const [day, time] = parseDayAndTime(span.innerHTML.trim());
+                        const room = roomSpans[index_].innerText.trim();
+                        const instructor = instructorSpans[index_]?.innerText.trim() || 'no_instructor_displayed';
+                        misc.push({ day, time, room, instructor });
+                    });
+                }
 
-            return { classText, seats, misc };
-        });
+                return { classText, seats, misc };
+            });
 
-        class_.option = option;
-        class_.status = status;
-        class_.classes = classes;
-        
-        // For displaying options later on in 'timetable.html'
-        class_.psc_disabled = psc_disabled;
-        
-        dataset.class.push(class_);
+            class_.option = option;
+            class_.status = status;
+            class_.classes = classes;
+            
+            dataset.class.push(class_);
+        }
     });
 
     return dataset;

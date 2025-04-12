@@ -241,15 +241,13 @@ chrome.runtime.onMessage.addListener((message) => {
       );
 
       // Passing pruned combination to 'timetable.html' in chunks
-      const extractedTerm = message.term;
-
       chrome.tabs.create(
         { url: chrome.runtime.getURL("extension/timetable/timetable.html") },
         (newTab) => {
           const tabId = newTab.id;
           const listener = (msg, sender, sendResponse) => {
             if (msg.action === "timetablejsInjected" && sender.tab?.id === tabId) {
-              sendLargeDataset(prunedComb, tabId, extractedTerm);
+              sendLargeDataset(prunedComb, tabId);
               chrome.runtime.onMessage.removeListener(listener);
             }
             return true;
@@ -262,7 +260,7 @@ chrome.runtime.onMessage.addListener((message) => {
        * Function that will split dataset into chunks accordingly
        * @param {Object} prunedComb 
        */
-      function sendLargeDataset(prunedComb, targetTabId, term) {
+      function sendLargeDataset(prunedComb, targetTabId) {
         let datasetStr = JSON.stringify(prunedComb);
         const chunkSize = 1000000;
         const totalChunks = Math.ceil(datasetStr.length / chunkSize);
@@ -277,7 +275,6 @@ chrome.runtime.onMessage.addListener((message) => {
               chunk: chunk,
               index: i,
               total: totalChunks,
-              term: term,
             },
             (response) => {
               console.log(`Chunk ${i} sent with status: ${response?.status}`);
