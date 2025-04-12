@@ -220,7 +220,7 @@ chrome.runtime.sendMessage({ action: "timetablejsInjected" });
             if(displayingOption.checked) { // checked = Show Available
                 isAvailable = true;
                 getAvailableSets();
-                table.getTable(dataset_); // refresh tatble
+                table.getTable(dataset_); // refresh table
             } else {
                 isAvailable = false;
                 table.getTable(dataset);
