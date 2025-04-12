@@ -1,387 +1,252 @@
-/* Skip button styles */
+ /* Skip button styles */
 .skip-button {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  padding: 10px 15px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  z-index: 1000;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    z-index: 1000;
 }
 
 .skip-button:hover {
-  background-color: #0056b3;
+    background-color: #0056b3;
 }
 
 /* Mute button styles */
 #muteButton {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  background-color: transparent;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  padding: 5px 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background-color: transparent;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 5px 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 #muteButton:before {
-  content: '\1F50A'; /* Unicode character for unmute icon (🔊) */
-  font-size: 16px;
-  margin-right: 5px;
+    content: '\1F50A'; /* Unicode character for unmute icon (🔊) */
+    font-size: 16px;
+    margin-right: 5px;
 }
 
 #muteButton.muted:before {
-  content: '\1F507'; /* Unicode character for mute icon (🔇) */
+    content: '\1F507'; /* Unicode character for mute icon (🔇) */
 }
+
 
 /* Reset and base styles */
 * {
-  box-sizing: border-box;
-  padding: 0;
-  margin: 0;
+    box-sizing: border-box;
+    padding: 0;
+    margin: 0;
 }
 
 html,
 body {
-  max-width: 100vw;
-  overflow-x: hidden;
+    max-width: 100vw;
+    overflow-x: hidden;
 }
 
 /* Intro animation styles */
 .main {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  min-height: 100vh;
-  transition: background-color 1s ease;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    transition: background-color 1s ease;
 }
 
 .main.intro {
-  background-color: #000;
-  color: #fff;
+    background-color: #000;
+    color: #fff;
 }
 
 .main:not(.intro) {
-  background-color: #fff;
-  color: #000;
+    background-color: #fff;
+    color: #000;
 }
 
 .animated-text {
-  font-size: 2rem;
-  text-align: center;
-  max-width: 800px;
-  opacity: 0;
-  transition: opacity 1s ease-in-out;
-  font-family: Arial, sans-serif;
+    font-size: 2rem;
+    text-align: center;
+    max-width: 800px;
+    opacity: 0;
+    transition: opacity 1s ease-in-out;
+    font-family: Arial, sans-serif;
 }
 
 .show {
-  opacity: 1;
+    opacity: 1;
 }
 
 .hide {
-  opacity: 0;
+    opacity: 0;
 }
 
 /* Timetable styles */
 table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 14px;
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
 }
 
 th {
-  background-color: #f4f4f4;
-  border: 1px solid #ddd;
-  text-align: center;
-  padding: 10px;
-  height: 10px;
+    background-color: #f4f4f4;
+    border: 1px solid #ddd;
+    text-align: center;
+    padding: 10px;
+    height: 10px;
 }
 
 td {
-  border: 1px solid #ddd;
-  text-align: center;
-  vertical-align: middle;
-  padding: 8px;
-  height: 10px;
-  word-wrap: break-word;
-  font-size: 12px;
+    border: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle; 
+    padding: 8px;
+    height: 10px;
+    word-wrap: break-word;
+    font-size: 12px;
 }
 
 .frame-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  margin: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 20px;
 }
 
 .nav-buttons {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
+    display: flex;
+    justify-content: center;
+    gap: 10px;
 }
 
 .nav-buttons button {
-  padding: 10px 20px;
-  background-color: #007bff;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
+    padding: 10px 20px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 .nav-buttons button:disabled {
-  background-color: #ccc;
-  cursor: not-allowed;
+    background-color: #ccc;
+    cursor: not-allowed;
 }
 
 .frame {
-  display: none;
+    display: none;
 }
 
 .frame.active {
-  display: block;
+    display: block;
 }
 
 /* Modal styles */
 .modal {
-  display: none;
-  position: fixed;
-  z-index: 1;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  overflow: auto;
-  background-color: rgba(0, 0, 0, 0.4);
-  padding-top: 60px;
+    display: none; 
+    position: fixed; 
+    z-index: 1; 
+    left: 0;
+    top: 0; 
+    width: 100%; 
+    height: 100%; 
+    overflow: auto; 
+    background-color: rgba(0,0,0,0.4); 
+    padding-top: 60px;
 }
 
 .modal-content {
-  background-color: #fefefe;
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #888;
-  width: 80%;
-  max-width: 600px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  text-align: center;
+    background-color: #fefefe;
+    margin: auto;
+    padding: 20px;
+    border: 1px solid #888;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    text-align: center;
 }
 
 .modal-header {
-  padding: 2px 16px;
-  color: black;
-  text-align: center;
+    padding: 2px 16px;
+    color: black;
+    text-align: center;
 }
 
 .modal-body {
-  padding: 2px 16px;
-  text-align: left;
+    padding: 2px 16px;
+    text-align: left;
 }
 
 .modal-footer {
-  padding: 2px 16px;
-  color: black;
-  text-align: center;
+    padding: 2px 16px;
+    color: black;
+    text-align: center;
 }
 
 .close {
-  color: black;
-  float: right;
-  font-size: 28px;
-  font-weight: bold;
+    color: black;
+    float: right;
+    font-size: 28px;
+    font-weight: bold;
 }
 
 .close:hover,
 .close:focus {
-  color: grey;
-  text-decoration: none;
-  cursor: pointer;
+    color: grey;
+    text-decoration: none;
+    cursor: pointer;
 }
 
 /* Filter styles */
 .filters {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
 }
 
 .daysofweek {
-  width: 200px;
+    width: 200px;
 }
 
 .draggable-item {
-  padding: 10px;
-  border: 2px dashed #ccc;
-  border-radius: 5px;
+    padding: 10px;
+    border: 2px dashed #ccc;
+    border-radius: 5px;
 }
 
 .draggable-item-child {
-  border: 1px solid #ccc;
-  border-radius: 5px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
 }
 
 .draggable-item-child:hover,
 .draggable-item-child label:hover {
-  cursor: grab;
+    cursor: grab;
 }
 
 .dragging {
-  opacity: 0.5;
-  border: 2px solid #007bff;
+    opacity: 0.5;
+    border: 2px solid #007bff;
 }
 
 .rank-display {
-  cursor: grab;
-  display: block;
-  width: 100%;
+    cursor: grab;
+    display: block;
+    width: 100%;
 }
 
 .delete-button {
-  padding: 1px 5px;
-}
-
-/* Displaying Option & Extracted Term */
-.center-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  width: 100%;
-}
-
-.toggle-switch {
-  display: inline-flex;
-  align-items: center;
-  font-family: Arial, sans-serif;
-}
-
-.toggle-switch input {
-  display: none;
-}
-
-.toggle-text {
-  font-size: 10px;
-  margin: 0 8px;
-  transition: color 0.3s;
-}
-
-.toggle-text.left {
-  color: #2196f3;
-}
-.toggle-text.right {
-  color: #777;
-}
-
-#displayingOption:checked ~ .toggle-text-container .toggle-text.left {
-  color: #777;
-}
-#displayingOption:checked ~ .toggle-text-container .toggle-text.right {
-  color: #2196f3;
-}
-
-.switch {
-  position: relative;
-  display: inline-block;
-  width: 50px;
-  height: 25px;
-  background-color: #ccc;
-  border-radius: 25px;
-  cursor: pointer;
-}
-
-.switch .slider {
-  position: absolute;
-  top: 2px;
-  left: 2px;
-  width: 21px;
-  height: 21px;
-  background-color: #fff;
-  border-radius: 50%;
-  transition: left 0.3s;
-}
-
-#displayingOption:checked ~ label.switch .slider {
-  left: calc(100% - 2px - 21px);
-}
-
-/* Displaying Option Tooltip */
-.toggle-text-container {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
-}
-
-.info-icon {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  background-color: transparent;
-  color: black;
-  border: 1px solid black;
-  border-radius: 50%;
-  text-align: center;
-  line-height: 12px;
-  font-size: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  margin: 0 4px;
-}
-
-.tooltip {
-  visibility: hidden;
-  width: 120px;
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  border-radius: 6px;
-  padding: 5px;
-  position: absolute;
-  z-index: 1;
-  bottom: 125%;
-  opacity: 0;
-  transition:
-    opacity 0.3s,
-    visibility 0.3s;
-  font-size: 10px;
-}
-
-.tooltip-left {
-  right: 0;
-}
-
-.tooltip-right {
-  left: 0;
-}
-
-.tooltip::after {
-  content: '';
-  position: absolute;
-  top: 100%;
-  border-width: 5px;
-  border-style: solid;
-  border-color: #333 transparent transparent transparent;
-}
-
-.tooltip-left::after {
-  right: 10px;
-}
-
-.tooltip-right::after {
-  left: 10px;
-}
-
-.toggle-text-container:hover .tooltip {
-  visibility: visible;
-  opacity: 1;
+    padding: 1px 5px;
 }
