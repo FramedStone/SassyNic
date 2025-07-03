@@ -208,59 +208,43 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
  * Function that extract class details and process extracted data
  */
 function extractClassDetails() {
-  const rows = document.querySelectorAll('.ps_grid-row'); // select all rows in the table
-  const subjectTitle = document
-    .getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG')
-    .textContent.trim();
-  const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG').textContent.trim();
+  const rows = document.querySelectorAll('.ps_grid-row');
+  const subjectTitle = document.getElementById('SSR_CRSE_INFO_V_COURSE_TITLE_LONG')?.textContent.trim() || '';
+  const subjectCode = document.getElementById('SSR_CRSE_INFO_V_SSS_SUBJ_CATLG')?.textContent.trim() || '';
   const dataset = { title: subjectTitle, code: subjectCode, class: [] };
 
-  // tr
   rows.forEach((row) => {
     const class_ = {};
-    const option = row.querySelector('.OPTION_NSFF a').textContent.trim();
-    const status = row.querySelector('.ps_box-value').textContent.trim();
-    const psc_disabled = row.classList.contains('psc_disabled') ? '1' : '0';
+    // Option number
+    class_.option = row.querySelector('.OPTION_NSFF a')?.textContent.trim() || '';
+    // Status
+    class_.status = row.querySelector('td:nth-child(2) .ps_box-value')?.textContent.trim() || '';
+    // Session
+    class_.session = row.querySelector('.SESSION .ps_box-value')?.textContent.trim() || '';
+    // Disabled
+    class_.psc_disabled = row.classList.contains('psc_disabled') ? '1' : '0';
 
-    const classElements = row.querySelectorAll('.CMPNT_CLASS_NBR a.ps-link');
-    const seatsElements = row.querySelectorAll('.SEATS span.ps_box-value');
-    const dayTimeElements = row.querySelectorAll('.DAYS_TIMES .ps_box-longedit');
-    const roomElements = row.querySelectorAll('.ROOM .ps_box-edit');
-    const instructorElements = row.querySelectorAll('.INSTRUCTOR .ps_box-longedit') || [];
+    // All parallel arrays
+    const classLinks = row.querySelectorAll('.CMPNT_CLASS_NBR a.ps-link');
+    const dateSpans = row.querySelectorAll('.DATES .ps_box-value');
+    const dayTimeSpans = row.querySelectorAll('.DAYS_TIMES .ps_box-value');
+    const roomSpans = row.querySelectorAll('.ROOM .ps_box-value');
+    const instructorSpans = row.querySelectorAll('.INSTRUCTOR .ps_box-value');
+    const seatSpans = row.querySelectorAll('.SEATS .ps_box-value');
 
-    // class
-    const classes = Array.from(classElements).map((el, index) => {
-      const classText = el.textContent.trim();
-      const seats = seatsElements[index].innerText
-        .trim()
-        .split(' ')
-        .filter((char) => !isNaN(parseInt(char)))
-        .join(' ');
-      const misc = [];
-
-      // Bundle misc details (day, time, instructor, room)
-      if (dayTimeElements[index]) {
-        const daytimeSpans = dayTimeElements[index].querySelectorAll('span');
-        const roomSpans = roomElements[index].querySelectorAll('span');
-        const instructorSpans = instructorElements[index]?.querySelectorAll('span') || [];
-
-        daytimeSpans.forEach((span, index_) => {
-          const [day, time] = parseDayAndTime(span.innerHTML.trim());
-          const room = roomSpans[index_].innerText.trim();
-          const instructor = instructorSpans[index_]?.innerText.trim() || 'no_instructor_displayed';
-          misc.push({ day, time, room, instructor });
-        });
-      }
-
-      return { classText, seats, misc };
-    });
-
-    class_.option = option;
-    class_.status = status;
-    class_.classes = classes;
-
-    // For displaying options later on in 'timetable.html'
-    class_.psc_disabled = psc_disabled;
+    class_.classes = Array.from(classLinks).map((el, idx) => ({
+      classText: el.textContent.trim(),
+      dates: dateSpans[idx]?.textContent.trim() || '',
+      dayTime: dayTimeSpans[idx]?.innerHTML.trim() || '',
+      room: roomSpans[idx]?.textContent.trim() || '',
+      instructor: instructorSpans[idx]?.textContent.trim() || 'no_instructor_displayed',
+      seats: seatSpans[idx]?.textContent.trim() || '',
+      misc: (() => {
+        // For compatibility with old structure
+        const [day, time] = parseDayAndTime(dayTimeSpans[idx]?.innerHTML.trim() || '');
+        return [{ day, time, room: roomSpans[idx]?.textContent.trim() || '', instructor: instructorSpans[idx]?.textContent.trim() || 'no_instructor_displayed' }];
+      })(),
+    }));
 
     dataset.class.push(class_);
   });
