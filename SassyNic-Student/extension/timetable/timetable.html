@@ -76,6 +76,9 @@
             <label for="filter_daysofweek">Instructor Filter</label>
             <input type="checkbox" id="filter_instructor" />
             <br />
+            <label for="filter_room">Room Filter</label>
+            <input type="checkbox" id="filter_room" />
+            <br />
           </div>
           <!-- Days Of Week -->
           <div
@@ -175,6 +178,12 @@
           >
             <span class="rank-display">4. Instructor Filter (Exclusive)</span>
             <!-- Instructor list will be dynamically displayed here -->
+          </div>
+
+          <!-- Room -->
+          <div class="draggable-item room" id="room" data-rank="5" show-details="false" hidden>
+            <span class="rank-display">5. Room Filter (Inclusive)</span>
+            <!-- Room list will be dynamically displayed here -->
           </div>
         </div>
 

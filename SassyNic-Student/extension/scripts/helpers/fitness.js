@@ -64,7 +64,8 @@ function setFitnessScore(dataset, callback) {
     let day = 0,
       time = 0,
       classGap = 0,
-      instructor = 0;
+      instructor = 0,
+      room = 0;
 
     // Calculate each filter's fitness
     filters.forEach((filter) => {
@@ -81,10 +82,13 @@ function setFitnessScore(dataset, callback) {
         case 'gap':
           classGap = getClassGapScore(set) * filter.getAttribute('weight');
           break;
+        case 'room':
+          room = getRoomScore(set) * filter.getAttribute('weight');
+          break;
       }
 
       // Assign back to current set
-      set.fitness = day + time + classGap + instructor;
+      set.fitness = day + time + classGap + instructor + room;
     });
   });
 
@@ -423,6 +427,58 @@ function getInstructorScore(set) {
   if (selectedInstructor.length > 0) {
     selectedInstructor.forEach((instructor) => {
       objective += instructor.weight;
+    });
+  }
+
+  // Final fitness score
+  const fitnessScore = objective * (1 - penalty);
+  return fitnessScore;
+}
+
+function getRoomScore(set) {
+  const childrenChecked = document.querySelectorAll(
+    'div.draggable-item[id="room"] div.draggable-item-child input[type="checkbox"]:checked'
+  );
+  const selectedRooms = [];
+  let uniqueRooms = new Set(); // to prevent over rewarding
+
+  // Setup weights
+  childrenChecked.forEach((child, index) => {
+    const room = child.value;
+
+    selectedRooms.push({
+      room: room,
+      weight: (childrenChecked.length - index) / summation(childrenChecked.length),
+    }); // Higher ranking = higher weight
+  });
+
+  let objective = 0,
+    penalty = 0;
+
+  // Reward for selected rooms found in timetable
+  set.forEach((courses) => {
+    courses.option.classes.forEach((class_) => {
+      class_.misc.forEach((details) => {
+        if (
+          !uniqueRooms.has(details.room) &&
+          selectedRooms.some((room) => room.room === details.room)
+        ) {
+          uniqueRooms.add(details.room);
+
+          let weight = selectedRooms.find((room) => room.room === details.room).weight;
+          objective += weight;
+
+          let index = selectedRooms.findIndex((room) => room.room === details.room);
+          selectedRooms.splice(index, 1)[0];
+        }
+      });
+    });
+  });
+
+  // Penalty for selected rooms not found in timetable
+  if (selectedRooms.length > 0) {
+    selectedRooms.forEach((room) => {
+      penalty += room.weight;
     });
   }
 

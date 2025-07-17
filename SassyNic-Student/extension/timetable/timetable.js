@@ -164,6 +164,7 @@ chrome.runtime.sendMessage({ action: 'timetablejsInjected' });
     filters.getTimeSliders(dataset); // Time
     filters.getClassGap(dataset); // Class Gap
     filters.getInstructors(dataset); // Instructors
+    filters.getRooms(dataset); // Rooms
 
     // Filters selection
     const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');

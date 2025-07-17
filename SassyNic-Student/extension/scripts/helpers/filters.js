@@ -342,3 +342,59 @@ export function getInstructors(dataset) {
     instructorContainer.appendChild(instructorDiv);
   });
 }
+
+// ---------------------- ROOMS -----------------------------//
+/**
+ * Function that will display all the rooms from the dataset with checkboxes beside
+ * @param {Object} dataset
+ */
+export function getRooms(dataset) {
+  const roomContainer = document.getElementById('room');
+  const uniqueRooms = new Set();
+
+  // Get each room from dataset
+  dataset.forEach((course) => {
+    course.forEach((course_) => {
+      course_.option.classes.forEach((classItem) => {
+        classItem.misc.forEach((misc) => {
+          if (misc.room) {
+            uniqueRooms.add(misc.room);
+          }
+        });
+      });
+    });
+  });
+
+  const rankDisplay = roomContainer.querySelector('.rank-display');
+  roomContainer.innerHTML = '';
+  if (rankDisplay) {
+    roomContainer.appendChild(rankDisplay);
+  }
+
+  const initialBreak = document.createElement('br');
+  roomContainer.appendChild(initialBreak);
+
+  const sortedRooms = Array.from(uniqueRooms).sort();
+
+  sortedRooms.forEach((room, index) => {
+    const roomDiv = document.createElement('div');
+    roomDiv.className = 'draggable-item-child';
+    roomDiv.setAttribute('data-rank', index + 1);
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `room_${room.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    checkbox.value = room;
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = room;
+
+    const lineBreak = document.createElement('br');
+
+    roomDiv.appendChild(checkbox);
+    roomDiv.appendChild(label);
+    roomDiv.appendChild(lineBreak);
+    roomContainer.appendChild(roomDiv);
+  });
+}
