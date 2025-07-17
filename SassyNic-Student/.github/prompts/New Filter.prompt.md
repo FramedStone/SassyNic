@@ -8,7 +8,7 @@ Ask for 'Inclusive' or 'Exclusive' filter if not provided.
 Ask if the new filter should be based on 'daysofweek' if not provided.
 
 Requirements for the filter:
-- Mimic the html component based on the filter logic and requirements: [timetable/timetable.html] (../../timetable/timetable.html)
+- Mimic the html component based on the filter logic and requirements: [extension/timetable/timetable.html] (../../timetable/timetable.html)
 - The filter component must be using the class 'draggable-item gap' & 'rank-display'
 - If the filter component is based on 'daysofweek' it should be using this checkboxes code segment:
     ```html
@@ -177,6 +177,6 @@ Requirements for the filter:
     ]
     ```
 - The filter component must be implemented with the Fitness Function by having its own Objective & Penalty Functions (if 
-needed) based on filter's logics in: [scripts/helpers/fitness.js] (../../scripts/helpers/fitness.js).
-- Add event listener for the new filter component in: [scripts/helpers/filters.js] (../../scripts/helpers/fitness.js).
-- Add the new filter's getter function in: [timetable/timetable.js] (../../timetable/timetable.js) and pass in 'dataset' as argument if needed.
+needed) based on filter's logics in: [extension/scripts/helpers/fitness.js] (../../scripts/helpers/fitness.js).
+- Add event listener for the new filter component in: [extension/scripts/helpers/filters.js] (../../scripts/helpers/fitness.js).
+- Add the new filter's getter function in: [extension/timetable/timetable.js] (../../timetable/timetable.js) and pass in 'dataset' as argument if needed.
