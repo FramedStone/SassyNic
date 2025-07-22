@@ -385,6 +385,7 @@ export function getRooms(dataset) {
     checkbox.type = 'checkbox';
     checkbox.id = `room_${room.replace(/[^a-zA-Z0-9]/g, '_')}`;
     checkbox.value = room;
+    checkbox.checked = true;
 
     const label = document.createElement('label');
     label.htmlFor = checkbox.id;
