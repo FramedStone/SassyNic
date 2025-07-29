@@ -9,8 +9,8 @@ Ask if the new filter should be based on 'daysofweek' if not provided.
 
 Requirements for the filter:
 - Mimic the html component based on the filter logic and requirements: [extension/timetable/timetable.html] (../../timetable/timetable.html)
-- The filter component must be using the class 'draggable-item gap' & 'rank-display'
-- If the filter component is based on 'daysofweek' it should be using this checkboxes code segment:
+- The filter component must be using the class 'draggable-item gap' & 'rank-display', the 'data-rank' must be following to the latest.
+- If the filter component is based on 'daysofweek' it should be using this checkboxes code segment (where the daysofweek ranking fitness scores should always be 'n > n + 1', 1 = highest ranking):
     ```html
     <select id="[filterName]_daysofweek">
         <option id="[filterName]_everyday">Everyday</option>
