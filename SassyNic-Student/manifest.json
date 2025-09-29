@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "author": "leeweixuan39@gmail.com",
   "name": "SassyNic - Student",
-  "version": "3.4.5",
+  "version": "3.4.6",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
   "permissions": ["activeTab", "scripting", "storage", "windows"],
   "icons": {
