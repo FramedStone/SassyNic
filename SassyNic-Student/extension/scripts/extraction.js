@@ -160,6 +160,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .getElementById('TERM_VAL_TBL_DESCR')
         .textContent.replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
         .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+        .replace(/\s\d{4}$/, '')
         .trim();
 
       // Check if term matching
@@ -195,6 +196,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           }
         });
       } else {
+        console.log(message.term);
+        console.log(term);
         alert('1001_EXTRACTION_TERM_NOT_MATCHING');
         sendResponse({ status: 'error', code: 1001 });
         return true;
