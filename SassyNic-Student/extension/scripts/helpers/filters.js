@@ -343,6 +343,71 @@ export function getInstructors(dataset) {
   });
 }
 
+// ---------------------- TOTAL CLASSES PER DAY -----------------------------//
+/**
+ * Function that will setup total classes per day filter with slider and number input
+ * @param {Object} dataset
+ */
+export function getTotalClassesPerDay(dataset) {
+  // Get the max number of classes per day from dataset to set slider limits
+  const maxClassesInDataset = getMaxClassesPerDay(dataset);
+
+  // Total classes slider and input
+  const slider = document.getElementById('total_classes_slider');
+  const numberInput = document.getElementById('total_classes_count');
+  const output = document.getElementById('total_classes_value');
+
+  // Set the maximum value based on dataset
+  slider.max = Math.max(maxClassesInDataset, 10);
+  numberInput.max = Math.max(maxClassesInDataset, 10);
+
+  // Sync slider and number input
+  slider.addEventListener('input', (event) => {
+    const value = event.target.value;
+    numberInput.value = value;
+    output.textContent = value;
+  });
+
+  numberInput.addEventListener('input', (event) => {
+    const value = Math.min(Math.max(parseInt(event.target.value) || 0, 0), slider.max);
+    slider.value = value;
+    output.textContent = value;
+    event.target.value = value;
+  });
+
+  // Set initial value
+  output.textContent = slider.value;
+
+  console.log('Maximum classes per day in dataset:', maxClassesInDataset);
+}
+
+/**
+ * Helper function to get maximum number of classes per day from dataset
+ * @param {Object} dataset
+ * @returns {Number} Maximum number of classes per day
+ */
+function getMaxClassesPerDay(dataset) {
+  let maxClasses = 0;
+
+  dataset.forEach((set) => {
+    const dayClassCount = {};
+
+    set.forEach((course) => {
+      course.option.classes.forEach((classItem) => {
+        classItem.misc.forEach((misc) => {
+          const day = misc.day;
+          dayClassCount[day] = (dayClassCount[day] || 0) + 1;
+        });
+      });
+    });
+
+    const setMaxClasses = Math.max(...Object.values(dayClassCount), 0);
+    maxClasses = Math.max(maxClasses, setMaxClasses);
+  });
+
+  return maxClasses;
+}
+
 // ---------------------- ROOMS -----------------------------//
 /**
  * Function that will display all the rooms from the dataset with checkboxes beside
