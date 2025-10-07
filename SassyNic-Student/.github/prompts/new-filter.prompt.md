@@ -1,5 +1,5 @@
 ---
-mode: 'ask'
+mode: 'ask, agent'
 ---
 Your goal is to generate a new filter component and include the Fitness Function based on requirements.
 
@@ -8,7 +8,7 @@ Ask for 'Inclusive' or 'Exclusive' filter if not provided.
 Ask if the new filter should be based on 'daysofweek' if not provided.
 
 Requirements for the filter:
-- Mimic the html component based on the filter logic and requirements: [extension/timetable/timetable.html] (../../timetable/timetable.html)
+- Mimic the html component based on the filter logic and requirements: [extension/timetable/timetable.html](../../timetable/timetable.html)
 - The filter component must be using the class 'draggable-item gap' & 'rank-display', the 'data-rank' must be following to the latest.
 - If the filter component is based on 'daysofweek' it should be using this checkboxes code segment (where the daysofweek ranking fitness scores should always be 'n > n + 1', 1 = highest ranking):
     ```html
@@ -177,6 +177,7 @@ Requirements for the filter:
     ]
     ```
 - The filter component must be implemented with the Fitness Function by having its own Objective & Penalty Functions (if 
-needed) based on filter's logics in: [extension/scripts/helpers/fitness.js] (../../scripts/helpers/fitness.js).
-- Add event listener for the new filter component in: [extension/scripts/helpers/filters.js] (../../scripts/helpers/fitness.js).
-- Add the new filter's getter function in: [extension/timetable/timetable.js] (../../timetable/timetable.js) and pass in 'dataset' as argument if needed.
+needed) based on filter's logics in: [extension/scripts/helpers/fitness.js](../../extension/scripts/helpers/fitness.js).
+- Add event listener for the new filter component in: [extension/scripts/helpers/filters.js](../../extension/scripts/helpers/filters.js).
+- Add the new filter's getter function in: [extension/timetable/timetable.js](../../extension/timetable/timetable.js) and pass in 'dataset' as argument if needed.
+- Always retrieve the filter's value directly using element selector for fitness score calculation, never use regex for this part
