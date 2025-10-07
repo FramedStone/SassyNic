@@ -64,7 +64,9 @@ function setFitnessScore(dataset, callback) {
     let day = 0,
       time = 0,
       classGap = 0,
-      instructor = 0;
+      instructor = 0,
+      room = 0,
+      totalClassesPerDay = 0;
 
     // Calculate each filter's fitness
     filters.forEach((filter) => {
@@ -81,10 +83,16 @@ function setFitnessScore(dataset, callback) {
         case 'gap':
           classGap = getClassGapScore(set) * filter.getAttribute('weight');
           break;
+        case 'room':
+          room = getRoomScore(set) * filter.getAttribute('weight');
+          break;
+        case 'totalclassesperday':
+          totalClassesPerDay = getTotalClassesPerDayScore(set) * filter.getAttribute('weight');
+          break;
       }
 
       // Assign back to current set
-      set.fitness = day + time + classGap + instructor;
+      set.fitness = day + time + classGap + instructor + room + totalClassesPerDay;
     });
   });
 
@@ -429,6 +437,186 @@ function getInstructorScore(set) {
   // Final fitness score
   const fitnessScore = objective * (1 - penalty);
   return fitnessScore;
+}
+
+function getRoomScore(set) {
+  const childrenChecked = document.querySelectorAll(
+    'div.draggable-item[id="room"] div.draggable-item-child input[type="checkbox"]:checked'
+  );
+  const selectedRooms = [];
+  let uniqueRooms = new Set(); // to prevent over rewarding
+
+  // Setup weights
+  childrenChecked.forEach((child, index) => {
+    const room = child.value;
+
+    selectedRooms.push({
+      room: room,
+      weight: (childrenChecked.length - index) / summation(childrenChecked.length),
+    }); // Higher ranking = higher weight
+  });
+
+  let objective = 0,
+    penalty = 0;
+
+  // Reward for selected rooms found in timetable
+  set.forEach((courses) => {
+    courses.option.classes.forEach((class_) => {
+      class_.misc.forEach((details) => {
+        if (
+          !uniqueRooms.has(details.room) &&
+          selectedRooms.some((room) => room.room === details.room)
+        ) {
+          uniqueRooms.add(details.room);
+
+          let weight = selectedRooms.find((room) => room.room === details.room).weight;
+          objective += weight;
+
+          let index = selectedRooms.findIndex((room) => room.room === details.room);
+          selectedRooms.splice(index, 1)[0];
+        }
+      });
+    });
+  });
+
+  // Penalty for selected rooms not found in timetable
+  if (selectedRooms.length > 0) {
+    selectedRooms.forEach((room) => {
+      penalty += room.weight;
+    });
+  }
+
+  // Final fitness score
+  const fitnessScore = objective * (1 - penalty);
+  return fitnessScore;
+}
+
+function getTotalClassesPerDayScore(set) {
+  // Define day priorities (Monday = highest, Sunday = lowest)
+  const priorities = {
+    Monday: 7,
+    Tuesday: 6,
+    Wednesday: 5,
+    Thursday: 4,
+    Friday: 3,
+    Saturday: 2,
+    Sunday: 1,
+  };
+
+  // Calculate total priority for normalization
+  const totalPriority = Object.values(priorities).reduce((sum, value) => sum + value, 0);
+
+  // Normalize day weights
+  const dayWeights = {};
+  Object.keys(priorities).forEach((day) => {
+    dayWeights[day] = priorities[day] / totalPriority;
+  });
+
+  // Parse user preferences from the DOM
+  const childrenSpan = document.querySelectorAll(
+    'div.draggable-item[id="totalclassesperday"] div.draggable-item-child span.details-display'
+  );
+
+  let selectedDays = [];
+  let isEveryday = false;
+
+  childrenSpan.forEach((span) => {
+    const text = span.textContent.trim();
+    if (text.includes('Everyday')) {
+      isEveryday = true;
+      // Apply "Everyday" to all days with the same max classes limit
+      const maxClasses = parseInt(text.match(/Max:\s*(\d+)\s*classes/i)?.[1]);
+      if (maxClasses !== undefined) {
+        Object.keys(priorities).forEach((day) => {
+          selectedDays.push({ day, maxClasses });
+        });
+      }
+    } else {
+      const [, day, classesText] = text.match(/^(.*?)(Max:.*)$/) || [];
+      if (day && classesText) {
+        const maxClasses = parseInt(classesText.replace('Max:', '').replace('classes', '').trim());
+        if (maxClasses !== undefined) {
+          selectedDays.push({ day: day.trim(), maxClasses });
+        }
+      }
+    }
+  });
+
+  // If no days are selected, return maximum fitness score
+  if (selectedDays.length === 0) {
+    return 1.0;
+  }
+
+  // Group dataset by day to count classes per day
+  const newSet = groupByDay(set);
+
+  let totalFitnessScore = 0;
+
+  if (isEveryday) {
+    // Use full calculation when "Everyday" is selected
+    selectedDays.forEach(({ day, maxClasses }) => {
+      const classes = newSet[day];
+      const dayWeight = dayWeights[day] || 0;
+      const actualClassCount = classes ? classes.length : 0;
+
+      if (actualClassCount <= maxClasses) {
+        // Objective: Reward when actual classes <= max allowed classes
+        totalFitnessScore += dayWeight;
+      } else {
+        // Penalty: Penalize when actual classes > max allowed classes
+        const excessClasses = actualClassCount - maxClasses;
+        if (maxClasses > 0) {
+          const penalty = (excessClasses / maxClasses) * dayWeight;
+          totalFitnessScore -= penalty;
+        } else {
+          // When maxClasses is 0, any classes present should result in 0 fitness for this day
+          totalFitnessScore -= dayWeight;
+        }
+      }
+    });
+  } else {
+    // Calculate based on selected days only
+    const selectedDayWeights = {};
+    let totalSelectedWeight = 0;
+
+    // Calculate weights only for selected days
+    selectedDays.forEach(({ day }) => {
+      const weight = dayWeights[day] || 0;
+      selectedDayWeights[day] = weight;
+      totalSelectedWeight += weight;
+    });
+
+    // Normalize weights for selected days only
+    if (totalSelectedWeight > 0) {
+      Object.keys(selectedDayWeights).forEach((day) => {
+        selectedDayWeights[day] = selectedDayWeights[day] / totalSelectedWeight;
+      });
+    }
+
+    selectedDays.forEach(({ day, maxClasses }) => {
+      const classes = newSet[day];
+      const dayWeight = selectedDayWeights[day] || 0;
+      const actualClassCount = classes ? classes.length : 0;
+
+      if (actualClassCount <= maxClasses) {
+        // Objective: Reward when actual classes <= max allowed classes
+        totalFitnessScore += dayWeight;
+      } else {
+        // Penalty: Penalize when actual classes > max allowed classes
+        const excessClasses = actualClassCount - maxClasses;
+        if (maxClasses > 0) {
+          const penalty = (excessClasses / maxClasses) * dayWeight;
+          totalFitnessScore -= penalty;
+        } else {
+          // When maxClasses is 0, any classes present should result in 0 fitness for this day
+          totalFitnessScore -= dayWeight;
+        }
+      }
+    });
+  }
+
+  // Ensure fitness score is bounded between 0 and 1
+  return Math.max(0, Math.min(1, totalFitnessScore));
 }
 
 // ------------------------- HELPER FUNCTIONS ---------------------------//

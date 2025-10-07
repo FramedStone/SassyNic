@@ -76,6 +76,12 @@
             <label for="filter_daysofweek">Instructor Filter</label>
             <input type="checkbox" id="filter_instructor" />
             <br />
+            <label for="filter_room">Room Filter</label>
+            <input type="checkbox" id="filter_room" />
+            <br />
+            <label for="filter_totalclassesperday">Total Classes Per Day Filter</label>
+            <input type="checkbox" id="filter_totalclassesperday" />
+            <br />
           </div>
           <!-- Days Of Week -->
           <div
@@ -175,6 +181,40 @@
           >
             <span class="rank-display">4. Instructor Filter (Exclusive)</span>
             <!-- Instructor list will be dynamically displayed here -->
+          </div>
+
+          <!-- Room -->
+          <div class="draggable-item room" id="room" data-rank="5" show-details="false" hidden>
+            <span class="rank-display">5. Room Filter (Exclusive)</span>
+            <!-- Room list will be dynamically displayed here -->
+          </div>
+
+          <!-- Total Classes Per Day -->
+          <div
+            class="draggable-item gap totalclassesperday"
+            id="totalclassesperday"
+            data-rank="6"
+            show-details="true"
+            hidden
+          >
+            <span class="rank-display">6. Total Classes Per Day Filter (Inclusive)</span>
+            <br />
+            <label for="total_classes_count">Maximum Total Classes:</label>
+            <br />
+            <input type="number" min="0" max="10" value="0" id="total_classes_count" />
+            <input type="range" min="0" max="10" step="1" value="0" id="total_classes_slider" />
+            <span id="total_classes_value">0</span>
+            <br /><br />
+            <select id="totalclassesperday_daysofweek">
+              <option id="totalclassesperday_everyday">Everyday</option>
+              <option id="totalclassesperday_monday">Monday</option>
+              <option id="totalclassesperday_tuesday">Tuesday</option>
+              <option id="totalclassesperday_wednesday">Wednesday</option>
+              <option id="totalclassesperday_thursday">Thursday</option>
+              <option id="totalclassesperday_friday">Friday</option>
+              <option id="totalclassesperday_saturday">Saturday</option>
+              <option id="totalclassesperday_sunday">Sunday</option>
+            </select>
           </div>
         </div>
 

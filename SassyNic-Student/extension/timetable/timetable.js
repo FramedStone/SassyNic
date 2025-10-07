@@ -164,6 +164,8 @@ chrome.runtime.sendMessage({ action: 'timetablejsInjected' });
     filters.getTimeSliders(dataset); // Time
     filters.getClassGap(dataset); // Class Gap
     filters.getInstructors(dataset); // Instructors
+    filters.getRooms(dataset); // Rooms
+    filters.getTotalClassesPerDay(dataset); // Total Classes Per Day
 
     // Filters selection
     const filters_selection = document.querySelectorAll('div.selection input[type="checkbox"]');
@@ -743,6 +745,85 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
     }
   };
 
+  // Handle total classes per day slider changes
+  const handleTotalClassesPerDayInputs = () => {
+    const totalClassesDivs = container.querySelectorAll(
+      'div.totalclassesperday[show-details="true"]'
+    );
+    let newAttachments = 0;
+
+    totalClassesDivs.forEach((totalClassesDiv) => {
+      const slider = totalClassesDiv.querySelector('#total_classes_slider');
+      const numberInput = totalClassesDiv.querySelector('#total_classes_count');
+      const valueDisplay = totalClassesDiv.querySelector('#total_classes_value');
+      const selectElement = totalClassesDiv.querySelector('select');
+
+      if (slider && numberInput && valueDisplay && selectElement) {
+        const updateDetails = () => {
+          const selection = selectElement.options[selectElement.selectedIndex].text;
+          const details = `Max: ${slider.value} classes`;
+          createOrUpdateSpan(totalClassesDiv, selection, details);
+        };
+
+        if (!processedElements.has(slider)) {
+          let timeout;
+          slider.addEventListener('input', () => {
+            // Update display immediately
+            numberInput.value = slider.value;
+            valueDisplay.textContent = slider.value;
+            updateDetails(); // Update span immediately
+
+            // Delay only the callback
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              callback({
+                type: 'range',
+                value: slider.value,
+                percentage: Math.round((slider.value / slider.max) * 100),
+                element: slider,
+              });
+            }, 300);
+          });
+          processedElements.add(slider);
+          newAttachments++;
+        }
+
+        if (!processedElements.has(numberInput)) {
+          let timeout;
+          numberInput.addEventListener('input', () => {
+            const value = Math.min(Math.max(parseInt(numberInput.value) || 0, 0), slider.max);
+            // Update display immediately
+            slider.value = value;
+            valueDisplay.textContent = value;
+            numberInput.value = value;
+            updateDetails(); // Update span immediately
+
+            // Delay only the callback
+            clearTimeout(timeout);
+            timeout = setTimeout(() => {
+              callback({
+                type: 'number',
+                value: value,
+                percentage: Math.round((value / slider.max) * 100),
+                element: numberInput,
+              });
+            }, 300);
+          });
+          processedElements.add(numberInput);
+          newAttachments++;
+        }
+      }
+    });
+
+    if (newAttachments > 0) {
+      if (!hasAttachments) {
+        printDivider();
+        hasAttachments = true;
+      }
+      console.log('Observer attached: total classes per day inputs');
+    }
+  };
+
   // Handle select option changes
   const handleSelectOptions = () => {
     const selects = container.querySelectorAll('select');
@@ -777,6 +858,12 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
                 const details = `Gap: ${gapSlider.value} minutes`;
                 createOrUpdateSpan(parentDiv, selectedOption.text, details);
               }
+            } else if (parentDiv.classList.contains('totalclassesperday')) {
+              const totalClassesSlider = parentDiv.querySelector('#total_classes_slider');
+              if (totalClassesSlider) {
+                const details = `Max: ${totalClassesSlider.value} classes`;
+                createOrUpdateSpan(parentDiv, selectedOption.text, details);
+              }
             }
           }
         };
@@ -800,5 +887,6 @@ function observeFiltersValues(callback, dragndrop, table, fitness, dataset) {
   handleTimeInputs();
   handleTimeRangeInputs();
   handleGapRangeInputs();
+  handleTotalClassesPerDayInputs();
   handleSelectOptions();
 }

@@ -28,7 +28,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Useful Buttons 
+  // Useful Buttons
   document.getElementById('btnErrorCode').addEventListener('click', function () {
     chrome.tabs.create({
       url: 'https://github.com/FramedStone/SassyNic/wiki/Error-Reference',

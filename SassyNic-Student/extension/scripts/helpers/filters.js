@@ -342,3 +342,125 @@ export function getInstructors(dataset) {
     instructorContainer.appendChild(instructorDiv);
   });
 }
+
+// ---------------------- TOTAL CLASSES PER DAY -----------------------------//
+/**
+ * Function that will setup total classes per day filter with slider and number input
+ * @param {Object} dataset
+ */
+export function getTotalClassesPerDay(dataset) {
+  // Get the max number of classes per day from dataset to set slider limits
+  const maxClassesInDataset = getMaxClassesPerDay(dataset);
+
+  // Total classes slider and input
+  const slider = document.getElementById('total_classes_slider');
+  const numberInput = document.getElementById('total_classes_count');
+  const output = document.getElementById('total_classes_value');
+
+  // Set the maximum value based on dataset
+  slider.max = Math.max(maxClassesInDataset, 10);
+  numberInput.max = Math.max(maxClassesInDataset, 10);
+
+  // Sync slider and number input
+  slider.addEventListener('input', (event) => {
+    const value = event.target.value;
+    numberInput.value = value;
+    output.textContent = value;
+  });
+
+  numberInput.addEventListener('input', (event) => {
+    const value = Math.min(Math.max(parseInt(event.target.value) || 0, 0), slider.max);
+    slider.value = value;
+    output.textContent = value;
+    event.target.value = value;
+  });
+
+  // Set initial value
+  output.textContent = slider.value;
+
+  console.log('Maximum classes per day in dataset:', maxClassesInDataset);
+}
+
+/**
+ * Helper function to get maximum number of classes per day from dataset
+ * @param {Object} dataset
+ * @returns {Number} Maximum number of classes per day
+ */
+function getMaxClassesPerDay(dataset) {
+  let maxClasses = 0;
+
+  dataset.forEach((set) => {
+    const dayClassCount = {};
+
+    set.forEach((course) => {
+      course.option.classes.forEach((classItem) => {
+        classItem.misc.forEach((misc) => {
+          const day = misc.day;
+          dayClassCount[day] = (dayClassCount[day] || 0) + 1;
+        });
+      });
+    });
+
+    const setMaxClasses = Math.max(...Object.values(dayClassCount), 0);
+    maxClasses = Math.max(maxClasses, setMaxClasses);
+  });
+
+  return maxClasses;
+}
+
+// ---------------------- ROOMS -----------------------------//
+/**
+ * Function that will display all the rooms from the dataset with checkboxes beside
+ * @param {Object} dataset
+ */
+export function getRooms(dataset) {
+  const roomContainer = document.getElementById('room');
+  const uniqueRooms = new Set();
+
+  // Get each room from dataset
+  dataset.forEach((course) => {
+    course.forEach((course_) => {
+      course_.option.classes.forEach((classItem) => {
+        classItem.misc.forEach((misc) => {
+          if (misc.room) {
+            uniqueRooms.add(misc.room);
+          }
+        });
+      });
+    });
+  });
+
+  const rankDisplay = roomContainer.querySelector('.rank-display');
+  roomContainer.innerHTML = '';
+  if (rankDisplay) {
+    roomContainer.appendChild(rankDisplay);
+  }
+
+  const initialBreak = document.createElement('br');
+  roomContainer.appendChild(initialBreak);
+
+  const sortedRooms = Array.from(uniqueRooms).sort();
+
+  sortedRooms.forEach((room, index) => {
+    const roomDiv = document.createElement('div');
+    roomDiv.className = 'draggable-item-child';
+    roomDiv.setAttribute('data-rank', index + 1);
+
+    const checkbox = document.createElement('input');
+    checkbox.type = 'checkbox';
+    checkbox.id = `room_${room.replace(/[^a-zA-Z0-9]/g, '_')}`;
+    checkbox.value = room;
+    checkbox.checked = true;
+
+    const label = document.createElement('label');
+    label.htmlFor = checkbox.id;
+    label.textContent = room;
+
+    const lineBreak = document.createElement('br');
+
+    roomDiv.appendChild(checkbox);
+    roomDiv.appendChild(label);
+    roomDiv.appendChild(lineBreak);
+    roomContainer.appendChild(roomDiv);
+  });
+}
