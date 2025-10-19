@@ -1,3 +1,9 @@
+## Types of PR
+- [ ] New Feature
+- [ ] Bug Fixing
+- [ ] Refactor
+- [ ] Documentation
+
 ## Description
 <!-- brief description about this pull request (bullet points is highly encouraged)-->
 
