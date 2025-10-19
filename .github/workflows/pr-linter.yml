@@ -61,8 +61,22 @@ jobs:
             fi
           }
 
-          compare_manifest_version "SassyNic-Student"
-          compare_manifest_version "SassyNic-Universal"
+          # Determine affected directories based on changed files
+          dirs_to_check=()
+          if git diff --name-only "origin/${{ github.event.pull_request.base.ref }}" | grep -q "^SassyNic-Student/"; then
+            dirs_to_check+=("SassyNic-Student")
+          fi
+          if git diff --name-only "origin/${{ github.event.pull_request.base.ref }}" | grep -q "^SassyNic-Universal/"; then
+            dirs_to_check+=("SassyNic-Universal")
+          fi
+
+          if [ ${#dirs_to_check[@]} -eq 0 ]; then
+            echo "ℹ️  No changes detected in SassyNic-Student or SassyNic-Universal directories. Skipping manifest version checks."
+          else
+            for dir in "${dirs_to_check[@]}"; do
+              compare_manifest_version "$dir"
+            done
+          fi
 
       - name: Check SECURITY.md changes
         run: |
