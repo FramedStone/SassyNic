@@ -1,4 +1,4 @@
-name: Delete Feature Branch
+name: Delete Branch Merged Into Develop
 
 on:
   pull_request:
@@ -7,9 +7,9 @@ on:
 
 jobs:
   delete-feature-branch:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feature/')
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feat/') || startsWith(github.event.pull_request.head.ref, 'bugfix/')
     runs-on: ubuntu-latest
     steps:
-      - name: Delete merged feature branch
+      - name: Delete merged feature/bugfix branch
         run: |
           git push origin --delete "${{ github.event.pull_request.head.ref }}" || echo "Branch already deleted"
