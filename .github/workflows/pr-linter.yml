@@ -23,9 +23,9 @@ jobs:
         run: |
           git fetch origin ${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
 
-       - name: Compare manifest.json versions
-         continue-on-error: true
-         run: |
+      - name: Compare manifest.json versions
+        continue-on-error: true
+        run: |
           compare_manifest_version() {
             local dir="$1"
             local path="$dir/manifest.json"
@@ -52,13 +52,13 @@ jobs:
             # Compare semver using sort -V
             if [ "$(printf '%s\n' "$baseVersion" "$newVersion" | sort -V | tail -n1)" = "$newVersion" ] && [ "$baseVersion" != "$newVersion" ]; then
               echo "✅ $path version is greater than base branch."
-             elif [ "$baseVersion" = "$newVersion" ]; then
-               echo "❌ $path version not updated."
-               echo "::warning::$path version not updated."
-               exit 1
-             else
-               echo "❌ $path version decreased."
-               exit 1
+              elif [ "$baseVersion" = "$newVersion" ]; then
+                echo "❌ $path version not updated."
+                echo "::warning::$path version not updated."
+                exit 1
+              else
+                echo "❌ $path version decreased."
+                exit 1
             fi
           }
 
@@ -75,10 +75,10 @@ jobs:
           # Compare SECURITY.md content with base branch
           git show "origin/${{ github.event.pull_request.base.ref }}:SECURITY.md" > base_SECURITY.md 2>/dev/null || echo "" > base_SECURITY.md
 
-           if cmp -s "SECURITY.md" "base_SECURITY.md"; then
-             echo "❌ SECURITY.md not updated."
-             echo "::warning::SECURITY.md not updated."
-             exit 1
+            if cmp -s "SECURITY.md" "base_SECURITY.md"; then
+              echo "❌ SECURITY.md not updated."
+              echo "::warning::SECURITY.md not updated."
+              exit 1
           fi
 
       - name: Final status
