@@ -26,7 +26,7 @@ jobs:
       - name: Merge main into develop
         run: |
           git checkout develop
-          git merge origin/main --no-ff -m "chore(git-flow): sync main into develop [auto]"
+          git merge origin/main --no-ff --allow-unrelated-histories -m "chore(git-flow): sync main into develop [auto]"
           git push origin develop
 
       - name: Delete release/hotfix branch
