@@ -7,7 +7,7 @@ on:
 
 jobs:
   delete-feature-branch:
-    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feature/')
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'feat/')
     runs-on: ubuntu-latest
     steps:
       - name: Delete merged feature branch
