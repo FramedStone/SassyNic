@@ -8,6 +8,8 @@ on:
 jobs:
   lint-checks:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: read
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -19,11 +21,22 @@ jobs:
         with:
           node-version: 20
 
+      - name: Check for changed directories
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            student:
+              - 'SassyNic-Student/**'
+            universal:
+              - 'SassyNic-Universal/**'
+
       - name: Fetch base branch for comparison
         run: |
           git fetch origin ${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
 
-      - name: Compare manifest.json versions
+      - name: Check Student Manifest Version
+        if: steps.changes.outputs.student == 'true'
         run: |
           compare_manifest_version() {
             local dir="$1"
@@ -51,32 +64,58 @@ jobs:
             # Compare semver using sort -V
             if [ "$(printf '%s\n' "$baseVersion" "$newVersion" | sort -V | tail -n1)" = "$newVersion" ] && [ "$baseVersion" != "$newVersion" ]; then
               echo "✅ $path version is greater than base branch."
-              elif [ "$baseVersion" = "$newVersion" ]; then
-                echo "❌ $path version not updated."
-                echo "::warning::$path version not updated."
-                exit 1
-              else
-                echo "❌ $path version decreased."
-                exit 1
+            elif [ "$baseVersion" = "$newVersion" ]; then
+              echo "❌ $path version not updated."
+              echo "::warning::$path version not updated."
+              exit 1
+            else
+              echo "❌ $path version decreased."
+              exit 1
             fi
           }
 
-          # Determine affected directories based on changed files
-          dirs_to_check=()
-          if git diff --name-only "origin/${{ github.event.pull_request.base.ref }}" | grep -q "^SassyNic-Student/"; then
-            dirs_to_check+=("SassyNic-Student")
-          fi
-          if git diff --name-only "origin/${{ github.event.pull_request.base.ref }}" | grep -q "^SassyNic-Universal/"; then
-            dirs_to_check+=("SassyNic-Universal")
-          fi
+          compare_manifest_version "SassyNic-Student"
 
-          if [ ${#dirs_to_check[@]} -eq 0 ]; then
-            echo "ℹ️  No changes detected in SassyNic-Student or SassyNic-Universal directories. Skipping manifest version checks."
-          else
-            for dir in "${dirs_to_check[@]}"; do
-              compare_manifest_version "$dir"
-            done
-          fi
+      - name: Check Universal Manifest Version
+        if: steps.changes.outputs.universal == 'true'
+        run: |
+          compare_manifest_version() {
+            local dir="$1"
+            local path="$dir/manifest.json"
+
+            if [ ! -f "$path" ]; then
+              echo "⚠️  $path not found, skipping..."
+              return
+            fi
+
+            echo "🔍 Checking $path"
+
+            # Extract versions
+            newVersion=$(jq -r '.version' "$path" 2>/dev/null)
+            baseVersion=$(git show "origin/${{ github.event.pull_request.base.ref }}:$path" 2>/dev/null | jq -r '.version' 2>/dev/null || echo "0.0.0")
+
+            echo "Base version: $baseVersion"
+            echo "New version:  $newVersion"
+
+            if [ "$baseVersion" = "0.0.0" ]; then
+              echo "❌  No manifest.json found for $dir."
+              exit 1
+            fi
+
+            # Compare semver using sort -V
+            if [ "$(printf '%s\n' "$baseVersion" "$newVersion" | sort -V | tail -n1)" = "$newVersion" ] && [ "$baseVersion" != "$newVersion" ]; then
+              echo "✅ $path version is greater than base branch."
+            elif [ "$baseVersion" = "$newVersion" ]; then
+              echo "❌ $path version not updated."
+              echo "::warning::$path version not updated."
+              exit 1
+            else
+              echo "❌ $path version decreased."
+              exit 1
+            fi
+          }
+
+          compare_manifest_version "SassyNic-Universal"
 
       - name: Check SECURITY.md changes
         run: |
