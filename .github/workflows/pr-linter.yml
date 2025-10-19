@@ -1,0 +1,84 @@
+name: PR Lint Check
+
+on:
+  pull_request:
+    types: [opened, reopened, synchronize]
+    branches: [main, develop]
+
+jobs:
+  lint-checks:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch base branch for comparison
+        run: |
+          git fetch origin ${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
+
+      - name: Compare manifest.json versions
+        run: |
+          compare_manifest_version() {
+            local dir="$1"
+            local path="$dir/manifest.json"
+
+            if [ ! -f "$path" ]; then
+              echo "⚠️  $path not found, skipping..."
+              return
+            fi
+
+            echo "🔍 Checking $path"
+
+            # Extract versions
+            newVersion=$(jq -r '.version' "$path" 2>/dev/null)
+            baseVersion=$(git show "origin/${{ github.event.pull_request.base.ref }}:$path" 2>/dev/null | jq -r '.version' 2>/dev/null || echo "0.0.0")
+
+            echo "Base version: $baseVersion"
+            echo "New version:  $newVersion"
+
+            if [ "$baseVersion" = "0.0.0" ]; then
+              echo "⚠️ No base manifest found for $dir (new extension?). Skipping version check."
+              return
+            fi
+
+            # Compare semver using sort -V
+            if [ "$(printf '%s\n' "$baseVersion" "$newVersion" | sort -V | tail -n1)" = "$newVersion" ] && [ "$baseVersion" != "$newVersion" ]; then
+              echo "✅ $path version is greater than base branch."
+            elif [ "$baseVersion" = "$newVersion" ]; then
+              echo "❌ $path version not updated."
+              exit 1
+            else
+              echo "❌ $path version decreased."
+              exit 1
+            fi
+          }
+
+          compare_manifest_version "SassyNic-Student"
+          compare_manifest_version "SassyNic-Universal"
+
+      - name: Check SECURITY.md changes
+        run: |
+          if [ ! -f "SECURITY.md" ]; then
+            echo "❌ SECURITY.md is missing!"
+            exit 1
+          fi
+
+          # Compare SECURITY.md content with base branch
+          git show "origin/${{ github.event.pull_request.base.ref }}:SECURITY.md" > base_SECURITY.md 2>/dev/null || echo "" > base_SECURITY.md
+
+          if cmp -s "SECURITY.md" "base_SECURITY.md"; then
+            echo "❌ SECURITY.md not updated."
+            exit 1
+          else
+            echo "✅ SECURITY.md updated since last branch."
+          fi
+
+      - name: Final status
+        run: echo "🎉 All lint checks passed successfully!"
