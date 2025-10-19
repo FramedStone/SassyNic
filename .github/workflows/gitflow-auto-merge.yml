@@ -23,11 +23,17 @@ jobs:
       - name: Fetch all branches
         run: git fetch --all
 
-      - name: Merge main into develop
+      - name: Merge into develop
         run: |
-          git checkout develop
-          git merge origin/main --no-ff --allow-unrelated-histories -m "chore(git-flow): sync main into develop [auto]"
-          git push origin develop
+          if [[ "${{ github.event.pull_request.head.ref }}" == release/* || "${{ github.event.pull_request.head.ref }}" == hotfix/* ]]; then
+            git checkout develop
+            git merge origin/${{ github.event.pull_request.head.ref }} --no-ff --allow-unrelated-histories -m "chore(git-flow): merge ${{ github.event.pull_request.head.ref }} into develop [auto]"
+            git push origin develop
+          else
+            git checkout develop
+            git merge origin/main --no-ff --allow-unrelated-histories -m "chore(git-flow): sync main into develop [auto]"
+            git push origin develop
+          fi
 
       - name: Delete release/hotfix branch
         if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/')
