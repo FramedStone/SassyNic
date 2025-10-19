@@ -54,9 +54,10 @@ jobs:
              elif [ "$baseVersion" = "$newVersion" ]; then
                echo "❌ $path version not updated."
                echo "::warning::$path version not updated."
+               exit 1
              else
                echo "❌ $path version decreased."
-               echo "::warning::$path version decreased."
+               exit 1
             fi
           }
 
@@ -76,8 +77,7 @@ jobs:
            if cmp -s "SECURITY.md" "base_SECURITY.md"; then
              echo "❌ SECURITY.md not updated."
              echo "::warning::SECURITY.md not updated."
-          else
-            echo "✅ SECURITY.md updated since last branch."
+             exit 1
           fi
 
       - name: Final status
