@@ -9,6 +9,8 @@ jobs:
   sync-main-to-develop:
     if: github.event.pull_request.merged == true
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
@@ -29,5 +31,6 @@ jobs:
 
       - name: Delete release/hotfix branch
         if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/')
-        run: |
-          git push origin --delete "${{ github.event.pull_request.head.ref }}" || echo "Branch already deleted"
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/${{ github.event.pull_request.head.ref }} || echo "Branch already deleted or not found"
