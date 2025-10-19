@@ -24,7 +24,6 @@ jobs:
           git fetch origin ${{ github.event.pull_request.base.ref }}:refs/remotes/origin/${{ github.event.pull_request.base.ref }}
 
       - name: Compare manifest.json versions
-        continue-on-error: true
         run: |
           compare_manifest_version() {
             local dir="$1"
