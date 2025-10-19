@@ -28,10 +28,22 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
-  // Error Code Reference
+  // Useful Buttons
   document.getElementById('btnErrorCode').addEventListener('click', function () {
     chrome.tabs.create({
       url: 'https://github.com/FramedStone/SassyNic/wiki/Error-Reference',
     });
+  });
+
+  // document.getElementById('btnWiki').addEventListener('click', () => {
+  //   chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic/wiki' });
+  // });
+
+  document.getElementById('btnRoadMap').addEventListener('click', () => {
+    chrome.tabs.create({ url: 'https://github.com/users/FramedStone/projects/2/views/2' });
+  });
+
+  document.getElementById('btnFeedback').addEventListener('click', () => {
+    chrome.tabs.create({ url: 'https://forms.gle/SUsghNXUKW1u1US5A' });
   });
 });

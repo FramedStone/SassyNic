@@ -1,0 +1,36 @@
+name: GitFlow Auto Merge (main --> develop)
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  sync-main-to-develop:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Git identity
+        run: |
+          git config user.name "SassyNic-git-flow[bot]"
+          git config user.email "SassyNic@bot.github.com"
+
+      - name: Fetch all branches
+        run: git fetch --all
+
+      - name: Merge main into develop
+        run: |
+          git checkout develop
+          git merge origin/main --no-ff -m "chore(git-flow): sync main into develop [auto]"
+          git push origin develop
+
+      - name: Delete release/hotfix branch
+        if: startsWith(github.event.pull_request.head.ref, 'release/') || startsWith(github.event.pull_request.head.ref, 'hotfix/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/${{ github.event.pull_request.head.ref }} || echo "Branch already deleted or not found"

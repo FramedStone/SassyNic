@@ -2,10 +2,10 @@ import { getActiveTabId, onTabUpdated, getError } from './helpers/utils.js';
 import { pruneSchedule } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' github wiki on installed
-chrome.runtime.onInstalled.addListener(({ reason }) => {
-  if (reason === 'install' || reason === 'update')
-    chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
-});
+// chrome.runtime.onInstalled.addListener(({ reason }) => {
+//   if (reason === 'install' || reason === 'update')
+//     chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
+// });
 
 // -------------------------------------------- extraction.js & auto_enrollment.js -----------------------------------------------------//
 chrome.runtime.onMessage.addListener((message) => {
