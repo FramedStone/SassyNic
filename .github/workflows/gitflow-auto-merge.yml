@@ -23,7 +23,7 @@ jobs:
       - name: Fetch all branches
         run: git fetch --all
 
-      - name: Merge into develop
+      - name: Merge release/ or hotfix/ into develop
         run: |
           if [[ "${{ github.event.pull_request.head.ref }}" == release/* || "${{ github.event.pull_request.head.ref }}" == hotfix/* ]]; then
             git checkout develop
