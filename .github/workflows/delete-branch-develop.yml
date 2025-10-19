@@ -11,4 +11,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Delete merged feature/bugfix branch
-        run: gh branch delete "${{ github.event.pull_request.head.ref }}" --force || echo "Branch already deleted or not found"
+        run: gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/${{ github.event.pull_request.head.ref }} || echo "Branch already deleted or not found"
