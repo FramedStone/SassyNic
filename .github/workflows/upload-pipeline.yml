@@ -1,0 +1,165 @@
+name: Upload Pipeline
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [main]
+
+jobs:
+  generate-release:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Create Release with Auto-Generated Notes
+        run: |
+          VERSION=${{ github.event.pull_request.head.ref }}
+          VERSION=${VERSION#release/}
+          gh release create $VERSION --generate-notes --title "Release $VERSION"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  upload-addon-firefox:
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    outputs:
+      student_ipfs: ${{ steps.upload_student.outputs.hash }}
+      universal_ipfs: ${{ steps.upload_universal.outputs.hash }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changed directories
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            student:
+              - 'SassyNic-Student/**'
+            universal:
+              - 'SassyNic-Universal/**'
+
+      - name: Prepare Firefox Student Extension
+        if: steps.changes.outputs.student == 'true'
+        run: |
+          cp -r SassyNic-Student SassyNic-Student-Firefox
+          find SassyNic-Student-Firefox -type f -exec sed -i 's/chrome/browser/g' {} \;
+
+      - name: Prepare Firefox Universal Extension
+        if: steps.changes.outputs.universal == 'true'
+        run: |
+          cp -r SassyNic-Universal SassyNic-Universal-Firefox
+          find SassyNic-Universal-Firefox -type f -exec sed -i 's/chrome/browser/g' {} \;
+
+      - name: Zip Student Firefox Extension
+        if: steps.changes.outputs.student == 'true'
+        run: zip -r SassyNic-Student-Firefox.xpi SassyNic-Student-Firefox/
+
+      - name: Zip Universal Firefox Extension
+        if: steps.changes.outputs.universal == 'true'
+        run: zip -r SassyNic-Universal-Firefox.xpi SassyNic-Universal-Firefox/
+
+      - name: Upload Student .xpi to Pinata IPFS
+        if: steps.changes.outputs.student == 'true'
+        uses: aquiladev/ipfs-action@master
+        id: upload_student
+        with:
+          path: ./SassyNic-Student-Firefox.xpi
+          service: pinata
+          pinataKey: ${{ secrets.PINATA_API_KEY }}
+          pinataSecret: ${{ secrets.PINATA_SECRET }}
+          pinName: 'SassyNic-Student-Firefox-${{ github.event.pull_request.head.ref }}'
+
+      - name: Upload Universal .xpi to Pinata IPFS
+        if: steps.changes.outputs.universal == 'true'
+        uses: aquiladev/ipfs-action@master
+        id: upload_universal
+        with:
+          path: ./SassyNic-Universal-Firefox.xpi
+          service: pinata
+          pinataKey: ${{ secrets.PINATA_API_KEY }}
+          pinataSecret: ${{ secrets.PINATA_SECRET }}
+          pinName: 'SassyNic-Universal-Firefox-${{ github.event.pull_request.head.ref }}'
+
+      - name: Checkout Wiki
+        uses: actions/checkout@v4
+        with:
+          repository: ${{ github.repository }}.wiki
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Wiki Installation Page
+        run: |
+          cd wiki
+          if [ ! -f "Installation.md" ]; then
+            echo "# Installation" > Installation.md
+          fi
+          # Append new table rows for Firefox .xpi
+          if [ "${{ steps.changes.outputs.student }}" == "true" ]; then
+            echo "| v${{ steps.get_student_version.outputs.version }} | [link](https://ipfs.io/ipfs/${{ steps.upload_student.outputs.hash }}) |" >> Installation.md
+          fi
+          if [ "${{ steps.changes.outputs.universal }}" == "true" ]; then
+            echo "| v${{ steps.get_universal_version.outputs.version }} | [link](https://ipfs.io/ipfs/${{ steps.upload_universal.outputs.hash }}) |" >> Installation.md
+          fi
+          git config user.name "SassyNic-git-flow[bot]"
+          git config user.email "SassyNic@bot.github.com"
+          git add Installation.md
+          git commit -m "Update Firefox extension links [auto]" || echo "No changes to commit"
+          git push
+
+  upload-extension-chrome:
+    needs: generate-release
+    if: github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref, 'release/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for changed directories
+        uses: dorny/paths-filter@v3
+        id: changes
+        with:
+          filters: |
+            student:
+              - 'SassyNic-Student/**'
+            universal:
+              - 'SassyNic-Universal/**'
+
+      - name: Zip Student Extension
+        if: steps.changes.outputs.student == 'true'
+        run: zip -r SassyNic-Student.zip SassyNic-Student/
+
+      - name: Zip Universal Extension
+        if: steps.changes.outputs.universal == 'true'
+        run: zip -r SassyNic-Universal.zip SassyNic-Universal/
+
+      - name: Publish/Draft Student Extension
+        if: steps.changes.outputs.student == 'true'
+        uses: MobileFirstLLC/cws-publish@v1
+        with:
+          action: 'upload'
+          client_id: ${{ secrets.CWS_CLIENT_ID }}
+          client_secret: ${{ secrets.CWS_CLIENT_SECRET }}
+          refresh_token: ${{ secrets.CWS_REFRESH_TOKEN }}
+          extension_id: ${{ secrets.EXTENSION_ID_STUDENT }}
+          zip_file: SassyNic-Student.zip
+
+      - name: Publish/Draft Universal Extension
+        if: steps.changes.outputs.universal == 'true'
+        uses: MobileFirstLLC/cws-publish@v1
+        with:
+          action: 'upload'
+          client_id: ${{ secrets.CWS_CLIENT_ID }}
+          client_secret: ${{ secrets.CWS_CLIENT_SECRET }}
+          refresh_token: ${{ secrets.CWS_REFRESH_TOKEN }}
+          extension_id: ${{ secrets.EXTENSION_ID_UNIVERSAL }}
+          zip_file: SassyNic-Universal.zip

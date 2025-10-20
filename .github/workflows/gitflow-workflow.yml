@@ -1,13 +1,24 @@
-name: GitFlow Auto Merge (main --> develop)
+name: GitFlow Workflow
 
 on:
   pull_request:
     types: [closed]
-    branches: [main]
+    branches: [develop, main]
 
 jobs:
+  delete-feature-branch:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (startsWith(github.event.pull_request.head.ref, 'feat/') || startsWith(github.event.pull_request.head.ref, 'bugfix/'))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Delete merged feature/bugfix branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api -X DELETE repos/${{ github.repository }}/git/refs/heads/${{ github.event.pull_request.head.ref }} || echo "Branch already deleted or not found"
+
   sync-main-to-develop:
-    if: github.event.pull_request.merged == true
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     permissions:
       contents: write
