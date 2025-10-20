@@ -123,10 +123,13 @@ chrome.runtime.sendMessage({ action: 'timetablejsInjected' });
     // Listen message from background.js
     let datasetChunks = [];
     let expectedChunks = null;
+    let clicTabId; // for enrollment step
 
     const getDataset = new Promise((resolve) => {
       chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (message.action === 'passDataset') {
+          clicTabId = message.tabId;
+
           // Update extracted term
           document.getElementById('extractedTerm').textContent = `Extracted Term: ${message.term}`;
 
@@ -218,7 +221,7 @@ chrome.runtime.sendMessage({ action: 'timetablejsInjected' });
     let isAvailable = true;
 
     const dataset_ = getAvailableSets();
-    table.getTable(dataset_);
+    table.getTable(dataset_, clicTabId);
 
     // ---------------------- DISPLAYING OPTION ------------------------------//
     // Prune dataset based on Displaying Option

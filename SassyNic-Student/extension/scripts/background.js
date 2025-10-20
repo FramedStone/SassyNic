@@ -1,4 +1,4 @@
-import { getActiveTabId, onTabUpdated, getError } from './helpers/utils.js';
+import { getActiveTabId, onTabUpdated, getError, getCurrentTab } from './helpers/utils.js';
 import { pruneSchedule } from './helpers/constraints.js';
 
 // Navigate to 'SassyNic' github wiki on installed
@@ -246,26 +246,30 @@ chrome.runtime.onMessage.addListener((message) => {
       // Passing pruned combination to 'timetable.html' in chunks
       const extractedTerm = message.term;
 
-      chrome.tabs.create(
-        { url: chrome.runtime.getURL('extension/timetable/timetable.html') },
-        (newTab) => {
-          const tabId = newTab.id;
-          const listener = (msg, sender, sendResponse) => {
-            if (msg.action === 'timetablejsInjected' && sender.tab?.id === tabId) {
-              sendLargeDataset(prunedComb, tabId, extractedTerm);
-              chrome.runtime.onMessage.removeListener(listener);
-            }
-            return true;
-          };
-          chrome.runtime.onMessage.addListener(listener);
-        }
-      );
+      // Get CLiC's tabId (for enrollment step)
+      getCurrentTab().then((tab) => {
+        console.log("CLiC tabId", tab.id);
+        chrome.tabs.create(
+          { url: chrome.runtime.getURL('extension/timetable/timetable.html') },
+          (newTab) => {
+            const tabId = newTab.id;
+            const listener = (msg, sender, sendResponse) => {
+              if (msg.action === 'timetablejsInjected' && sender.tab?.id === tabId) {
+                sendLargeDataset(prunedComb, tabId, extractedTerm, tab.id);
+                chrome.runtime.onMessage.removeListener(listener);
+              }
+              return true;
+            };
+            chrome.runtime.onMessage.addListener(listener);
+          }
+        );
+      });
 
       /**
        * Function that will split dataset into chunks accordingly
        * @param {Object} prunedComb
        */
-      function sendLargeDataset(prunedComb, targetTabId, term) {
+      function sendLargeDataset(prunedComb, targetTabId, term, tabIdForDataset) {
         let datasetStr = JSON.stringify(prunedComb);
         const chunkSize = 1000000;
         const totalChunks = Math.ceil(datasetStr.length / chunkSize);
@@ -281,6 +285,7 @@ chrome.runtime.onMessage.addListener((message) => {
               index: i,
               total: totalChunks,
               term: term,
+              tabId: tabIdForDataset,
             },
             (response) => {
               console.log(`Chunk ${i} sent with status: ${response?.status}`);

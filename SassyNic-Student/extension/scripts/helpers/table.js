@@ -1,4 +1,4 @@
-export function getTable(dataset) {
+export function getTable(dataset, clicTabId) {
   return new Promise((resolve, reject) => {
     let currentCombinationIndex = 0;
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -185,7 +185,7 @@ export function getTable(dataset) {
                             ${optionsHTML}
                         </div>
                         <div class="modal-footer">
-                            <button id="btnManualEnroll" disabled>Manual Enroll (m)</button>
+                            <button id="btnManualEnroll">Manual Enroll (m)</button>
                             <button id="btnAutoEnroll" disabled>Auto Enroll (a)</button>
                         </div>
                     </div>
@@ -214,6 +214,9 @@ export function getTable(dataset) {
         const soundboard = document.getElementById('manual-enroll');
         soundboard.play();
         bgm.pause();
+        if (clicTabId) {
+          chrome.tabs.update(clicTabId, { active: true });
+        }
       });
 
       // Auto Enroll
@@ -223,6 +226,9 @@ export function getTable(dataset) {
         const soundboard = document.getElementById('auto-enroll');
         soundboard.play();
         bgm.pause();
+        if (clicTabId) {
+          chrome.tabs.update(clicTabId, { active: true });
+        }
       });
 
       // Keyboard event listeners
