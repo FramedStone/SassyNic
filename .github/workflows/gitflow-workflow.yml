@@ -6,8 +6,8 @@ on:
     branches: [develop, main]
 
 jobs:
-  delete-feature-branch:
-    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (startsWith(github.event.pull_request.head.ref, 'feat/') || startsWith(github.event.pull_request.head.ref, 'bugfix/'))
+  delete-branch:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'develop' && (startsWith(github.event.pull_request.head.ref, 'feat/') || startsWith(github.event.pull_request.head.ref, 'bugfix/')) || startsWith(github.event.pull_request.head.ref, 'refac/'))
     runs-on: ubuntu-latest
     permissions:
       contents: write
