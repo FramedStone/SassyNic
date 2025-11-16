@@ -7,6 +7,90 @@ import { pruneSchedule } from './helpers/constraints.js';
 //     chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic' });
 // });
 
+// -------------------------------------------- WebRequest Listeners -----------------------------------------------------//
+/**
+ * Intercepts GET requests containing CRSE_ID & CRSE_OFFER_NBR parameter and fetches course information
+ */
+// Track processed CRSE_IDs to prevent infinite loops
+const processedCourses = new Set();
+
+chrome.webRequest.onBeforeRequest.addListener(
+  function(details) {
+    // Retrieve enablePreviewExtraction, STRM, INSTITUTION, and extraction context from storage
+    chrome.storage.local.get(['enablePreviewExtraction', 'STRM', 'INSTITUTION', 'ACAD_CAREER', 'currentIndex'], function(result) {
+      try {
+        if (result.enablePreviewExtraction) {
+
+          // Parse the URL to extract query parameters
+          const url = new URL(details.url);
+          const crseId = url.searchParams.get('CRSE_ID');
+          const crseOfferNbr = url.searchParams.get('CRSE_OFFER_NBR');
+
+          // Create unique key for this course
+          const courseKey = `${crseId}_${crseOfferNbr}`;
+
+          // Skip if already processed recently
+          if (processedCourses.has(courseKey)) {
+            return;
+          }
+
+          if (crseId && crseOfferNbr) {
+            // Mark as processed to prevent duplicate fetches
+            processedCourses.add(courseKey);
+
+            // Only execute fetch if preview extraction is enabled
+            if (!result.enablePreviewExtraction) {
+              console.log('Preview extraction is disabled, skipping fetch');
+              return;
+            }
+
+            console.log('Preview extraction is enabled, proceeding with fetch');
+            const strm = result.STRM;
+            const institution = result.INSTITUTION || 'MMU01';
+            const acadCareer = result.ACAD_CAREER || 'DIPL';
+            const index = result.currentIndex;
+
+            const fetchUrl = `https://clic.mmu.edu.my/psc/csprd_1/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_CRSE_INFO_FL.GBL?Page=SSR_CRSE_INFO_FL&Action=U&ACAD_CAREER=${acadCareer}&CRSE_ID=${crseId}&CRSE_OFFER_NBR=${crseOfferNbr}&INSTITUTION=${institution}&STRM=${strm}&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20`;
+
+            fetch(fetchUrl, {
+              method: 'GET',
+              credentials: 'include', // Include cookies for authentication
+              headers: {
+                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+              },
+            })
+              .then((response) => {
+                console.log('Fetch response status:', response.status);
+                return response.text();
+              })
+              .then((data) => {
+                // Send the fetched data to extraction.js for processing
+                chrome.tabs.sendMessage(details.tabId, {
+                  action: 'extractClassDetails_',
+                  extractionDataPreview: data,
+                  crseId: crseId,
+                  crseOfferNbr: crseOfferNbr,
+                  index: index,
+                  tabId: details.tabId,
+                });
+                console.log('extractClassDetails_ sent to extraction.js with preview data');
+              })
+              .catch((error) => {
+                console.error('Error fetching course info:', error);
+              });
+          }
+        }
+      } catch (error) {
+        console.error('Error parsing CRSE_ID from URL:', error);
+      }
+    });
+  },
+  {
+    urls: ['*://*.mmu.edu.my/*'],
+    types: ['main_frame', 'sub_frame', 'xmlhttprequest'],
+  }
+);
+
 // -------------------------------------------- extraction.js & auto_enrollment.js -----------------------------------------------------//
 chrome.runtime.onMessage.addListener((message) => {
   // Timetable
@@ -22,6 +106,7 @@ chrome.runtime.onMessage.addListener((message) => {
             term: message.term,
             index: 0,
             tabId: tabId,
+            isPreview: message.isPreview,
           },
           (response) => {
             if (response && response.status === 'error') {
@@ -41,13 +126,18 @@ chrome.runtime.onMessage.addListener((message) => {
 
     onTabUpdated(message.tabId, (tabId) => {
       if (tabId !== null) {
-        chrome.tabs.sendMessage(message.tabId, {
-          action: 'viewClasses_',
-          term: message.term,
-          index: message.index,
-          tabId: message.tabId,
+        if (message.isPreview == false) {
+          chrome.tabs.sendMessage(message.tabId, {
+            action: 'viewClasses_',
+            term: message.term,
+            index: message.index,
+            tabId: message.tabId,
+          });
+          console.log('viewClasses sent to extraction.js');
+        }
+        chrome.storage.local.set({
+          currentIndex: message.index
         });
-        console.log('viewClasses sent to extraction.js');
 
         // Update timetable process indicator content(s)
         chrome.runtime
@@ -165,7 +255,17 @@ chrome.runtime.onMessage.addListener((message) => {
       })
       .then(() => {
         onTabUpdated(message.tabId, (tabId) => {
-          if (tabId !== null) {
+          if (message.crseId) {
+            let index = message.index + 1; // Increment index to move to the next course
+            chrome.tabs.sendMessage(message.tabId, {
+              action: 'startExtraction_',
+              term: message.term,
+              index: index,
+              tabId: message.tabId,
+            });
+            console.log('startExtraction_ sent to extraction.js with index: ', index);
+          }
+          else if (tabId !== null) {
             chrome.scripting
               .executeScript({
                 target: { tabId: message.tabId },
@@ -228,7 +328,18 @@ chrome.runtime.onMessage.addListener((message) => {
      * dataset ->
      */
 
-    chrome.storage.local.get(null, function (items) {
+    // Clear processedCourses Set
+    processedCourses.clear();
+
+    // Clear currentIndex and disable preview extraction
+    chrome.storage.local.set({
+      currentIndex: 0,
+      enablePreviewExtraction: false
+    }, function() {
+      console.log('Cleared currentIndex and disabled preview extraction');
+    });
+
+    chrome.storage.local.get(null, function(items) {
       const courseItems = {};
       Object.keys(items).forEach((key) => {
         if (key.startsWith('COURSE_')) {

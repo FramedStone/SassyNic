@@ -4,7 +4,7 @@
   "name": "SassyNic - Student",
   "version": "3.5.6",
   "description": "Extract class details from CliC, generate possible timetable combinations and auto enrollment.",
-  "permissions": ["activeTab", "scripting", "storage", "windows"],
+  "permissions": ["activeTab", "scripting", "storage", "windows", "cookies", "webRequest"],
   "icons": {
     "16": "extension/images/icon/icon16.png",
     "32": "extension/images/icon/icon32.png",
@@ -29,7 +29,7 @@
       "run_at": "document_idle"
     }
   ],
-  "host_permissions": ["https://clic.mmu.edu.my/*"],
+  "host_permissions": ["https://*.mmu.edu.my/*"],
   "web_accessible_resources": [
     {
       "resources": ["./extension/timetable/timetable.html", "./extension/timetable/timetable.js"],

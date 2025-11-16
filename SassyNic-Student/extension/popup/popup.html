@@ -30,6 +30,65 @@
         <button id="btnFeedback">Feedback Form</button>
         <br /><br />
 
+        <!-- Timetable Tools (Preview) -->
+        <details class="dropdown">
+          <summary>Timetable (Preview)</summary>
+          
+          <!-- Configuration Section -->
+          <div class="dropdown-content config-section">
+            <label for="inputSTRM">TERM:</label>
+            <input type="number" id="inputSTRM" placeholder="e.g., 2530" />
+            
+            <label class="institution-label">Institution:</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="institution" value="MMU01" id="radioMMU01" checked />
+                <span>CYBERJAYA</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="institution" value="MMU02" id="radioMMU02" />
+                <span>MELAKA(TBU)</span>
+              </label>
+            </div>
+
+            <br/>
+
+            <label class="institution-label">Academic Level:</label>
+            <div class="radio-group">
+              <label class="radio-label">
+                <input type="radio" name="acadCareer" value="DIPL" id="radioDIPL" checked />
+                <span>DIPLOMA</span>
+              </label>
+              <label class="radio-label">
+                <input type="radio" name="acadCareer" value="DEGREE" id="radioDEGREE" />
+                <span>DEGREE(TBU)</span>
+              </label>
+            </div>
+          </div>
+          
+          <div class="dropdown-content">
+            <button id="btnTutorialTimetablePreview">Tutorial</button>
+          </div>
+
+          <div class="dropdown-content">
+            <button id="btnExtractionPreview">Start Extraction</button>
+          </div>
+
+          <div class="dropdown-content">
+            <span id="extracting-term-preview"
+              >Extracting Term: <span id="extracting-term-content-preview"></span
+            ></span>
+            <br /><br />
+            <span id="subjects-total-preview"
+              >Subjects Total: <span id="subject-total-content-preview"></span
+            ></span>
+            <br /><br />
+            <span id="extracting-subject-preview"
+              >Extracting Subject: <br /><span id="extracting-subject-content-preview"></span
+            ></span>
+          </div>
+        </details>
+
         <!-- Timetable Tools -->
         <details class="dropdown">
           <summary>Timetable</summary>
