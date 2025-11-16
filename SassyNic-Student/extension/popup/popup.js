@@ -91,8 +91,13 @@ document.addEventListener('DOMContentLoaded', function() {
   // ---------------------- TIMETABLE ----------------------------------------//
   // Start Extraction
   document.getElementById('btnExtraction').addEventListener('click', () => {
+    // Save enablePreviewExtraction to storage
+    chrome.storage.local.set({ enablePreviewExtraction: false }, function() {
+      console.log('enablePreviewExtraction set to false');
+    });
+
     // send message to background.js to start extraction
-    chrome.runtime.sendMessage({ action: 'startExtraction' });
+    chrome.runtime.sendMessage({ action: 'startExtraction', isPreview: false });
   });
 
   // Start Extraction (Preview)
@@ -101,7 +106,7 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.storage.local.set({ enablePreviewExtraction: true }, function() {
       console.log('enablePreviewExtraction set to true');
     });
-    
+
     // send message to background.js to start extraction
     chrome.runtime.sendMessage({ action: 'startExtraction', isPreview: true });
   });
