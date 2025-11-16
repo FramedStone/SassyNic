@@ -34,6 +34,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           dataset: message.dataset,
           subjectTotal: subjectTotal,
           extractingSubject: subjectTitle,
+          isPreview: message.isPreview,
         });
       } else {
         alert(
