@@ -8,82 +8,9 @@ import { pruneSchedule } from './helpers/constraints.js';
 // });
 
 // -------------------------------------------- WebRequest Listeners -----------------------------------------------------//
-/**
- * Intercepts GET requests containing CRSE_ID & CRSE_OFFER_NBR parameter and fetches course information
- */
-// Track processed CRSE_IDs to prevent infinite loops
-const processedCourses = new Set();
-
 chrome.webRequest.onBeforeRequest.addListener(
-  function(details) {
-    // Retrieve enablePreviewExtraction, STRM, INSTITUTION, and extraction context from storage
-    chrome.storage.local.get(['enablePreviewExtraction', 'STRM', 'INSTITUTION', 'ACAD_CAREER', 'currentIndex'], function(result) {
-      try {
-        if (result.enablePreviewExtraction) {
-
-          // Parse the URL to extract query parameters
-          const url = new URL(details.url);
-          const crseId = url.searchParams.get('CRSE_ID');
-          const crseOfferNbr = url.searchParams.get('CRSE_OFFER_NBR');
-
-          // Create unique key for this course
-          const courseKey = `${crseId}_${crseOfferNbr}`;
-
-          // Skip if already processed recently
-          if (processedCourses.has(courseKey)) {
-            return;
-          }
-
-          if (crseId && crseOfferNbr) {
-            // Mark as processed to prevent duplicate fetches
-            processedCourses.add(courseKey);
-
-            // Only execute fetch if preview extraction is enabled
-            if (!result.enablePreviewExtraction) {
-              console.log('Preview extraction is disabled, skipping fetch');
-              return;
-            }
-
-            console.log('Preview extraction is enabled, proceeding with fetch');
-            const strm = result.STRM;
-            const institution = result.INSTITUTION || 'MMU01';
-            const acadCareer = result.ACAD_CAREER || 'DIPL';
-            const index = result.currentIndex;
-
-            const fetchUrl = `https://clic.mmu.edu.my/psc/csprd_1/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_CRSE_INFO_FL.GBL?Page=SSR_CRSE_INFO_FL&Action=U&ACAD_CAREER=${acadCareer}&CRSE_ID=${crseId}&CRSE_OFFER_NBR=${crseOfferNbr}&INSTITUTION=${institution}&STRM=${strm}&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20`;
-
-            fetch(fetchUrl, {
-              method: 'GET',
-              credentials: 'include', // Include cookies for authentication
-              headers: {
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-              },
-            })
-              .then((response) => {
-                console.log('Fetch response status:', response.status);
-                return response.text();
-              })
-              .then((data) => {
-                // Send the fetched data to extraction.js for processing
-                chrome.tabs.sendMessage(details.tabId, {
-                  action: 'extractClassDetails_',
-                  extractionDataPreview: data,
-                  crseId: crseId,
-                  crseOfferNbr: crseOfferNbr,
-                  index: index,
-                  tabId: details.tabId,
-                });
-                console.log('extractClassDetails_ sent to extraction.js with preview data');
-              })
-              .catch((error) => {
-                console.error('Error fetching course info:', error);
-              });
-          }
-        }
-      } catch (error) {
-        console.error('Error parsing CRSE_ID from URL:', error);
-      }
-    });
+  function (details) {
+    console.log(details);
   },
   {
     urls: ['*://*.mmu.edu.my/*'],
@@ -93,236 +20,6 @@ chrome.webRequest.onBeforeRequest.addListener(
 
 // -------------------------------------------- extraction.js & auto_enrollment.js -----------------------------------------------------//
 chrome.runtime.onMessage.addListener((message) => {
-  // Timetable
-  if (message.action === 'startExtraction') {
-    console.log(message);
-
-    getActiveTabId((tabId) => {
-      if (tabId !== null) {
-        chrome.tabs.sendMessage(
-          tabId,
-          {
-            action: 'startExtraction_',
-            term: message.term,
-            index: 0,
-            tabId: tabId,
-            isPreview: message.isPreview,
-          },
-          (response) => {
-            if (response && response.status === 'error') {
-              getError(response.code);
-            }
-          }
-        );
-        console.log('startExtraction_ sent to extraction.js');
-      } else {
-        console.log('No active tab found!');
-      }
-    });
-  }
-
-  if (message.action === 'selectedCourse') {
-    console.log(message);
-
-    onTabUpdated(message.tabId, (tabId) => {
-      if (tabId !== null) {
-        if (message.isPreview == false) {
-          chrome.tabs.sendMessage(message.tabId, {
-            action: 'viewClasses_',
-            term: message.term,
-            index: message.index,
-            tabId: message.tabId,
-          });
-          console.log('viewClasses sent to extraction.js');
-        }
-        chrome.storage.local.set({
-          currentIndex: message.index
-        });
-
-        // Update timetable process indicator content(s)
-        chrome.runtime
-          .sendMessage({
-            action: 'updateTimetableProcessIndicator',
-            extractingTerm: message.term,
-            subjectTotal: message.subjectTotal,
-            extractingSubject: message.extractingSubject,
-            currentIndex: message.index + 1,
-          })
-          .then(() => {
-            console.log('updateTimetableIndicator sent to popup.js');
-          });
-      } else {
-        console.log('No active tab found!');
-      }
-    });
-  }
-
-  if (message.action === 'viewClasses') {
-    console.log(message);
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId: message.tabId },
-        world: 'MAIN',
-        func: () => {
-          document.querySelector('div.ps_box-button.psc_primary span a').click();
-        },
-      })
-      .then(() => {
-        onTabUpdated(message.tabId, (tabId) => {
-          if (tabId !== null) {
-            chrome.tabs.sendMessage(
-              message.tabId,
-              {
-                action: 'selectTerm_',
-                term: message.term,
-                index: message.index,
-                tabId: message.tabId,
-              },
-              (response) => {
-                if (response && response.status === 'error') {
-                  getError(response.code);
-                }
-              }
-            );
-            console.log('selectTerm_ sent to extraction.js');
-          } else {
-            console.log('No active tab found!');
-          }
-        });
-      });
-  }
-
-  if (message.action === 'selectTerm') {
-    console.log(message);
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId: message.tabId },
-        world: 'MAIN',
-        func: (term) => {
-          Array.from(
-            document.querySelectorAll(
-              'td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link'
-            )
-          )
-            .find(
-              (el) =>
-                el.textContent
-                  .trim()
-                  .replace(/\s*\/\s*/g, '/')
-                  .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2')
-                  .trim() === term
-            )
-            .click();
-        },
-        args: [message.term],
-      })
-      .then(() => {
-        onTabUpdated(message.tabId, (tabId) => {
-          if (tabId !== null) {
-            chrome.tabs.sendMessage(message.tabId, {
-              action: 'extractClassDetails_',
-              term: message.term,
-              index: message.index,
-              tabId: message.tabId,
-            });
-            console.log('extractClassDetails_ sent to extraction.js');
-          } else {
-            console.log('No active tab found!');
-          }
-        });
-      });
-  }
-
-  if (message.action === 'extractClassDetails') {
-    console.log(message);
-    const key = 'COURSE_' + message.title;
-
-    // Put dataset into chrome storage with key + message.title
-    chrome.storage.local.set({ [key]: message.dataset }, () => {
-      console.log('Dataset saved to storage: ', message.title);
-      console.log(message.dataset);
-    });
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId: message.tabId },
-        world: 'MAIN',
-        func: () => {
-          window.history.back();
-        },
-      })
-      .then(() => {
-        onTabUpdated(message.tabId, (tabId) => {
-          if (message.crseId) {
-            let index = message.index + 1; // Increment index to move to the next course
-            chrome.tabs.sendMessage(message.tabId, {
-              action: 'startExtraction_',
-              term: message.term,
-              index: index,
-              tabId: message.tabId,
-            });
-            console.log('startExtraction_ sent to extraction.js with index: ', index);
-          }
-          else if (tabId !== null) {
-            chrome.scripting
-              .executeScript({
-                target: { tabId: message.tabId },
-                world: 'MAIN',
-                func: () => {
-                  const waitForElement = ({ selector, method = 'querySelectorAll' }) => {
-                    return new Promise((resolve) => {
-                      const observer = new MutationObserver(() => {
-                        const elements = document[method](selector);
-                        if (elements && (elements.length || elements)) {
-                          observer.disconnect(); // Stop observing once the element is found
-                          resolve(elements);
-                        }
-                      });
-
-                      // Observe changes in the entire document
-                      observer.observe(document.body, {
-                        childList: true,
-                        subtree: true,
-                      });
-                    });
-                  };
-
-                  waitForElement({
-                    selector: 'div.ps_box-button.psc_primary span a',
-                    method: 'querySelector',
-                    attributes: {
-                      onclick: true,
-                    },
-                  }).then(() => {
-                    window.history.back();
-                  });
-                },
-              })
-              .then(() => {
-                let index = message.index + 1; // Increment index to move to the next course
-                onTabUpdated(message.tabId, (tabId) => {
-                  if (tabId !== null) {
-                    chrome.tabs.sendMessage(message.tabId, {
-                      action: 'startExtraction_',
-                      term: message.term,
-                      index: index,
-                      tabId: message.tabId,
-                    });
-                    console.log('startExtraction_ sent to extraction.js with index: ', index);
-                  } else {
-                    console.log('No active tab found!');
-                  }
-                });
-              });
-          } else {
-            console.log('No active tab found!');
-          }
-        });
-      });
-  }
-
   if (message.action === 'extractionCompleted') {
     /**
      * dataset ->
@@ -332,14 +29,17 @@ chrome.runtime.onMessage.addListener((message) => {
     processedCourses.clear();
 
     // Clear currentIndex and disable preview extraction
-    chrome.storage.local.set({
-      currentIndex: 0,
-      enablePreviewExtraction: false
-    }, function() {
-      console.log('Cleared currentIndex and disabled preview extraction');
-    });
+    chrome.storage.local.set(
+      {
+        currentIndex: 0,
+        enablePreviewExtraction: false,
+      },
+      function () {
+        console.log('Cleared currentIndex and disabled preview extraction');
+      }
+    );
 
-    chrome.storage.local.get(null, function(items) {
+    chrome.storage.local.get(null, function (items) {
       const courseItems = {};
       Object.keys(items).forEach((key) => {
         if (key.startsWith('COURSE_')) {
@@ -482,6 +182,25 @@ chrome.runtime.onMessage.addListener((message) => {
 
       return final;
     }
+  }
+});
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'fetchTerms') {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (tabs[0]) {
+        chrome.tabs.sendMessage(tabs[0].id, { action: 'fetchTermsFromPage' }, (response) => {
+          sendResponse(response);
+        });
+      } else {
+        sendResponse({ status: 'error', message: 'No active tab found' });
+      }
+    });
+    return true;
+  }
+
+  if (message.action === 'termsExtracted') {
+    return true;
   }
 });
 

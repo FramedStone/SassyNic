@@ -1,57 +1,6 @@
-// wait for popup.html to be loaded
+let termsFetched = false;
+
 document.addEventListener('DOMContentLoaded', function() {
-  // Load saved STRM and INSTITUTION values
-  chrome.storage.local.get(['STRM', 'INSTITUTION', 'ACAD_CAREER'], function(result) {
-    if (result.STRM) {
-      document.getElementById('inputSTRM').value = result.STRM;
-    }
-    if (result.INSTITUTION) {
-      const institutionRadio = document.querySelector(`input[name="institution"][value="${result.INSTITUTION}"]`);
-      if (institutionRadio) {
-        institutionRadio.checked = true;
-      }
-    }
-    if (result.ACAD_CAREER) {
-      const acadCareerRadio = document.querySelector(`input[name="acadCareer"][value="${result.ACAD_CAREER}"]`);
-      if (acadCareerRadio) {
-        acadCareerRadio.checked = true;
-      }
-    }
-  });
-
-  // Save STRM when changed
-  document.getElementById('inputSTRM').addEventListener('input', function(e) {
-    const strm = e.target.value.trim();
-    chrome.storage.local.set({ STRM: strm }, function() {
-      console.log('STRM saved:', strm);
-    });
-  });
-
-  // Save INSTITUTION when changed
-  document.querySelectorAll('input[name="institution"]').forEach(function(radio) {
-    radio.addEventListener('change', function(e) {
-      if (e.target.checked) {
-        const institution = e.target.value;
-        chrome.storage.local.set({ INSTITUTION: institution }, function() {
-          console.log('INSTITUTION saved:', institution);
-        });
-      }
-    });
-  });
-
-  // Save ACAD_CAREER when changed
-  document.querySelectorAll('input[name="acadCareer"]').forEach(function(radio) {
-    radio.addEventListener('change', function(e) {
-      if (e.target.checked) {
-        const acadCareer = e.target.value;
-        chrome.storage.local.set({ ACAD_CAREER: acadCareer }, function() {
-          console.log('ACAD_CAREER saved:', acadCareer);
-        });
-      }
-    });
-  });
-
-  // ---------------------- USEFUL BUTTONS ----------------------------------------//
   document.getElementById('btnErrorCode').addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic/wiki/Error-Reference' });
   });
@@ -68,90 +17,52 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.create({ url: 'https://forms.gle/SUsghNXUKW1u1US5A' });
   });
 
-  // ---------------------- TUTORIAL(S) ----------------------------------------//
-  // Timetable
-  document.getElementById('btnTutorialTimetable').addEventListener('click', () => {
-    chrome.tabs.create({
-      url: 'https://github.com/FramedStone/SassyNic/wiki/Timetable-Tool-Tutorial',
-    });
-  });
+  const timetableDropdown = document.getElementById('timetableDropdown');
+  const termToExtractDropdown = document.getElementById('termToExtractDropdown');
 
-  // Timetable Tools (Preview)
-  document.getElementById('btnTutorialTimetablePreview').addEventListener('click', () => {
-    // TODO: tutorial
-  });
-
-  // Auto Subjects Grouping (ASG)
-  document.getElementById('btnTutorialASG').addEventListener('click', () => {
-    chrome.tabs.create({
-      url: 'https://github.com/FramedStone/SassyNic/wiki/Auto-Group-Subjects-Grouping-Tutorial',
-    });
-  });
-
-  // ---------------------- TIMETABLE ----------------------------------------//
-  // Start Extraction
-  document.getElementById('btnExtraction').addEventListener('click', () => {
-    // Save enablePreviewExtraction to storage
-    chrome.storage.local.set({ enablePreviewExtraction: false }, function() {
-      console.log('enablePreviewExtraction set to false');
-    });
-
-    // send message to background.js to start extraction
-    chrome.runtime.sendMessage({ action: 'startExtraction', isPreview: false });
-  });
-
-  // Start Extraction (Preview)
-  document.getElementById('btnExtractionPreview').addEventListener('click', () => {
-    // Save enablePreviewExtraction to storage
-    chrome.storage.local.set({ enablePreviewExtraction: true }, function() {
-      console.log('enablePreviewExtraction set to true');
-    });
-
-    // send message to background.js to start extraction
-    chrome.runtime.sendMessage({ action: 'startExtraction', isPreview: true });
-  });
-
-  // Receive message from 'background.js'
-  chrome.runtime.onMessage.addListener((message) => {
-    if (message.action === 'updateTimetableProcessIndicator') {
-      updateTimetableProcessIndicator(
-        message.extractingTerm,
-        message.subjectTotal,
-        message.extractingSubject,
-        message.currentIndex
-      );
+  termToExtractDropdown.addEventListener('toggle', function() {
+    if (this.open && !termsFetched) {
+      fetchTerms();
     }
   });
+});
 
-  // ---------------------- AUTO SUBJECTS GROUPING (ASG) ----------------------------------------//
-  // To 'Selected Term'
-  document.getElementById('btnToSelected').addEventListener('click', () => {
-    chrome.runtime.sendMessage({ action: 'AGS_Start' });
+function fetchTerms() {
+  chrome.runtime.sendMessage({ action: 'fetchTerms' }, (response) => {
+    if (response?.status === 'success') {
+      displayTerms(response.terms);
+    } else {
+      const termSelection = document.getElementById('termSelection');
+      termSelection.innerHTML =
+        '<p class="error-msg">Failed to load terms. Please refresh the page.</p>';
+    }
+  });
+}
+
+function displayTerms(terms) {
+  const termSelection = document.getElementById('termSelection');
+  termSelection.innerHTML = '';
+
+  if (!terms || terms.length === 0) {
+    termSelection.innerHTML = '<p class="error-msg">No terms available.</p>';
+    return;
+  }
+
+  terms.forEach((term, index) => {
+    const label = document.createElement('label');
+    label.className = 'term-option';
+
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'term';
+    radio.value = term.text;
+    radio.id = `term-${index}`;
+
+    label.setAttribute('data-id', term.id);
+    label.appendChild(radio);
+    label.appendChild(document.createTextNode(term.text));
+    termSelection.appendChild(label);
   });
 
-  /**
-   * Function that will update popup window's timetable process indicator accordingly
-   * @param {String} extractingTerm
-   * @param {String} subjectTotal
-   * @param {String} extractingSubject
-   * @param {String} currentIndex - Current Subject's index
-   */
-  function updateTimetableProcessIndicator(
-    extractingTerm = null,
-    subjectTotal = null,
-    extractingSubject = null,
-    currentIndex = null
-  ) {
-    // Update regular timetable indicators
-    document.getElementById('extracting-term-content').textContent = extractingTerm;
-    document.getElementById('subject-total-content').textContent = subjectTotal;
-    document.getElementById('extracting-subject-content').textContent =
-      `${currentIndex}. ${JSON.stringify(extractingSubject)}`;
-
-    // Also update preview indicators
-    document.getElementById('extracting-term-content-preview').textContent = extractingTerm;
-    document.getElementById('subject-total-content-preview').textContent = subjectTotal;
-    document.getElementById('extracting-subject-content-preview').textContent =
-      `${currentIndex}. ${JSON.stringify(extractingSubject)}`;
-  }
-});
+  termsFetched = true;
+}

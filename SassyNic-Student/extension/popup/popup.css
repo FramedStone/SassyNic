@@ -79,12 +79,13 @@ main {
 summary {
   font-weight: 500;
   cursor: pointer;
-  padding: 12px;
+  padding: 12px 12px 12px 32px;
   outline: none;
   color: var(--primary-color);
   background-color: var(--surface-color);
   transition: all 0.3s ease;
   position: relative;
+  list-style: none;
 }
 
 summary:hover {
@@ -95,6 +96,10 @@ summary::-webkit-details-marker {
   display: none;
 }
 
+summary::marker {
+  display: none;
+}
+
 summary::before {
   content: '▸';
   position: absolute;
@@ -102,10 +107,11 @@ summary::before {
   top: 50%;
   transform: translateY(-50%);
   transition: transform 0.3s ease;
+  font-size: 16px;
 }
 
-details[open] summary::before {
-  transform: translateY(-70%) rotate(90deg);
+details[open] > summary::before {
+  transform: translateY(-50%) rotate(90deg);
 }
 
 .dropdown-content {
@@ -115,10 +121,59 @@ details[open] summary::before {
   transition: all 0.3s ease;
 }
 
-details[open] .dropdown-content {
-  padding: 12px;
-  max-height: 200px;
+details[open] > .dropdown-content {
+  padding: 8px 12px 12px 8px;
+  max-height: none;
   opacity: 1;
+}
+
+.dropdown-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dropdown-content::-webkit-scrollbar-track {
+  background: var(--surface-color);
+  border-radius: 4px;
+}
+
+.dropdown-content::-webkit-scrollbar-thumb {
+  background: var(--primary-color);
+  border-radius: 4px;
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.5);
+}
+
+.dropdown-content::-webkit-scrollbar-thumb:hover {
+  background: var(--secondary-color);
+  box-shadow: 0 0 8px rgba(255, 0, 255, 0.6);
+}
+
+.nested-dropdown {
+  margin: 0;
+  border: 1px solid rgba(76, 201, 240, 0.5);
+}
+
+.nested-dropdown summary {
+  padding: 10px 12px 10px 28px;
+  font-size: 13px;
+}
+
+.nested-dropdown summary::before {
+  font-size: 14px;
+  left: 6px;
+}
+
+.nested-dropdown .dropdown-content {
+  padding: 0;
+  max-height: 0;
+  opacity: 0;
+}
+
+.nested-dropdown[open] > .dropdown-content {
+  padding: 8px 8px 8px 6px;
+  max-height: 180px;
+  opacity: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 button {
@@ -147,135 +202,72 @@ button:hover {
   font-size: 14px;
 }
 
-/* Toggle Button */
-.toggle-button {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 16px;
-  padding: 8px 12px;
-  background-color: var(--surface-color);
-  transition: all 0.3s ease;
-}
-
-.toggle-button label {
-  font-size: 14px;
-  font-weight: 400;
-  color: var(--primary-color);
-  text-shadow: 0 0 3px var(--primary-color);
-}
-
-/* Configuration Section */
-.config-section {
+.dropdown-content {
   padding: 12px;
-  background-color: rgba(76, 201, 240, 0.05);
-  border-radius: 6px;
-  margin: 8px 0;
 }
 
-.config-section label {
-  display: block;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--primary-color);
-  margin-bottom: 6px;
-  text-shadow: 0 0 3px var(--primary-color);
-}
-
-.config-section input[type="text"],
-.config-section input[type="number"] {
-  width: calc(100% - 24px);
-  padding: 8px 12px;
-  background-color: var(--surface-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 6px;
-  color: var(--primary-color);
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  margin-bottom: 12px;
-  outline: none;
-  transition: all 0.3s ease;
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
-}
-
-/* Remove number input spinner arrows */
-.config-section input[type="number"]::-webkit-inner-spin-button,
-.config-section input[type="number"]::-webkit-outer-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
-}
-
-.config-section input[type="number"] {
-  -moz-appearance: textfield;
-}
-
-.config-section input[type="text"]:focus,
-.config-section input[type="number"]:focus {
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
-  border-color: var(--secondary-color);
-}
-
-.config-section input[type="text"]::placeholder,
-.config-section input[type="number"]::placeholder {
-  color: rgba(0, 255, 255, 0.5);
-}
-
-.institution-label {
-  margin-top: 8px;
-}
-
-.radio-group {
-  display: flex;
-  gap: 12px;
-  margin-top: 6px;
-}
-
-.radio-label {
+.term-option {
   display: flex;
   align-items: center;
+  width: 100%;
+  padding: 6px 12px 6px 8px;
+  margin: 2px 0;
+  border-radius: 6px;
   cursor: pointer;
-  font-size: 13px;
-  color: var(--primary-color);
   transition: all 0.3s ease;
+  color: var(--text-color);
+  font-size: 14px;
 }
 
-.radio-label:hover {
-  text-shadow: 0 0 5px var(--primary-color);
+.term-option:hover {
+  background-color: rgba(76, 201, 240, 0.1);
+  box-shadow: 0 0 10px rgba(0, 255, 255, 0.2);
 }
 
-.radio-label input[type="radio"] {
+.term-option input[type='radio'] {
   appearance: none;
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
   border: 2px solid var(--primary-color);
   border-radius: 50%;
-  margin-right: 6px;
+  margin-right: 10px;
   cursor: pointer;
   position: relative;
   transition: all 0.3s ease;
-  box-shadow: 0 0 5px rgba(0, 255, 255, 0.2);
   flex-shrink: 0;
-  align-self: center;
 }
 
-.radio-label input[type="radio"]:checked {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 10px rgba(0, 255, 255, 0.4);
+.term-option input[type='radio']:checked {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
 }
 
-.radio-label input[type="radio"]:checked::before {
+.term-option input[type='radio']:checked::before {
   content: '';
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  background-color: var(--primary-color);
-  box-shadow: 0 0 8px var(--primary-color);
+  background-color: var(--secondary-color);
+  box-shadow: 0 0 5px var(--secondary-color);
 }
 
-.radio-label span {
-  user-select: none;
+.term-option input[type='radio']:hover {
+  border-color: var(--secondary-color);
+  box-shadow: 0 0 5px rgba(0, 255, 255, 0.3);
+}
+
+#termLoadingMsg,
+.error-msg {
+  text-align: center;
+  padding: 12px;
+  font-size: 14px;
+  color: var(--text-color);
+}
+
+.error-msg {
+  color: #ff6b6b;
 }
