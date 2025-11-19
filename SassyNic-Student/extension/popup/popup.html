@@ -9,6 +9,7 @@
       rel="stylesheet"
     />
   </head>
+
   <body>
     <div class="container">
       <header>
@@ -34,11 +35,9 @@
         <details class="dropdown" id="timetableDropdown">
           <summary>Timetable</summary>
           <div class="dropdown-content">
-            <details class="dropdown nested-dropdown" id="termToExtractDropdown">
-              <summary>Term to extract</summary>
-              <div class="dropdown-content" id="termSelection">
-                <p id="termLoadingMsg">Loading terms...</p>
-              </div>
+            <details class="dropdown" id="plannerDropdown">
+              <summary>Planner</summary>
+              <div class="dropdown-content" id="plannerDropdownContent"></div>
             </details>
           </div>
         </details>

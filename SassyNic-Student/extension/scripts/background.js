@@ -9,7 +9,7 @@ import { pruneSchedule } from './helpers/constraints.js';
 
 // -------------------------------------------- WebRequest Listeners -----------------------------------------------------//
 chrome.webRequest.onBeforeRequest.addListener(
-  function(details) {
+  function (details) {
     console.log(details);
   },
   {
@@ -19,187 +19,146 @@ chrome.webRequest.onBeforeRequest.addListener(
 );
 
 // -------------------------------------------- extraction.js & auto_enrollment.js -----------------------------------------------------//
-chrome.runtime.onMessage.addListener((message) => {
-  if (message.action === 'extractionCompleted') {
-    /**
-     * dataset ->
-     */
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'fetchPlanner') {
+    const url =
+      'https://clic.mmu.edu.my/psc/csprd_522/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL?Page=SSR_PLNR_TERM_FL&pslnkid=CS_SSR_PLANNER_FL_LINK&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20';
 
-    // Clear processedCourses Set
-    processedCourses.clear();
-
-    // Clear currentIndex and disable preview extraction
-    chrome.storage.local.set(
-      {
-        currentIndex: 0,
-        enablePreviewExtraction: false,
-      },
-      function() {
-        console.log('Cleared currentIndex and disabled preview extraction');
-      }
-    );
-
-    chrome.storage.local.get(null, function(items) {
-      const courseItems = {};
-      Object.keys(items).forEach((key) => {
-        if (key.startsWith('COURSE_')) {
-          courseItems[key] = items[key];
+    fetch(url)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
+        return response.text();
+      })
+      .then((html) => {
+        chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+          if (!tabs[0]) {
+            sendResponse({ error: 'No active tab found' });
+            return;
+          }
+
+          chrome.tabs.sendMessage(
+            tabs[0].id,
+            { action: 'extractPlanner', html: html },
+            (response) => {
+              if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError.message });
+              } else {
+                sendResponse(response);
+              }
+            }
+          );
+        });
+      })
+      .catch((error) => {
+        console.error('Error fetching planner:', error);
+        sendResponse({ error: error.message });
       });
 
-      let dataset = courseItems;
-      let pureComb = backtrack_(dataset);
-      let prunedComb = backtrack(dataset);
-      console.log('Dataset: ', dataset);
-      console.log('Pure backtracking result: ', pureComb);
-      console.log('Backtracking with daytime conflict + seats availability: ', prunedComb);
+    return true;
+  }
 
-      // Passing pruned combination to 'timetable.html' in chunks
-      const extractedTerm = message.term;
+  if (message.action === 'fetchPlannerDetail') {
+    fetchPlannerDetail(message.dataId);
+    return true;
+  }
+});
 
-      chrome.tabs.create(
-        { url: chrome.runtime.getURL('extension/timetable/timetable.html') },
-        (newTab) => {
-          const tabId = newTab.id;
-          const listener = (msg, sender, sendResponse) => {
-            if (msg.action === 'timetablejsInjected' && sender.tab?.id === tabId) {
-              sendLargeDataset(prunedComb, tabId, extractedTerm);
-              chrome.runtime.onMessage.removeListener(listener);
-            }
-            return true;
-          };
-          chrome.runtime.onMessage.addListener(listener);
-        }
-      );
+function fetchPlannerDetail(dataId) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs[0]) {
+      console.error('No active tab found for form data extraction');
+      return;
+    }
 
-      /**
-       * Function that will split dataset into chunks accordingly
-       * @param {Object} prunedComb
-       */
-      function sendLargeDataset(prunedComb, targetTabId, term) {
-        let datasetStr = JSON.stringify(prunedComb);
-        const chunkSize = 1000000;
-        const totalChunks = Math.ceil(datasetStr.length / chunkSize);
-        let chunksAcknowledged = 0;
+    const tabId = tabs[0].id;
 
-        for (let i = 0; i < totalChunks; i++) {
-          const chunk = datasetStr.slice(i * chunkSize, (i + 1) * chunkSize);
+    chrome.tabs.sendMessage(tabId, { action: 'getFormData' }, (formResponse) => {
+      if (chrome.runtime.lastError) {
+        console.error('Error getting form data:', chrome.runtime.lastError.message);
+        return;
+      }
+
+      const url =
+        'https://clic.mmu.edu.my/psc/csprd_1/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL';
+
+      const formData = new URLSearchParams();
+
+      if (formResponse?.success && formResponse?.formData) {
+        Object.entries(formResponse.formData).forEach(([key, value]) => {
+          formData.append(key, value);
+        });
+      }
+
+      if (formData.has('ICAction')) {
+        formData.set('ICAction', dataId);
+      } else {
+        formData.append('ICAction', dataId);
+      }
+
+      console.log('Sending POST request with ICAction:', dataId);
+      console.log('POST URL:', url);
+      console.log('POST Headers:', { 'Content-Type': 'application/x-www-form-urlencoded' });
+      console.log('POST Body:', formData.toString());
+
+      fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: formData.toString(),
+      })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then(() => {
+          const getUrl =
+            'https://clic.mmu.edu.my/psc/csprd_554/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL?Page=SSR_PLNR_ITEM_FL&Action=U&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20';
+
+          return fetch(getUrl);
+        })
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+          return response.text();
+        })
+        .then((html) => {
           chrome.tabs.sendMessage(
-            targetTabId,
+            tabId,
             {
-              action: 'passDataset',
-              chunk: chunk,
-              index: i,
-              total: totalChunks,
-              term: term,
+              action: 'extractElements',
+              html: html,
+              elementIds: [
+                'SSR_PLNR_FL_WRK_SSS_SUBJ_CATLG',
+                'SSR_PLNR_FL_WRK_SSR_CLASSNAME_LONG',
+                'SSR_PLNR_FL_WRK_UNITS_RANGE',
+              ],
             },
-            (response) => {
-              console.log(`Chunk ${i} sent with status: ${response?.status}`);
-              chunksAcknowledged++;
+            (extractResponse) => {
+              if (chrome.runtime.lastError) {
+                console.error('Error extracting elements:', chrome.runtime.lastError.message);
+                return;
+              }
 
-              // Clear all data after last chunk confirmation
-              if (chunksAcknowledged === totalChunks) {
-                // Clear chrome.storage
-                chrome.storage.local.get(null, (items) => {
-                  Object.keys(items).forEach((key) => {
-                    if (key.startsWith('COURSE_')) {
-                      chrome.storage.local.remove(key);
-                    }
-                  });
-                  console.log('Cleared all COURSE_ keys from storage');
-
-                  // Clear caches
-                  caches
-                    .keys()
-                    .then((cacheNames) => {
-                      return Promise.all(
-                        cacheNames.map((cacheName) => {
-                          if (cacheName.includes('timetable')) {
-                            console.log(`Clearing cache: ${cacheName}`);
-                            return caches.delete(cacheName);
-                          }
-                        })
-                      );
-                    })
-                    .then(() => {
-                      console.log('All timetable caches cleared');
-
-                      // Release memory references
-                      prunedComb = null;
-                      datasetStr = null;
-                      console.log('Memory references cleared');
-                    });
+              if (extractResponse?.success) {
+                console.log('Extracted courses:', extractResponse.courses);
+                chrome.runtime.sendMessage({
+                  action: 'displayCourses',
+                  dataId: dataId,
+                  courses: extractResponse.courses,
                 });
               }
             }
           );
-        }
-      }
-    });
-
-    // Pure Backtracking
-    function backtrack_(data, courses = Object.keys(data), current = [], final = []) {
-      // Exit factor
-      if (current.length === courses.length) {
-        final.push([...current]);
-        return;
-      }
-
-      const course = courses[current.length];
-      const options = data[course].class;
-      const title = data[course].title;
-      const code = data[course].code;
-
-      for (let option of options) {
-        current.push({ title: title, code: code, option });
-        backtrack_(data, courses, current, final, title);
-        current.pop(); // Backtrack
-      }
-
-      return final;
-    }
-
-    // Backtracking with daytime conflict, seats availability contraints
-    function backtrack(data, courses = Object.keys(data), current = [], final = []) {
-      // Exit factor
-      if (current.length === courses.length) {
-        if (!pruneSchedule(current)) {
-          final.push([...current]);
-        }
-        return;
-      }
-
-      const course = courses[current.length];
-      const options = data[course].class;
-      const title = data[course].title;
-      const code = data[course].code;
-
-      for (let option of options) {
-        current.push({ title, code, option });
-        backtrack(data, courses, current, final);
-        current.pop(); // Backtrack
-      }
-
-      return final;
-    }
-  }
-});
-
-chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'fetchTerms') {
-    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
-      if (tabs[0]) {
-        chrome.tabs.sendMessage(tabs[0].id, { action: 'fetchTermsFromPage' }, (response) => {
-          sendResponse(response);
+        })
+        .catch((error) => {
+          console.error('Error fetching planner detail:', error);
         });
-      } else {
-        sendResponse({ status: 'error', message: 'No active tab found' });
-      }
     });
-    return true;
-  }
-
-  if (message.action === 'termsExtracted') {
-    return true;
-  }
-});
+  });
+}
