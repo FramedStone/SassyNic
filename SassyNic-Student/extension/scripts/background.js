@@ -9,7 +9,7 @@ import { pruneSchedule } from './helpers/constraints.js';
 
 // -------------------------------------------- WebRequest Listeners -----------------------------------------------------//
 chrome.webRequest.onBeforeRequest.addListener(
-  function (details) {
+  function(details) {
     console.log(details);
   },
   {
@@ -34,12 +34,12 @@ chrome.runtime.onMessage.addListener((message) => {
         currentIndex: 0,
         enablePreviewExtraction: false,
       },
-      function () {
+      function() {
         console.log('Cleared currentIndex and disabled preview extraction');
       }
     );
 
-    chrome.storage.local.get(null, function (items) {
+    chrome.storage.local.get(null, function(items) {
       const courseItems = {};
       Object.keys(items).forEach((key) => {
         if (key.startsWith('COURSE_')) {
@@ -201,195 +201,5 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === 'termsExtracted') {
     return true;
-  }
-});
-
-// -------------------------------------------- auto_subjects_grouping.js -----------------------------------------------------//
-chrome.runtime.onMessage.addListener((message) => {
-  // To Selected Term
-  if (message.action === 'AGS_Start') {
-    console.log(message);
-
-    getActiveTabId((tabId) => {
-      if (tabId !== null) {
-        chrome.tabs.sendMessage(tabId, { action: 'AGS_Start_', termTo: null, tabId: tabId });
-        console.log('AGS_Start_ sent to auto_subjects_grouping.js');
-      } else {
-        console.log('No active tab found!');
-      }
-    });
-  }
-
-  if (message.action === 'AGS_MoveToTerm') {
-    console.log(message);
-
-    onTabUpdated(message.tabId, (tabId) => {
-      if (tabId !== null) {
-        chrome.tabs.sendMessage(tabId, {
-          action: 'AGS_MoveToTerm_',
-          termFrom: message.termFrom,
-          termTo: message.termTo,
-          tabId: tabId,
-        });
-        console.log('AGS_MoveToTerm_ sent to auto_subjects_grouping.js');
-      } else {
-        console.log('No active tab found!');
-      }
-    });
-  }
-
-  if (message.action == 'AGS_MoveToTerm_Click') {
-    console.log(message);
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId: message.tabId },
-        world: 'MAIN',
-        func: (termTo, AGS_Stop) => {
-          if (termTo === null) {
-            document.querySelector("span[title='Change to Term'] a").click();
-          } else {
-            const btnMoveToTerm = document.querySelector("span[title='Change to Term'] a");
-            if (btnMoveToTerm) {
-              btnMoveToTerm.click();
-            }
-
-            // Dynamic generated Iframe
-            function insertOption() {
-              const iframe = document.getElementById('ptModFrame_0');
-
-              if (iframe && iframe.contentWindow) {
-                const iframeDocument = iframe.contentWindow.document;
-
-                const options = iframeDocument.querySelectorAll('option');
-                options.forEach((option, index) => {
-                  // Unassigned case (option = Unassigned, label = Unassigned Courses), for some reason Unassigned !== Unassigned lolllll
-                  if (termTo.includes('Unassigned') && option.value === '----') {
-                    iframeDocument.querySelector('select').selectedIndex = index;
-                  } else if (option.textContent.trim() === termTo) {
-                    iframeDocument.querySelector('select').selectedIndex = index;
-                  }
-                  // Save button
-                  iframeDocument.getElementById('DERIVED_SSSPLNR_SSR_PB_GO').click();
-                });
-              }
-            }
-
-            const observer = new MutationObserver((mutationsList, observer) => {
-              mutationsList.forEach((mutation) => {
-                if (mutation.type === 'childList') {
-                  mutation.addedNodes.forEach((addedNode) => {
-                    if (addedNode.id === 'ptModFrame_0') {
-                      insertOption();
-                    }
-                  });
-                }
-
-                if (mutation.type === 'attributes' && mutation.target.id === 'ptModFrame_0') {
-                  insertOption();
-                }
-              });
-            });
-
-            const config = {
-              childList: true,
-              attributes: true,
-              subtree: true,
-            };
-
-            console.log(AGS_Stop);
-            if (!AGS_Stop) {
-              observer.observe(document.body, config);
-            } else {
-              observer.disconnect();
-              alert('done');
-            }
-          }
-        },
-        args: [message.termTo, message.AGS_Stop ? true : false],
-      })
-      .then(() => {
-        if (!message.AGS_Stop) {
-          chrome.tabs.sendMessage(message.tabId, {
-            action: 'AGS_MoveToTerm_Click_',
-            termFrom: message.termFrom,
-            termTo: message.termTo,
-            tabId: message.tabId,
-          });
-          console.log('AGS_MoveToTerm_Click_ sent to auto_subjects_grouping.js');
-        }
-      });
-  }
-
-  if (message.action === 'AGS_SelectTerm') {
-    console.log(message);
-
-    chrome.tabs.sendMessage(message.tabId, {
-      action: 'AGS_SelectTerm_',
-      termFrom: message.termFrom,
-      termTo: message.termTo,
-      tabId: message.tabId,
-    });
-    console.log('AGS_SelectTerm_ sent to auto_subjects_grouping.js');
-  }
-
-  if (message.action === 'AGS_SelectSubject') {
-    console.log(message);
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId: message.tabId },
-        world: 'MAIN',
-        func: (termFrom) => {
-          const terms = document.querySelectorAll("td[class='ps_grid-cell TERMS'] a");
-          terms.forEach((term) => {
-            if (term.textContent.trim() === termFrom) {
-              term.click();
-            }
-          });
-        },
-        args: [message.termFrom],
-      })
-      .then(() => {
-        onTabUpdated(message.tabId, (tabId) => {
-          if (tabId !== null) {
-            chrome.tabs.sendMessage(tabId, {
-              action: 'AGS_SelectSubject_',
-              termFrom: message.termFrom,
-              termTo: message.termTo,
-              tabId: tabId,
-            });
-            console.log('AGS_SelectSubject_ sent to auto_subjects_grouping.js');
-          } else {
-            console.log('No active tab found!');
-          }
-        });
-      });
-  }
-
-  if (message.action === 'AGS_SelectedTerm') {
-    console.log(message);
-
-    chrome.scripting
-      .executeScript({
-        target: { tabId: message.tabId },
-        world: 'MAIN',
-        func: () => {
-          // Get selected term
-          const termTo = document.getElementById('PANEL_TITLElbl').textContent.trim();
-
-          return termTo;
-        },
-      })
-      .then((termTo) => {
-        // It returns as an array with (documentId, frameId, result)
-        chrome.tabs.sendMessage(message.tabId, {
-          action: 'AGS_Start_',
-          termFrom: message.termFrom,
-          termTo: termTo[0].result,
-          tabId: message.tabId,
-        });
-        console.log('AGS_Start_ sent to auto_subjects_grouping.js');
-      });
   }
 });
