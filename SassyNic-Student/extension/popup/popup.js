@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', function () {
     chrome.tabs.create({ url: 'https://forms.gle/SUsghNXUKW1u1US5A' });
   });
 
+  const termToExtractDropdown = document.getElementById('termToExtractDropdown');
+  termToExtractDropdown.addEventListener('toggle', function () {
+    if (termToExtractDropdown.open) {
+      loadTermToExtract();
+    }
+  });
+
   const plannerDropdown = document.getElementById('plannerDropdown');
   plannerDropdown.addEventListener('toggle', function () {
     if (plannerDropdown.open) {
@@ -76,6 +83,45 @@ function loadPlannerOptions() {
   });
 }
 
+function loadTermToExtract() {
+  const dropdownContent = document.getElementById('termToExtractDropdownContent');
+  dropdownContent.innerHTML = '<p>Loading...</p>';
+
+  chrome.runtime.sendMessage({ action: 'fetchTermToExtract' }, (response) => {
+    if (chrome.runtime.lastError) {
+      dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
+      return;
+    }
+
+    if (response?.error) {
+      dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
+      return;
+    }
+
+    if (response?.success && response?.termLinks?.length > 0) {
+      dropdownContent.innerHTML = '';
+      response.termLinks.forEach((termLink) => {
+        const termRow = document.createElement('label');
+        termRow.className = 'term-option';
+
+        const radio = document.createElement('input');
+        radio.type = 'radio';
+        radio.name = 'termToExtract';
+        radio.setAttribute('data-id', termLink.id);
+
+        const termText = document.createElement('span');
+        termText.textContent = termLink.text;
+
+        termRow.appendChild(radio);
+        termRow.appendChild(termText);
+        dropdownContent.appendChild(termRow);
+      });
+    } else {
+      dropdownContent.innerHTML = '<p>No terms found</p>';
+    }
+  });
+}
+
 function displayCourses(dataId, courses) {
   const dropdown = document.querySelector(`[data-id="${dataId}"]`);
   if (!dropdown) return;
@@ -96,11 +142,7 @@ function displayCourses(dataId, courses) {
   contentDiv.innerHTML = '';
   courses.forEach((course) => {
     const courseRow = document.createElement('div');
-    courseRow.style.padding = '5px';
-    courseRow.style.borderBottom = '1px solid #eee';
-    courseRow.style.display = 'flex';
-    courseRow.style.alignItems = 'center';
-    courseRow.style.gap = '10px';
+    courseRow.className = 'course-option';
 
     const checkbox = document.createElement('input');
     checkbox.type = 'checkbox';

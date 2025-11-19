@@ -123,4 +123,44 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
     return true;
   }
+
+  if (message.action === 'extractTermLinks') {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(message.html, 'application/xml');
+
+      const termLinks = [];
+      const seen = new Set();
+
+      const fieldElements = doc.querySelectorAll('FIELD');
+      for (const field of fieldElements) {
+        const cdataContent = field.textContent;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cdataContent;
+
+        const linkElements = tempDiv.querySelectorAll(`[id^="${message.elementIds[0]}$"]`);
+
+        if (linkElements.length > 0) {
+          linkElements.forEach((element) => {
+            const id = element.id;
+            if (!seen.has(id)) {
+              termLinks.push({
+                id: id,
+                text: element.textContent?.trim() || 'Unknown Term',
+              });
+              seen.add(id);
+            }
+          });
+        }
+      }
+
+      sendResponse({ success: true, termLinks: termLinks });
+    } catch (error) {
+      console.error('Error extracting term links:', error);
+      sendResponse({ error: error.message });
+    }
+
+    return true;
+  }
 });
