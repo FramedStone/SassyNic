@@ -34,8 +34,13 @@ function loadPlannerOptions() {
   dropdownContent.innerHTML = '<p>Loading...</p>';
 
   chrome.runtime.sendMessage({ action: 'fetchPlanner' }, (response) => {
+    if (chrome.runtime.lastError) {
+      dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
+      return;
+    }
+
     if (response?.error) {
-      dropdownContent.innerHTML = `<p>Error: ${response.error}</p>`;
+      dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
       return;
     }
 
@@ -77,6 +82,11 @@ function displayCourses(dataId, courses) {
 
   const contentDiv = dropdown.querySelector('.dropdown-content');
   if (!contentDiv) return;
+
+  if (courses === 'error') {
+    contentDiv.innerHTML = '<p style="color: red;">Please refresh CLiC page</p>';
+    return;
+  }
 
   if (!courses || courses.length === 0) {
     contentDiv.innerHTML = '<p>No courses found</p>';

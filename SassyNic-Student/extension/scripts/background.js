@@ -142,6 +142,11 @@ function fetchPlannerDetail(dataId) {
             (extractResponse) => {
               if (chrome.runtime.lastError) {
                 console.error('Error extracting elements:', chrome.runtime.lastError.message);
+                chrome.runtime.sendMessage({
+                  action: 'displayCourses',
+                  dataId: dataId,
+                  courses: 'error',
+                });
                 return;
               }
 
