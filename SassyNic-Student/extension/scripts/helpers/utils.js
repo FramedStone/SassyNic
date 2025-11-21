@@ -34,3 +34,64 @@ export function getError(code) {
     url: `https://github.com/FramedStone/SassyNic/wiki/Error-Reference#${code}`,
   });
 }
+
+export function useGET(requestUrl) {
+  return fetch(requestUrl).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    return response.text().then((text) => ({ status: response.status, text }));
+  });
+}
+
+export function usePOST(requestUrl, ICAction) {
+  return new Promise((resolve, reject) => {
+    chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+      if (!tabs[0]) {
+        reject(new Error('No active tab found'));
+        return;
+      }
+
+      const tabId = tabs[0].id;
+
+      chrome.tabs.sendMessage(tabId, { action: 'getFormData' }, (formResponse) => {
+        if (chrome.runtime.lastError) {
+          reject(new Error(chrome.runtime.lastError.message));
+          return;
+        }
+
+        const formData = new URLSearchParams();
+
+        if (formResponse?.success && formResponse?.formData) {
+          Object.entries(formResponse.formData).forEach(([key, value]) => {
+            formData.append(key, value);
+          });
+        }
+
+        if (ICAction) {
+          if (formData.has('ICAction')) {
+            formData.set('ICAction', ICAction);
+          } else {
+            formData.append('ICAction', ICAction);
+          }
+        }
+
+        fetch(requestUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: formData.toString(),
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.text().then((text) => ({ status: response.status, text }));
+          })
+          .then(resolve)
+          .catch(reject);
+      });
+    });
+  });
+}

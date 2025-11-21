@@ -1,6 +1,17 @@
 console.log('extraction.js successfully injected');
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.action === 'checkPlannerInterface') {
+    try {
+      const panelTitle = document.getElementById('PANEL_TITLElbl');
+      sendResponse({ success: true, exists: !!panelTitle });
+    } catch (error) {
+      console.error('Error checking planner interface:', error);
+      sendResponse({ success: false, error: error.message });
+    }
+    return true;
+  }
+
   if (message.action === 'extractPlanner') {
     try {
       const parser = new DOMParser();

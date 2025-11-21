@@ -15,6 +15,13 @@ document.addEventListener('DOMContentLoaded', function () {
     chrome.tabs.create({ url: 'https://forms.gle/SUsghNXUKW1u1US5A' });
   });
 
+  const timetableDropdown = document.getElementById('timetableDropdown');
+  timetableDropdown.addEventListener('toggle', function () {
+    if (timetableDropdown.open) {
+      chrome.runtime.sendMessage({ action: 'triggerPreRequests' });
+    }
+  });
+
   const termToExtractDropdown = document.getElementById('termToExtractDropdown');
   termToExtractDropdown.addEventListener('toggle', function () {
     if (termToExtractDropdown.open) {
@@ -47,7 +54,11 @@ function loadPlannerOptions() {
     }
 
     if (response?.error) {
-      dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
+      if (response.error === 'NOT_PLANNER_INTERFACE') {
+        dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Planner interface</p>`;
+      } else {
+        dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
+      }
       return;
     }
 
@@ -78,7 +89,7 @@ function loadPlannerOptions() {
         dropdownContent.appendChild(option);
       });
     } else {
-      dropdownContent.innerHTML = '<p>No planner terms found</p>';
+      dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Planner interface</p>`;
     }
   });
 }
@@ -117,7 +128,7 @@ function loadTermToExtract() {
         dropdownContent.appendChild(termRow);
       });
     } else {
-      dropdownContent.innerHTML = '<p>No terms found</p>';
+      dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Planner interface</p>`;
     }
   });
 }
