@@ -20,12 +20,6 @@ chrome.webRequest.onCompleted.addListener(
 
 // -------------------------------------------- extraction.js & auto_enrollment.js -----------------------------------------------------//
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
-  if (message.action === 'triggerPreRequests') {
-    triggerPreRequests();
-    sendResponse({ success: true });
-    return true;
-  }
-
   if (message.action === 'fetchPlanner') {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]) {
@@ -150,8 +144,6 @@ function fetchTermToExtract(sendResponse) {
     const tabId = tabs[0].id;
     const postUrl =
       'https://clic.mmu.edu.my/psc/csprd_561/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLNR_CRSE_FL.GBL';
-
-    triggerPreRequests();
 
     usePOST(
       'https://clic.mmu.edu.my/psc/csprd_608/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL',

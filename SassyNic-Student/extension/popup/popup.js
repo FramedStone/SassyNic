@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function () {
+document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('btnErrorCode').addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic/wiki/Error-Reference' });
   });
@@ -15,22 +15,15 @@ document.addEventListener('DOMContentLoaded', function () {
     chrome.tabs.create({ url: 'https://forms.gle/SUsghNXUKW1u1US5A' });
   });
 
-  const timetableDropdown = document.getElementById('timetableDropdown');
-  timetableDropdown.addEventListener('toggle', function () {
-    if (timetableDropdown.open) {
-      chrome.runtime.sendMessage({ action: 'triggerPreRequests' });
-    }
-  });
-
   const termToExtractDropdown = document.getElementById('termToExtractDropdown');
-  termToExtractDropdown.addEventListener('toggle', function () {
+  termToExtractDropdown.addEventListener('toggle', function() {
     if (termToExtractDropdown.open) {
       loadTermToExtract();
     }
   });
 
   const plannerDropdown = document.getElementById('plannerDropdown');
-  plannerDropdown.addEventListener('toggle', function () {
+  plannerDropdown.addEventListener('toggle', function() {
     if (plannerDropdown.open) {
       loadPlannerOptions();
     }
@@ -79,7 +72,7 @@ function loadPlannerOptions() {
         contentDiv.innerHTML = '<p>Loading courses...</p>';
         option.appendChild(contentDiv);
 
-        option.addEventListener('toggle', function () {
+        option.addEventListener('toggle', function() {
           if (option.open) {
             const dataId = option.getAttribute('data-id');
             chrome.runtime.sendMessage({ action: 'fetchPlannerDetail', dataId: dataId });
