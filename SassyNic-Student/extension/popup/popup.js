@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
   document.getElementById('btnErrorCode').addEventListener('click', () => {
     chrome.tabs.create({ url: 'https://github.com/FramedStone/SassyNic/wiki/Error-Reference' });
   });
@@ -15,15 +15,19 @@ document.addEventListener('DOMContentLoaded', function() {
     chrome.tabs.create({ url: 'https://forms.gle/SUsghNXUKW1u1US5A' });
   });
 
+  document.getElementById('btnGenerateTimetable').addEventListener('click', () => {
+    handleGenerateTimetable();
+  });
+
   const termToExtractDropdown = document.getElementById('termToExtractDropdown');
-  termToExtractDropdown.addEventListener('toggle', function() {
+  termToExtractDropdown.addEventListener('toggle', function () {
     if (termToExtractDropdown.open) {
       loadTermToExtract();
     }
   });
 
   const plannerDropdown = document.getElementById('plannerDropdown');
-  plannerDropdown.addEventListener('toggle', function() {
+  plannerDropdown.addEventListener('toggle', function () {
     if (plannerDropdown.open) {
       loadPlannerOptions();
     }
@@ -72,7 +76,7 @@ function loadPlannerOptions() {
         contentDiv.innerHTML = '<p>Loading courses...</p>';
         option.appendChild(contentDiv);
 
-        option.addEventListener('toggle', function() {
+        option.addEventListener('toggle', function () {
           if (option.open) {
             const dataId = option.getAttribute('data-id');
             chrome.runtime.sendMessage({ action: 'fetchPlannerDetail', dataId: dataId });
@@ -162,5 +166,24 @@ function displayCourses(dataId, courses) {
     courseRow.appendChild(checkbox);
     courseRow.appendChild(courseInfo);
     contentDiv.appendChild(courseRow);
+  });
+}
+
+function handleGenerateTimetable() {
+  console.log('Requesting timetable generation...');
+
+  chrome.runtime.sendMessage({ action: 'generateTimetable' }, (response) => {
+    if (chrome.runtime.lastError) {
+      console.error('Error:', chrome.runtime.lastError.message);
+      alert(`Error: ${chrome.runtime.lastError.message}`);
+      return;
+    }
+
+    if (response?.error) {
+      console.error('Error generating timetable:', response.error);
+      alert(`Error generating timetable: ${response.error}`);
+    } else if (response?.success) {
+      alert('Timetable generation successful! Check background console for response.');
+    }
   });
 }
