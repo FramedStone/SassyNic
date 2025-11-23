@@ -44,7 +44,7 @@ export function useGET(requestUrl) {
   });
 }
 
-export function usePOST(requestUrl, ICAction) {
+export function usePOST(requestUrl, icParamsOrAction) {
   return new Promise((resolve, reject) => {
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       if (!tabs[0]) {
@@ -68,12 +68,26 @@ export function usePOST(requestUrl, ICAction) {
           });
         }
 
-        if (ICAction) {
-          if (formData.has('ICAction')) {
-            formData.set('ICAction', ICAction);
-          } else {
-            formData.append('ICAction', ICAction);
+        if (icParamsOrAction) {
+          if (typeof icParamsOrAction === 'string') {
+            if (formData.has('ICAction')) {
+              formData.set('ICAction', icParamsOrAction);
+            } else {
+              formData.append('ICAction', icParamsOrAction);
+            }
+          } else if (typeof icParamsOrAction === 'object') {
+            Object.entries(icParamsOrAction).forEach(([key, value]) => {
+              if (formData.has(key)) {
+                formData.set(key, value);
+              } else {
+                formData.append(key, value);
+              }
+            });
           }
+        }
+
+        if (!formData.has('ICAJAX')) {
+          formData.append('ICAJAX', '1');
         }
 
         fetch(requestUrl, {
