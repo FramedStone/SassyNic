@@ -13,6 +13,19 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
     return true;
   }
 
+  if (message.action === 'checkEnrollByRequirementInterface') {
+    try {
+      const panelTitle = document.getElementById('PANEL_TITLElbl');
+      const panelText = panelTitle?.textContent?.trim() || '';
+      const isEnrollByRequirementPage = panelText === 'Enroll by My Requirements';
+      sendResponse({ success: true, exists: isEnrollByRequirementPage });
+    } catch (error) {
+      console.error('Error checking enroll by requirement interface:', error);
+      sendResponse({ success: false, error: error.message });
+    }
+    return true;
+  }
+
   if (message.action === 'extractPlanner') {
     try {
       const parser = new DOMParser();
@@ -170,6 +183,106 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       sendResponse({ success: true, termLinks: termLinks });
     } catch (error) {
       console.error('Error extracting term links:', error);
+      sendResponse({ error: error.message });
+    }
+
+    return true;
+  }
+
+  if (message.action === 'extractRequirementLinks') {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(message.html, 'application/xml');
+
+      const elements = [];
+      const seen = new Set();
+
+      const fieldElements = doc.querySelectorAll('FIELD');
+      for (const field of fieldElements) {
+        const cdataContent = field.textContent;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cdataContent;
+
+        const reqElements = tempDiv.querySelectorAll('[id^="DERIVED_SAA_FL_SAA_DESCR80$"]');
+
+        if (reqElements.length > 0) {
+          reqElements.forEach((element) => {
+            const id = element.id;
+            if (!seen.has(id) && !id.includes('span')) {
+              elements.push({
+                id: id,
+                text: element.textContent?.trim() || 'Unknown Requirement',
+              });
+              seen.add(id);
+            }
+          });
+        }
+      }
+
+      sendResponse({ success: true, elements: elements });
+    } catch (error) {
+      console.error('Error extracting requirement links:', error);
+      sendResponse({ error: error.message });
+    }
+
+    return true;
+  }
+
+  if (message.action === 'extractCourseGridRows') {
+    try {
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(message.html, 'application/xml');
+
+      const courseRows = [];
+      const seen = new Set();
+
+      const fieldElements = doc.querySelectorAll('FIELD');
+      console.log(`Found ${fieldElements.length} FIELD elements`);
+
+      for (const field of fieldElements) {
+        const cdataContent = field.textContent;
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = cdataContent;
+
+        const trElements = tempDiv.querySelectorAll('tr[id^="CRSE_GRID_LIST_NFF$"]');
+        console.log(`Found ${trElements.length} tr elements with CRSE_GRID_LIST_NFF$ pattern`);
+
+        if (trElements.length > 0) {
+          trElements.forEach((tr) => {
+            const id = tr.id;
+            const match = id.match(/CRSE_GRID_LIST_NFF\$(\d+)_row_(\d+)/);
+
+            if (match && !seen.has(id)) {
+              const courseNameRaw =
+                tr.querySelector('.CRSE_NAME1 span[id^="CRSE_NAME1$"]')?.textContent?.trim() || '';
+              const courseName = courseNameRaw.replace(/\s+/g, ' ');
+              const courseDescr =
+                tr.querySelector('.CRSE_DESCR1 a[id^="CRSE_DESCR1$"]')?.textContent?.trim() || '';
+
+              const rowData = {
+                id: id,
+                nffNumber: match[1],
+                rowNumber: match[2],
+                courseName: courseName,
+                courseDescription: courseDescr,
+              };
+
+              if (courseName || courseDescr) {
+                courseRows.push(rowData);
+                seen.add(id);
+                console.log(`Extracted course: ${courseName} - ${courseDescr}`);
+              }
+            }
+          });
+        }
+      }
+
+      console.log(`Total course rows extracted: ${courseRows.length}`);
+      sendResponse({ success: true, courseRows: courseRows });
+    } catch (error) {
+      console.error('Error extracting course grid rows:', error);
       sendResponse({ error: error.message });
     }
 

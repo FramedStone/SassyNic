@@ -9,7 +9,7 @@ import { pruneSchedule } from './helpers/constraints.js';
 
 // -------------------------------------------- WebRequest Listeners -----------------------------------------------------//
 chrome.webRequest.onCompleted.addListener(
-  function(details) {
+  function (details) {
     console.log(details);
   },
   {
@@ -67,6 +67,11 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 
   if (message.action === 'fetchPlannerDetail') {
     fetchPlannerDetail(message.dataId);
+    return true;
+  }
+
+  if (message.action === 'fetchEnrollByRequirements') {
+    fetchEnrollByRequirements(sendResponse);
     return true;
   }
 });
@@ -145,53 +150,186 @@ function fetchTermToExtract(sendResponse) {
     const postUrl =
       'https://clic.mmu.edu.my/psc/csprd_561/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLNR_CRSE_FL.GBL';
 
-    usePOST(
-      'https://clic.mmu.edu.my/psc/csprd_608/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL',
-      'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0'
-    )
-      .then((postResult) => {
-        if (postResult.status !== 200) {
-          throw new Error(`POST request failed with status: ${postResult.status}`);
+    useGET(
+      'https://clic.mmu.edu.my/psc/csprd_628/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL?Page=SSR_PLNR_TERM_FL&pslnkid=CS_SSR_PLANNER_FL_LINK&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20%20%20'
+    ).then(() => {
+      usePOST(
+        'https://clic.mmu.edu.my/psc/csprd_608/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLANNER_FL.GBL',
+        'SSR_PLNR_FL_WRK_TERM_DETAIL_LINK$0'
+      )
+        .then((postResult) => {
+          if (postResult.status !== 200) {
+            throw new Error(`POST request failed with status: ${postResult.status}`);
+          }
+
+          return useGET(
+            'https://clic.mmu.edu.my/psc/csprd_613/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLNR_CRSE_FL.GBL?Page=SSR_CRSE_DTL_FL&Action=U&CRSE_ID=007375&CRSE_OFFER_NBR=1&EFFDT=2025-11-21&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20'
+          );
+        })
+        .then(() => {
+          return usePOST(postUrl, 'DERIVED_SAA_CRS_SSR_PB_GO$6');
+        })
+        .then((postResult) => {
+          if (postResult.status !== 200) {
+            throw new Error(`POST request failed with status: ${postResult.status}`);
+          }
+
+          const getUrl =
+            'https://clic.mmu.edu.my/psc/csprd_578/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_CRSE_TERM_FL.GBL?Page=SSR_CRSE_TERM_FL&Action=U&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20';
+
+          return useGET(getUrl);
+        })
+        .then((getResult) => {
+          console.log('Term To Extract GET response:', getResult);
+          chrome.tabs.sendMessage(
+            tabId,
+            {
+              action: 'extractTermLinks',
+              html: getResult.text,
+              elementIds: ['SSR_CRS_TERM_WK_SSS_TERM_LINK'],
+            },
+            (extractResponse) => {
+              if (chrome.runtime.lastError) {
+                sendResponse({ error: chrome.runtime.lastError.message });
+              } else {
+                sendResponse(extractResponse);
+              }
+            }
+          );
+        })
+        .catch((error) => {
+          console.error('Error fetching Term To Extract:', error);
+          sendResponse({ error: error.message });
+        });
+    });
+  });
+}
+
+function fetchEnrollByRequirements(sendResponse) {
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs[0]) {
+      console.error('No active tab found for Enroll By Requirements request');
+      sendResponse({ error: 'No active tab found' });
+      return;
+    }
+
+    const tabId = tabs[0].id;
+
+    chrome.tabs.sendMessage(
+      tabId,
+      { action: 'checkEnrollByRequirementInterface' },
+      (checkResponse) => {
+        if (chrome.runtime.lastError || !checkResponse?.success || !checkResponse?.exists) {
+          sendResponse({ error: 'NOT_ENROLL_BY_REQUIREMENT_INTERFACE' });
+          return;
         }
 
-        return useGET(
-          'https://clic.mmu.edu.my/psc/csprd_613/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_PLNR_CRSE_FL.GBL?Page=SSR_CRSE_DTL_FL&Action=U&CRSE_ID=007375&CRSE_OFFER_NBR=1&EFFDT=2025-11-21&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20'
-        );
-      })
-      .then(() => {
-        return usePOST(postUrl, 'DERIVED_SAA_CRS_SSR_PB_GO$6');
-      })
+        const getUrl =
+          'https://clic.mmu.edu.my/psc/csprd_617/EMPLOYEE/SA/c/SAA_STUDENT_FL.SAA_REQ_ENRL_FL.GBL?Page=SAA_ACAD_PROG_FL&Action=U&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20';
+
+        useGET(getUrl)
+          .then((result) => {
+            chrome.tabs.sendMessage(
+              tabId,
+              { action: 'extractRequirementLinks', html: result.text },
+              (extractResponse) => {
+                if (chrome.runtime.lastError) {
+                  sendResponse({ error: chrome.runtime.lastError.message });
+                  return;
+                }
+
+                if (!extractResponse?.success || !extractResponse?.elements) {
+                  sendResponse({ error: 'Failed to extract requirement links' });
+                  return;
+                }
+
+                const elements = extractResponse.elements;
+                console.log(`Found ${elements.length} requirement(s) to process`);
+
+                sendResponse({ success: true, count: elements.length });
+
+                processRequirements(elements, 0);
+              }
+            );
+          })
+          .catch((error) => {
+            console.error('Error fetching Enroll By Requirements:', error);
+            sendResponse({ error: error.message });
+          });
+      }
+    );
+  });
+}
+
+function processRequirements(elements, index) {
+  if (index >= elements.length) {
+    console.log('All requirements processed successfully');
+    chrome.runtime.sendMessage({
+      action: 'requirementsProcessingComplete',
+      totalCount: elements.length,
+    });
+    return;
+  }
+
+  const element = elements[index];
+  console.log(`Processing requirement ${index + 1}/${elements.length}: ${element.id}`);
+
+  chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+    if (!tabs[0]) {
+      console.error('No active tab found');
+      processRequirements(elements, index + 1);
+      return;
+    }
+
+    const tabId = tabs[0].id;
+    const postUrl =
+      'https://clic.mmu.edu.my/psc/csprd_622/EMPLOYEE/SA/c/SAA_STUDENT_FL.SAA_REQ_ENRL_FL.GBL';
+
+    usePOST(postUrl, element.id)
       .then((postResult) => {
         if (postResult.status !== 200) {
           throw new Error(`POST request failed with status: ${postResult.status}`);
         }
 
         const getUrl =
-          'https://clic.mmu.edu.my/psc/csprd_578/EMPLOYEE/SA/c/SSR_STUDENT_FL.SSR_CRSE_TERM_FL.GBL?Page=SSR_CRSE_TERM_FL&Action=U&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20';
+          'https://clic.mmu.edu.my/psc/csprd_627/EMPLOYEE/SA/c/SAA_STUDENT_FL.SAA_REQ_ENRL_FL.GBL?Page=SAA_REQ_DTL_FL&Action=U&ICAJAX=1&ICMDTarget=start&ICPanelControlStyle=%20pst_side1-fixed%20pst_panel-mode%20';
 
         return useGET(getUrl);
       })
       .then((getResult) => {
-        console.log('Term To Extract GET response:', getResult.text);
+        console.log(`Response for ${element.id}:`, getResult);
+
         chrome.tabs.sendMessage(
           tabId,
-          {
-            action: 'extractTermLinks',
-            html: getResult.text,
-            elementIds: ['SSR_CRS_TERM_WK_SSS_TERM_LINK'],
-          },
+          { action: 'extractCourseGridRows', html: getResult.text },
           (extractResponse) => {
             if (chrome.runtime.lastError) {
-              sendResponse({ error: chrome.runtime.lastError.message });
-            } else {
-              sendResponse(extractResponse);
+              console.error('Error extracting course grid rows:', chrome.runtime.lastError.message);
+              processRequirements(elements, index + 1);
+              return;
             }
+
+            console.log(`Extract response for ${element.id}:`, extractResponse);
+
+            if (extractResponse?.success && extractResponse?.courseRows?.length > 0) {
+              console.log(`Sending ${extractResponse.courseRows.length} course rows to popup`);
+              chrome.runtime.sendMessage({
+                action: 'displayCourseGridRows',
+                requirementId: element.id,
+                requirementText: element.text,
+                courseRows: extractResponse.courseRows,
+              });
+            } else {
+              console.log(`No course rows found for ${element.id}`);
+            }
+
+            processRequirements(elements, index + 1);
           }
         );
       })
       .catch((error) => {
-        console.error('Error fetching Term To Extract:', error);
-        sendResponse({ error: error.message });
+        console.error(`Error processing requirement ${element.id}:`, error);
+        processRequirements(elements, index + 1);
       });
   });
 }

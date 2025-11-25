@@ -32,11 +32,31 @@ document.addEventListener('DOMContentLoaded', function () {
       loadPlannerOptions();
     }
   });
+
+  const enrollByRequirementsDropdown = document.getElementById('enrollByRequirementsDropdown');
+  enrollByRequirementsDropdown.addEventListener('toggle', function () {
+    if (enrollByRequirementsDropdown.open) {
+      loadEnrollByRequirements();
+    }
+  });
 });
 
 chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'displayCourses') {
     displayCourses(message.dataId, message.courses);
+  }
+
+  if (message.action === 'displayCourseGridRows') {
+    displayCourseGridRows(message.requirementId, message.requirementText, message.courseRows);
+  }
+
+  if (message.action === 'requirementsProcessingComplete') {
+    const dropdownContent = document.getElementById('enrollByRequirementsDropdownContent');
+    const existingMessage = dropdownContent.querySelector('p');
+    if (existingMessage && existingMessage.textContent.includes('Loading')) {
+      existingMessage.textContent = `Completed processing ${message.totalCount} requirement(s)`;
+      existingMessage.style.color = 'green';
+    }
   }
 });
 
@@ -87,6 +107,33 @@ function loadPlannerOptions() {
       });
     } else {
       dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Planner interface</p>`;
+    }
+  });
+}
+
+function loadEnrollByRequirements() {
+  const dropdownContent = document.getElementById('enrollByRequirementsDropdownContent');
+  dropdownContent.innerHTML = '<p>Loading requirements...</p>';
+
+  chrome.runtime.sendMessage({ action: 'fetchEnrollByRequirements' }, (response) => {
+    if (chrome.runtime.lastError) {
+      dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
+      return;
+    }
+
+    if (response?.error) {
+      if (response.error === 'NOT_ENROLL_BY_REQUIREMENT_INTERFACE') {
+        dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Enroll by My Requirement interface, do not click into any terms</p>`;
+      } else {
+        dropdownContent.innerHTML = `<p style="color: red;">${response.error}</p>`;
+      }
+      return;
+    }
+
+    if (response?.success) {
+      dropdownContent.innerHTML = `<p style="color: blue;">Loading ${response.count} requirement(s)...</p>`;
+    } else {
+      dropdownContent.innerHTML = `<p style="color: red;">Failed to load requirements</p>`;
     }
   });
 }
@@ -166,6 +213,73 @@ function displayCourses(dataId, courses) {
     courseRow.appendChild(checkbox);
     courseRow.appendChild(courseInfo);
     contentDiv.appendChild(courseRow);
+  });
+}
+
+function displayCourseGridRows(requirementId, requirementText, courseRows) {
+  console.log(`displayCourseGridRows called for ${requirementId}:`, courseRows);
+
+  const dropdownContent = document.getElementById('enrollByRequirementsDropdownContent');
+
+  if (!courseRows || courseRows.length === 0) {
+    console.log('No course rows found for requirement:', requirementId);
+    return;
+  }
+
+  if (dropdownContent.querySelector('p')) {
+    dropdownContent.innerHTML = '';
+  }
+
+  const coursesByNff = {};
+  courseRows.forEach((row) => {
+    if (!coursesByNff[row.nffNumber]) {
+      coursesByNff[row.nffNumber] = [];
+    }
+    coursesByNff[row.nffNumber].push(row);
+  });
+
+  Object.entries(coursesByNff).forEach(([nffNumber, courses]) => {
+    const groupKey = `${requirementText}_${nffNumber}`;
+    let requirementDropdown = dropdownContent.querySelector(`[data-group-key="${groupKey}"]`);
+    let contentDiv;
+
+    if (requirementDropdown) {
+      contentDiv = requirementDropdown.querySelector('.dropdown-content');
+    } else {
+      requirementDropdown = document.createElement('details');
+      requirementDropdown.className = 'dropdown';
+      requirementDropdown.setAttribute('data-group-key', groupKey);
+      requirementDropdown.setAttribute('data-nff-number', nffNumber);
+
+      const summary = document.createElement('summary');
+      summary.textContent = requirementText;
+      requirementDropdown.appendChild(summary);
+
+      contentDiv = document.createElement('div');
+      contentDiv.className = 'dropdown-content';
+      requirementDropdown.appendChild(contentDiv);
+
+      dropdownContent.appendChild(requirementDropdown);
+    }
+
+    courses.forEach((row) => {
+      const courseRow = document.createElement('div');
+      courseRow.className = 'course-option';
+
+      const checkbox = document.createElement('input');
+      checkbox.type = 'checkbox';
+      checkbox.setAttribute('data-id', row.id);
+
+      const courseInfo = document.createElement('div');
+      courseInfo.innerHTML = `
+      <strong>${row.courseName}</strong><br>
+      ${row.courseDescription}
+    `;
+
+      courseRow.appendChild(checkbox);
+      courseRow.appendChild(courseInfo);
+      contentDiv.appendChild(courseRow);
+    });
   });
 }
 
