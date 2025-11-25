@@ -4,7 +4,8 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.action === 'checkPlannerInterface') {
     try {
       const panelTitle = document.getElementById('PANEL_TITLElbl');
-      sendResponse({ success: true, exists: !!panelTitle });
+      const isPlannerPage = panelTitle && panelTitle.textContent?.trim() === 'Planner';
+      sendResponse({ success: true, exists: isPlannerPage });
     } catch (error) {
       console.error('Error checking planner interface:', error);
       sendResponse({ success: false, error: error.message });
@@ -155,7 +156,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         if (linkElements.length > 0) {
           linkElements.forEach((element) => {
             const id = element.id;
-            if (!seen.has(id)) {
+            if (!seen.has(id) && !id.includes('span')) {
               termLinks.push({
                 id: id,
                 text: element.textContent?.trim() || 'Unknown Term',

@@ -52,7 +52,7 @@ function loadPlannerOptions() {
 
     if (response?.error) {
       if (response.error === 'NOT_PLANNER_INTERFACE') {
-        dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Planner interface</p>`;
+        dropdownContent.innerHTML = `<p style="color: red;">Please navigate to Planner interface, don't click into any of the term</p>`;
       } else {
         dropdownContent.innerHTML = `<p style="color: red;">Please refresh CLiC page</p>`;
       }
