@@ -4,7 +4,11 @@ chrome.runtime.onMessage.addListener((message) => {
   if (message.action === 'AGS_Start_') {
     // Initial
     if (message.termTo === null) {
-      let termFrom = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]').textContent;
+      let termFrom = document
+        .querySelector('span.ps-text[id="PANEL_TITLElbl"]')
+        .textContent.replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
+        .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+        .trim();
 
       document.getElementById(`PLANNER_ITEMS_NFF$0_row_0`).click();
       chrome.runtime.sendMessage({
@@ -82,7 +86,13 @@ chrome.runtime.onMessage.addListener((message) => {
       // observer disconnect factor (look for termFrom row)
       const termFrom = Array.from(
         document.querySelectorAll("td[class='ps_grid-cell TERMS'] a")
-      ).find((a) => a.textContent === message.termFrom);
+      ).find(
+        (a) =>
+          a.textContent
+            .replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
+            .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
+            .trim() === message.termFrom
+      );
       if (!termFrom) {
         chrome.runtime.sendMessage({
           action: 'AGS_MoveToTerm_Click',
