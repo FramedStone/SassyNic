@@ -160,7 +160,6 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         .getElementById('TERM_VAL_TBL_DESCR')
         .textContent.replace(/\s*\/\s*/g, '/') // Remove spaces around '/'
         .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2') // Keep only first 3 letters of each month
-        .replace(/\s\d{4}$/, '')
         .trim();
 
       // Check if term matching
@@ -208,7 +207,65 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 /**
+ * Extracts data for a specific component using ID-based selectors
+ * Falls back to class-based selectors if ID-based fails
+ * @param {Element} row - The table row element
+ * @param {number} compNum - Component number (1, 2, 3, etc.)
+ * @param {string} dataType - Type of data (dates, dayTime, room, instructor, seats)
+ * @param {boolean} useInnerHTML - Whether to use innerHTML instead of textContent
+ * @returns {string} The extracted data
+ */
+function getComponentData(row, compNum, dataType, useInnerHTML = false) {
+  // Map data types to their ID patterns
+  const idPatterns = {
+    dates: 'SSR_CLSRCH_F_WK_SSR_MTG_DT_LONG',
+    dayTime: 'SSR_CLSRCH_F_WK_SSR_MTG_SCHED_L',
+    room: 'SSR_CLSRCH_F_WK_SSR_MTG_LOC_LONG',
+    instructor: 'SSR_INSTR_LONG',
+    seats: 'SSR_CLSRCH_F_WK_SSR_DESCR50',
+  };
+
+  const pattern = idPatterns[dataType];
+  if (!pattern) return '';
+
+  // Try ID-based selectors with component number
+  const selectors = [
+    `[id^="${pattern}_${compNum}$"]`,
+    `[id*="${pattern}_${compNum}$"]`,
+    `[id^="${pattern}$${compNum}"]`,
+  ];
+
+  for (const selector of selectors) {
+    const element = row.querySelector(selector);
+    if (element) {
+      const value = useInnerHTML ? element.innerHTML : element.textContent;
+      return value?.trim() || '';
+    }
+  }
+
+  // Fallback to class-based selector with index
+  const classSelectors = {
+    dates: '.DATES .ps_box-value',
+    dayTime: '.DAYS_TIMES .ps_box-value',
+    room: '.ROOM .ps_box-value',
+    instructor: '.INSTRUCTOR .ps_box-value',
+    seats: '.SEATS .ps_box-value',
+  };
+
+  const elements = row.querySelectorAll(classSelectors[dataType]);
+  if (elements[compNum - 1]) {
+    const value = useInnerHTML
+      ? elements[compNum - 1].innerHTML
+      : elements[compNum - 1].textContent;
+    return value?.trim() || '';
+  }
+
+  return '';
+}
+
+/**
  * Function that extract class details and process extracted data
+ * Uses component-specific ID selectors to handle any number of components (2, 3, 4+)
  */
 function extractClassDetails() {
   const rows = document.querySelectorAll('.ps_grid-row');
@@ -229,34 +286,45 @@ function extractClassDetails() {
     // Disabled
     class_.psc_disabled = row.classList.contains('psc_disabled') ? '1' : '0';
 
-    // All parallel arrays
-    const classLinks = row.querySelectorAll('.CMPNT_CLASS_NBR a.ps-link');
-    const dateSpans = row.querySelectorAll('.DATES .ps_box-value');
-    const dayTimeSpans = row.querySelectorAll('.DAYS_TIMES .ps_box-value');
-    const roomSpans = row.querySelectorAll('.ROOM .ps_box-value');
-    const instructorSpans = row.querySelectorAll('.INSTRUCTOR .ps_box-value');
-    const seatSpans = row.querySelectorAll('.SEATS .ps_box-value');
+    // Find all component links using ID selectors (handles any number of components)
+    const componentLinks = row.querySelectorAll('a[id^="SSR_CLSRCH_F_WK_SSR_CMPNT_DESCR_"]');
 
-    class_.classes = Array.from(classLinks).map((el, idx) => ({
-      classText: el.textContent.trim(),
-      dates: dateSpans[idx]?.textContent.trim() || '',
-      dayTime: dayTimeSpans[idx]?.innerHTML.trim() || '',
-      room: roomSpans[idx]?.textContent.trim() || '',
-      instructor: instructorSpans[idx]?.textContent.trim() || 'no_instructor_displayed',
-      seats: seatSpans[idx]?.textContent.trim() || '',
-      misc: (() => {
-        // For compatibility with old structure
-        const [day, time] = parseDayAndTime(dayTimeSpans[idx]?.innerHTML.trim() || '');
-        return [
+    // Extract component-specific data for each component link
+    class_.classes = Array.from(componentLinks).map((link, idx) => {
+      const linkId = link.getAttribute('id');
+      const compNumMatch = linkId.match(/SSR_CLSRCH_F_WK_SSR_CMPNT_DESCR_(\d+)\$/);
+      const compNum = compNumMatch ? parseInt(compNumMatch[1]) : idx + 1;
+
+      // Extract class text from link
+      const classText = link.textContent.trim();
+
+      // Extract other data using component-specific selectors
+      const dates = getComponentData(row, compNum, 'dates');
+      const dayTime = getComponentData(row, compNum, 'dayTime', true);
+      const room = getComponentData(row, compNum, 'room');
+      const instructor = getComponentData(row, compNum, 'instructor');
+      const seats = getComponentData(row, compNum, 'seats');
+
+      // Parse day and time for misc field
+      const [day, time] = parseDayAndTime(dayTime);
+
+      return {
+        classText: classText,
+        dates: dates,
+        dayTime: dayTime,
+        room: room,
+        instructor: instructor || 'no_instructor_displayed',
+        seats: seats,
+        misc: [
           {
-            day,
-            time,
-            room: roomSpans[idx]?.textContent.trim() || '',
-            instructor: instructorSpans[idx]?.textContent.trim() || 'no_instructor_displayed',
+            day: day,
+            time: time,
+            room: room,
+            instructor: instructor || 'no_instructor_displayed',
           },
-        ];
-      })(),
-    }));
+        ],
+      };
+    });
 
     dataset.class.push(class_);
   });
