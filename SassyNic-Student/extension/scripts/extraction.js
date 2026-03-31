@@ -209,11 +209,12 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
 /**
  * Extracts data for a specific component using ID-based selectors
  * Falls back to class-based selectors if ID-based fails
+ * Returns ALL matching elements as an array to handle multiple time slots per component
  * @param {Element} row - The table row element
  * @param {number} compNum - Component number (1, 2, 3, etc.)
  * @param {string} dataType - Type of data (dates, dayTime, room, instructor, seats)
  * @param {boolean} useInnerHTML - Whether to use innerHTML instead of textContent
- * @returns {string} The extracted data
+ * @returns {Array} Array of extracted data strings
  */
 function getComponentData(row, compNum, dataType, useInnerHTML = false) {
   // Map data types to their ID patterns
@@ -226,9 +227,9 @@ function getComponentData(row, compNum, dataType, useInnerHTML = false) {
   };
 
   const pattern = idPatterns[dataType];
-  if (!pattern) return '';
+  if (!pattern) return [];
 
-  // Try ID-based selectors with component number
+  // Try ID-based selectors with component number - get ALL matching elements
   const selectors = [
     `[id^="${pattern}_${compNum}$"]`,
     `[id*="${pattern}_${compNum}$"]`,
@@ -236,14 +237,16 @@ function getComponentData(row, compNum, dataType, useInnerHTML = false) {
   ];
 
   for (const selector of selectors) {
-    const element = row.querySelector(selector);
-    if (element) {
-      const value = useInnerHTML ? element.innerHTML : element.textContent;
-      return value?.trim() || '';
+    const elements = row.querySelectorAll(selector);
+    if (elements.length > 0) {
+      return Array.from(elements).map((el) => {
+        const value = useInnerHTML ? el.innerHTML : el.textContent;
+        return value?.trim() || '';
+      });
     }
   }
 
-  // Fallback to class-based selector with index
+  // Fallback to class-based selector - get ALL matching elements
   const classSelectors = {
     dates: '.DATES .ps_box-value',
     dayTime: '.DAYS_TIMES .ps_box-value',
@@ -253,19 +256,16 @@ function getComponentData(row, compNum, dataType, useInnerHTML = false) {
   };
 
   const elements = row.querySelectorAll(classSelectors[dataType]);
-  if (elements[compNum - 1]) {
-    const value = useInnerHTML
-      ? elements[compNum - 1].innerHTML
-      : elements[compNum - 1].textContent;
+  return Array.from(elements).map((el) => {
+    const value = useInnerHTML ? el.innerHTML : el.textContent;
     return value?.trim() || '';
-  }
-
-  return '';
+  });
 }
 
 /**
  * Function that extract class details and process extracted data
  * Uses component-specific ID selectors to handle any number of components (2, 3, 4+)
+ * Handles multiple time slots per component (e.g., Lec on Mon 2-4pm AND Thu 10-11am)
  */
 function extractClassDetails() {
   const rows = document.querySelectorAll('.ps_grid-row');
@@ -298,31 +298,51 @@ function extractClassDetails() {
       // Extract class text from link
       const classText = link.textContent.trim();
 
-      // Extract other data using component-specific selectors
-      const dates = getComponentData(row, compNum, 'dates');
-      const dayTime = getComponentData(row, compNum, 'dayTime', true);
-      const room = getComponentData(row, compNum, 'room');
-      const instructor = getComponentData(row, compNum, 'instructor');
-      const seats = getComponentData(row, compNum, 'seats');
+      // Extract other data using component-specific selectors (now returns arrays)
+      const datesArr = getComponentData(row, compNum, 'dates');
+      const dayTimesArr = getComponentData(row, compNum, 'dayTime', true);
+      const roomsArr = getComponentData(row, compNum, 'room');
+      const instructorsArr = getComponentData(row, compNum, 'instructor');
+      const seatsArr = getComponentData(row, compNum, 'seats');
 
-      // Parse day and time for misc field
-      const [day, time] = parseDayAndTime(dayTime);
+      // Determine max length to handle arrays with different lengths
+      const maxLength = Math.max(
+        datesArr.length,
+        dayTimesArr.length,
+        roomsArr.length,
+        instructorsArr.length,
+        seatsArr.length
+      );
+
+      // Build misc array by iterating through all time slots
+      const misc = [];
+      for (let i = 0; i < maxLength; i++) {
+        const dayTime = dayTimesArr[i] || '';
+        const [day, time] = parseDayAndTime(dayTime);
+
+        misc.push({
+          day: day,
+          time: time,
+          room: roomsArr[i] || '',
+          instructor: instructorsArr[i] || 'no_instructor_displayed',
+        });
+      }
+
+      // Flatten arrays for storage (join with <br> for display)
+      const dates = datesArr.join('<br>');
+      const dayTime = dayTimesArr.join('<br>');
+      const room = roomsArr.join('<br>');
+      const instructor = instructorsArr.join('<br>') || 'no_instructor_displayed';
+      const seats = seatsArr.join('<br>');
 
       return {
         classText: classText,
         dates: dates,
         dayTime: dayTime,
         room: room,
-        instructor: instructor || 'no_instructor_displayed',
+        instructor: instructor,
         seats: seats,
-        misc: [
-          {
-            day: day,
-            time: time,
-            room: room,
-            instructor: instructor || 'no_instructor_displayed',
-          },
-        ],
+        misc: misc,
       };
     });
 
