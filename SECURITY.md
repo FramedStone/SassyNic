@@ -18,6 +18,7 @@
 | [v3.4.6](https://github.com/FramedStone/SassyNic/releases/tag/v3.4.6)    | :x: |
 | [v3.5.6](https://github.com/FramedStone/SassyNic/releases/tag/v3.5.6)    | :x: |
 | [v3.6.6](https://github.com/FramedStone/SassyNic/releases/tag/v3.6.6)    | :white_check_mark: |
+| [v3.6.7](https://github.com/FramedStone/SassyNic/releases/tag/v3.6.6)    | :white_check_mark: |
 
 ## Reporting a Vulnerability
 
