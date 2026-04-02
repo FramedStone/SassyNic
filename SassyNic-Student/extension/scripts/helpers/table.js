@@ -185,8 +185,8 @@ export function getTable(dataset) {
                             ${optionsHTML}
                         </div>
                         <div class="modal-footer">
-                            <button id="btnManualEnroll" disabled>Manual Enroll (m)</button>
-                            <button id="btnAutoEnroll" disabled>Auto Enroll (a)</button>
+                            <button id="btnManualEnroll">Manual Enroll (m)</button>
+                            <button id="btnAutoEnroll">Auto Enroll (a)</button>
                         </div>
                     </div>
                 </div>`;
@@ -214,6 +214,15 @@ export function getTable(dataset) {
         const soundboard = document.getElementById('manual-enroll');
         soundboard.play();
         bgm.pause();
+
+        // Send enrollment request to background.js
+        const currentCombination = dataset[currentCombinationIndex];
+        chrome.runtime.sendMessage({
+          action: 'startEnrollment',
+          type: 'manual',
+          combination: currentCombination,
+          timetableTabId: chrome.tabs.getCurrent ? chrome.tabs.getCurrent().id : null,
+        });
       });
 
       // Auto Enroll
@@ -223,6 +232,15 @@ export function getTable(dataset) {
         const soundboard = document.getElementById('auto-enroll');
         soundboard.play();
         bgm.pause();
+
+        // Send enrollment request to background.js
+        const currentCombination = dataset[currentCombinationIndex];
+        chrome.runtime.sendMessage({
+          action: 'startEnrollment',
+          type: 'auto',
+          combination: currentCombination,
+          timetableTabId: chrome.tabs.getCurrent ? chrome.tabs.getCurrent().id : null,
+        });
       });
 
       // Keyboard event listeners

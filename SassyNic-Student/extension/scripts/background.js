@@ -563,3 +563,295 @@ chrome.runtime.onMessage.addListener((message) => {
       });
   }
 });
+
+// -------------------------------------------- auto_enrollment.js -----------------------------------------------------//
+// Enrollment state tracker
+let enrollmentState = null;
+
+chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Start enrollment process
+  if (message.action === 'startEnrollment') {
+    console.log('Starting enrollment:', message.type, message.combination);
+
+    enrollmentState = {
+      type: message.type,
+      combination: message.combination,
+      currentIndex: 0,
+      peopleSoftTabId: null,
+      timetableTabId: message.timetableTabId,
+      term: null, // Will be extracted during flow
+    };
+
+    // Find the PeopleSoft tab
+    chrome.tabs.query({ url: 'https://clic.mmu.edu.my/ps*/csprd*/*EMPLOYEE*' }, (tabs) => {
+      if (tabs.length > 0) {
+        enrollmentState.peopleSoftTabId = tabs[0].id;
+        // Activate the PeopleSoft tab
+        chrome.tabs.update(tabs[0].id, { active: true });
+        // Start enrollment flow for first course
+        processEnrollmentCourse();
+      } else {
+        chrome.tabs.sendMessage(message.timetableTabId, {
+          action: 'enrollmentError',
+          message: 'No PeopleSoft tab found. Please open the course planner first.',
+        });
+      }
+    });
+    return true;
+  }
+
+  // Course selected (matched by title+code)
+  if (message.action === 'enrollCourseSelected') {
+    console.log('Course selected:', message.foundIndex);
+
+    onTabUpdated(message.tabId, (tabId) => {
+      if (tabId !== null) {
+        chrome.tabs.sendMessage(tabId, {
+          action: 'enrollViewClasses_',
+          tabId: tabId,
+        });
+        console.log('enrollViewClasses_ sent to auto_enrollment.js');
+      }
+    });
+    return true;
+  }
+
+  // View classes button ready
+  if (message.action === 'enrollViewClassesReady') {
+    console.log('View classes ready, clicking...');
+
+    chrome.scripting
+      .executeScript({
+        target: { tabId: message.tabId },
+        world: 'MAIN',
+        func: () => {
+          document.querySelector('div.ps_box-button.psc_primary span a').click();
+        },
+      })
+      .then(() => {
+        onTabUpdated(message.tabId, (tabId) => {
+          if (tabId !== null) {
+            chrome.tabs.sendMessage(tabId, {
+              action: 'enrollSelectTerm_',
+              term: enrollmentState.term,
+              tabId: tabId,
+            });
+            console.log('enrollSelectTerm_ sent to auto_enrollment.js');
+          }
+        });
+      });
+    return true;
+  }
+
+  // Term selection needed (Promise.race winner: term links found)
+  if (message.action === 'enrollTermSelected') {
+    console.log('Term selection needed, clicking term...');
+
+    chrome.scripting
+      .executeScript({
+        target: { tabId: message.tabId },
+        world: 'MAIN',
+        func: (term) => {
+          Array.from(
+            document.querySelectorAll(
+              'td.ps_grid-cell div.ps_box-group.psc_layout span.ps-link-wrapper a.ps-link'
+            )
+          )
+            .find(
+              (el) =>
+                el.textContent
+                  .trim()
+                  .replace(/\s*\/\s*/g, '/')
+                  .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2')
+                  .trim() === term
+            )
+            .click();
+        },
+        args: [enrollmentState.term],
+      })
+      .then(() => {
+        onTabUpdated(message.tabId, (tabId) => {
+          if (tabId !== null) {
+            // After clicking term, navigate back twice
+            navigateBackTwice(message.tabId);
+          }
+        });
+      });
+    return true;
+  }
+
+  // Already on class details page (Promise.race winner: TERM_VAL_TBL_DESCR found)
+  if (message.action === 'enrollTermReady') {
+    console.log('Already on class details page, navigating back...');
+
+    // Navigate back twice
+    navigateBackTwice(message.tabId);
+    return true;
+  }
+
+  // Course not found - abort enrollment
+  if (message.action === 'enrollmentCourseNotFound') {
+    const courseInfo = enrollmentState.combination[enrollmentState.currentIndex];
+    chrome.tabs.sendMessage(enrollmentState.timetableTabId, {
+      action: 'enrollmentError',
+      message: `Course "${courseInfo.title}" (${courseInfo.code}) not found. Please enroll manually by following the option of each course provided.`,
+    });
+    enrollmentState = null;
+    return true;
+  }
+
+  // Term not matching - abort enrollment
+  if (message.action === 'enrollmentTermNotMatching') {
+    chrome.tabs.sendMessage(enrollmentState.timetableTabId, {
+      action: 'enrollmentError',
+      message:
+        'Term not matching. Please enroll manually by following the option of each course provided.',
+    });
+    enrollmentState = null;
+    return true;
+  }
+});
+
+/**
+ * Process enrollment for current course in the combination
+ */
+function processEnrollmentCourse() {
+  if (!enrollmentState) return;
+
+  const course = enrollmentState.combination[enrollmentState.currentIndex];
+  console.log(
+    `Processing course ${enrollmentState.currentIndex + 1}/${enrollmentState.combination.length}:`,
+    course.title,
+    course.code
+  );
+
+  // Extract term from first course
+  if (enrollmentState.currentIndex === 0) {
+    // Get term from the PeopleSoft page
+    chrome.scripting
+      .executeScript({
+        target: { tabId: enrollmentState.peopleSoftTabId },
+        world: 'MAIN',
+        func: () => {
+          const termEl = document.querySelector('span.ps-text[id="PANEL_TITLElbl"]');
+          return termEl
+            ? termEl.textContent
+                .replace(/\s*\/\s*/g, '/')
+                .replace(/(\b\w{3})\w*\s*\/\s*(\b\w{3})\w*/g, '$1/$2')
+                .trim()
+            : null;
+        },
+      })
+      .then((result) => {
+        if (result && result[0] && result[0].result) {
+          enrollmentState.term = result[0].result;
+          console.log('Extracted term:', enrollmentState.term);
+          sendEnrollSelectCourse();
+        } else {
+          chrome.tabs.sendMessage(enrollmentState.timetableTabId, {
+            action: 'enrollmentError',
+            message: 'Could not extract term from PeopleSoft page.',
+          });
+          enrollmentState = null;
+        }
+      });
+  } else {
+    sendEnrollSelectCourse();
+  }
+}
+
+/**
+ * Send enrollSelectCourse_ message to auto_enrollment.js
+ */
+function sendEnrollSelectCourse() {
+  const course = enrollmentState.combination[enrollmentState.currentIndex];
+
+  chrome.tabs.sendMessage(
+    enrollmentState.peopleSoftTabId,
+    {
+      action: 'enrollSelectCourse_',
+      courseTitle: course.title,
+      courseCode: course.code,
+      tabId: enrollmentState.peopleSoftTabId,
+    },
+    (response) => {
+      if (response && response.status === 'error') {
+        console.error('Error selecting course:', response);
+      }
+    }
+  );
+  console.log('enrollSelectCourse_ sent to auto_enrollment.js');
+}
+
+/**
+ * Navigate back twice to return to course planner
+ * Mirrors the exact pattern from the extraction flow (lines 158-223)
+ */
+function navigateBackTwice(tabId) {
+  // First back: from class details page → view classes page
+  chrome.scripting
+    .executeScript({
+      target: { tabId: tabId },
+      world: 'MAIN',
+      func: () => {
+        window.history.back();
+      },
+    })
+    .then(() => {
+      onTabUpdated(tabId, () => {
+        // Second back: wait for "View Classes" button to appear, then go back to course planner
+        chrome.scripting
+          .executeScript({
+            target: { tabId: tabId },
+            world: 'MAIN',
+            func: () => {
+              const waitForElement = ({ selector, method = 'querySelectorAll' }) => {
+                return new Promise((resolve) => {
+                  const observer = new MutationObserver(() => {
+                    const elements = document[method](selector);
+                    if (elements && (elements.length || elements)) {
+                      observer.disconnect();
+                      resolve(elements);
+                    }
+                  });
+                  observer.observe(document.body, {
+                    childList: true,
+                    subtree: true,
+                  });
+                });
+              };
+
+              waitForElement({
+                selector: 'div.ps_box-button.psc_primary span a',
+                method: 'querySelector',
+                attributes: {
+                  onclick: true,
+                },
+              }).then(() => {
+                window.history.back();
+              });
+            },
+          })
+          .then(() => {
+            onTabUpdated(tabId, () => {
+              // Move to next course directly (no message relay needed)
+              enrollmentState.currentIndex++;
+
+              if (enrollmentState.currentIndex < enrollmentState.combination.length) {
+                console.log(
+                  `Moving to course ${enrollmentState.currentIndex + 1}/${enrollmentState.combination.length}`
+                );
+                processEnrollmentCourse();
+              } else {
+                // All courses enrolled
+                chrome.tabs.sendMessage(enrollmentState.timetableTabId, {
+                  action: 'enrollmentCompleted',
+                  type: enrollmentState.type,
+                });
+                enrollmentState = null;
+              }
+            });
+          });
+      });
+    });
+}
